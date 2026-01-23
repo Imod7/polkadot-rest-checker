@@ -29,6 +29,7 @@ pub enum EndpointType {
     Block,
     BlockHeader,
     BlockExtrinsics,
+    BlockParaInclusions,
 
     // Runtime endpoints
     RuntimeSpec,
@@ -54,7 +55,8 @@ impl EndpointType {
 
             EndpointType::Block
             | EndpointType::BlockHeader
-            | EndpointType::BlockExtrinsics => EndpointCategory::Block,
+            | EndpointType::BlockExtrinsics
+            | EndpointType::BlockParaInclusions => EndpointCategory::Block,
 
             EndpointType::RuntimeSpec
             | EndpointType::RuntimeMetadata
@@ -117,6 +119,10 @@ impl EndpointType {
                 let block = block.expect("Block required for BlockExtrinsics endpoint");
                 format!("/blocks/{}/extrinsics-info", block)
             }
+            EndpointType::BlockParaInclusions => {
+                let block = block.expect("Block required for BlockParaInclusions endpoint");
+                format!("/blocks/{}/para-inclusions", block)
+            }
 
             // Runtime endpoints
             EndpointType::RuntimeSpec => {
@@ -157,6 +163,7 @@ impl EndpointType {
             EndpointType::Block => "block",
             EndpointType::BlockHeader => "block-header",
             EndpointType::BlockExtrinsics => "block-extrinsics",
+            EndpointType::BlockParaInclusions => "block-para-inclusions",
             EndpointType::RuntimeSpec => "runtime-spec",
             EndpointType::RuntimeMetadata => "runtime-metadata",
             EndpointType::TransactionMaterial => "tx-material",
@@ -189,6 +196,7 @@ impl EndpointType {
             EndpointType::Block,
             EndpointType::BlockHeader,
             EndpointType::BlockExtrinsics,
+            EndpointType::BlockParaInclusions,
             EndpointType::RuntimeSpec,
             EndpointType::RuntimeMetadata,
             EndpointType::TransactionMaterial,
@@ -214,6 +222,7 @@ impl EndpointType {
             EndpointType::Block,
             EndpointType::BlockHeader,
             EndpointType::BlockExtrinsics,
+            EndpointType::BlockParaInclusions,
         ]
     }
 
@@ -240,6 +249,7 @@ impl fmt::Display for EndpointType {
             EndpointType::Block => write!(f, "block"),
             EndpointType::BlockHeader => write!(f, "block-header"),
             EndpointType::BlockExtrinsics => write!(f, "block-extrinsics"),
+            EndpointType::BlockParaInclusions => write!(f, "block-para-inclusions"),
             EndpointType::RuntimeSpec => write!(f, "runtime-spec"),
             EndpointType::RuntimeMetadata => write!(f, "runtime-metadata"),
             EndpointType::TransactionMaterial => write!(f, "tx-material"),
@@ -265,6 +275,7 @@ impl std::str::FromStr for EndpointType {
             "block" | "blocks" => Ok(EndpointType::Block),
             "block-header" | "header" => Ok(EndpointType::BlockHeader),
             "block-extrinsics" | "extrinsics" => Ok(EndpointType::BlockExtrinsics),
+            "block-para-inclusions" | "para-inclusions" => Ok(EndpointType::BlockParaInclusions),
 
             // Runtime endpoints
             "runtime-spec" | "spec" => Ok(EndpointType::RuntimeSpec),
@@ -276,7 +287,7 @@ impl std::str::FromStr for EndpointType {
             "node-network" | "network" => Ok(EndpointType::NodeNetwork),
 
             _ => Err(format!(
-                "Unknown endpoint '{}'. Valid options:\n  Pallet: consts, storage, dispatchables, errors, events\n  Block: block, block-header, block-extrinsics\n  Runtime: runtime-spec, runtime-metadata, tx-material\n  Node: node-version, node-network",
+                "Unknown endpoint '{}'. Valid options:\n  Pallet: consts, storage, dispatchables, errors, events\n  Block: block, block-header, block-extrinsics, para-inclusions\n  Runtime: runtime-spec, runtime-metadata, tx-material\n  Node: node-version, node-network",
                 s
             )),
         }

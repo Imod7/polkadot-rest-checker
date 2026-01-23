@@ -24,7 +24,7 @@ struct Args {
     #[arg(short, long, default_value = "polkadot")]
     chain: String,
 
-    /// Endpoint type to test (consts, storage, dispatchables, errors, events, block, block-header, block-extrinsics, runtime-spec, runtime-metadata, tx-material, node-version, node-network)
+    /// Endpoint type to test (consts, storage, dispatchables, errors, events, block, block-header, block-extrinsics, para-inclusions, runtime-spec, runtime-metadata, tx-material, node-version, node-network)
     #[arg(long, default_value = "consts")]
     endpoint: String,
 
