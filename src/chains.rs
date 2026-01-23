@@ -46,6 +46,13 @@ pub struct Pallet {
     pub index: u8,
 }
 
+/// Test account definition
+#[derive(Clone, Debug)]
+pub struct TestAccount {
+    pub address: &'static str,
+    pub label: &'static str,
+}
+
 impl Chain {
     /// Get all pallets for this chain
     pub fn pallets(&self) -> &'static [Pallet] {
@@ -54,6 +61,16 @@ impl Chain {
             Chain::Kusama => KUSAMA_PALLETS,
             Chain::AssetHubPolkadot => ASSET_HUB_POLKADOT_PALLETS,
             Chain::AssetHubKusama => ASSET_HUB_KUSAMA_PALLETS,
+        }
+    }
+
+    /// Get test accounts for this chain
+    pub fn test_accounts(&self) -> &'static [TestAccount] {
+        match self {
+            Chain::Polkadot => POLKADOT_TEST_ACCOUNTS,
+            Chain::Kusama => KUSAMA_TEST_ACCOUNTS,
+            Chain::AssetHubPolkadot => ASSET_HUB_POLKADOT_TEST_ACCOUNTS,
+            Chain::AssetHubKusama => ASSET_HUB_KUSAMA_TEST_ACCOUNTS,
         }
     }
 
@@ -375,4 +392,40 @@ pub const ASSET_HUB_KUSAMA_PALLETS: &[Pallet] = &[
     // Migration
     Pallet { name: "AhOps", index: 254 },
     Pallet { name: "AhMigrator", index: 255 },
+];
+
+// =============================================================================
+// Test Accounts
+// =============================================================================
+
+/// Test accounts for Polkadot relay chain
+pub const POLKADOT_TEST_ACCOUNTS: &[TestAccount] = &[
+    TestAccount { address: "15Mba2pkKLEaSsfH5nkVWnHqB1cbkmVVghTJbqthKSw7RmMs", label: "Account 1" },
+    TestAccount { address: "1HwQbUpcr99UA6W7WBK86RtMHJTBWRazpxuYfRHyhSCbE1j", label: "Account 2" },
+    TestAccount { address: "13nEo1kDJduJSpNkXCYFWXVLBUc2waRwcFGeFbwXWM9iALA6", label: "Account 3" },
+    TestAccount { address: "1zunQTaRifL1XULrRLPgSbf6YbkZnjeJiQfwZuxVoJR5mhA", label: "Account 4" },
+];
+
+/// Test accounts for Kusama relay chain (same addresses work across chains)
+pub const KUSAMA_TEST_ACCOUNTS: &[TestAccount] = &[
+    TestAccount { address: "HCRUhtREEbmuWufk154isxs2Nt2s2mBfjfQqYtdzRSyyii8", label: "Account 1" },
+    TestAccount { address: "G88i4RL8Py5mHWeeB62qaiGS2CXJpmr7ToJbMZ4FMFJxRjG", label: "Account 2" },
+    TestAccount { address: "Gq2No2gcF6s4DLfzzuB53G5opWCoCtK9tZeVGRGcmkSDGoK", label: "Account 3" },
+    TestAccount { address: "GFLdqBZKfPfbpbVB8rAc8tqqWSKpKHskkGHPGAgQ4atRkJ7", label: "Account 4" },
+];
+
+/// Test accounts for Asset Hub Polkadot
+pub const ASSET_HUB_POLKADOT_TEST_ACCOUNTS: &[TestAccount] = &[
+    TestAccount { address: "19KT274PAdSchBjDmnxh6vEMdy4QFU9Bo6jgMZhen3esYGG", label: "Account 1" },
+    TestAccount { address: "16GMHo9HZv8CcJy4WLoMaU9qusgzx2wxKDLbXStEBvt5274B", label: "Account 2" },
+    TestAccount { address: "15sNh1RdsPQtrZ2w8THjGRYBjx2eAj2uWjfHiWiVvUJ6mzf2", label: "Account 3" },
+    TestAccount { address: "13oSJ635GZos8UYrrcwXtp3XWC1G3XHrPvN6skMLdxzUr4sr", label: "Account 4" },
+];
+
+/// Test accounts for Asset Hub Kusama
+pub const ASSET_HUB_KUSAMA_TEST_ACCOUNTS: &[TestAccount] = &[
+    TestAccount { address: "JLENz97TFT2kYaQmyCSEnBsK8VhaDZNmYATfsLCHyLF6Gzu", label: "Account 1" },
+    TestAccount { address: "Gyyh8tbze83BxbZnwDoRs2RxRXhXEpnx8zau4jcaoutmcyY", label: "Account 2" },
+    TestAccount { address: "EeDhCnEPX8eitysY6ApQXxMeiZSYMcst3YixR4nzMuARyVy", label: "Account 3" },
+    TestAccount { address: "DSk9EUkPLu1n4ssFWwyRKYRJuJ15W2e6AiNw8eaywkv3ap6", label: "Account 4" },
 ];

@@ -92,6 +92,7 @@ polkadot-rest-checker [OPTIONS]
 | `--pallet` | `-p` | Filter to specific pallet (pallet endpoints only) | all pallets |
 | `--coverage-file` | | Path to coverage data file | `coverage/coverage.json` |
 | `--coverage-report` | | Show coverage report and exit | - |
+| `--logs` | | Create detailed log files for errors and summaries | disabled |
 
 ### Supported Chains
 
@@ -124,6 +125,14 @@ polkadot-rest-checker [OPTIONS]
 | `block-para-inclusions` | `para-inclusions` | `/blocks/{block}/para-inclusions` |
 
 > **Note:** The `para-inclusions` endpoint only works on **relay chains** (Polkadot, Kusama) as it queries parachain inclusion events which don't exist on parachains like Asset Hub.
+
+#### Account Endpoints (iterate over test accounts and blocks)
+
+| Endpoint | Aliases | API Path |
+|----------|---------|----------|
+| `account-balance-info` | `accounts-balance-info` | `/accounts/{address}/balance-info?at={block}` |
+
+Account endpoints test against a predefined set of test accounts for each chain. See [Test Accounts](#test-accounts) for the list of accounts used.
 
 #### Runtime Endpoints (single request, no iteration)
 
@@ -199,6 +208,19 @@ cargo run -- --endpoint node-version
 
 # Test node network info
 cargo run -- --endpoint node-network
+```
+
+### Account Endpoint Examples
+
+```bash
+# Test account balance-info across blocks
+cargo run -- --endpoint account-balance-info --start 20000000 --end 20000100
+
+# Test on Kusama
+cargo run -- --chain kusama --endpoint account-balance-info --start 1000000 --end 1000100
+
+# Test with logs enabled
+cargo run -- --endpoint account-balance-info --start 20000000 --end 20000100 --logs
 ```
 
 ### Chain-Specific Examples
@@ -289,7 +311,17 @@ TOTAL                       47047          0          0          0          0  1
 
 ### Log Files
 
-**Summary logs** are always created with the final results:
+Log files are only created when using the `--logs` flag:
+
+```bash
+# Run with log files
+cargo run -- --endpoint consts --start 0 --end 100 --logs
+
+# Run without log files (default)
+cargo run -- --endpoint consts --start 0 --end 100
+```
+
+**Summary logs** contain the final results:
 
 ```
 # Pallet endpoints
@@ -297,6 +329,9 @@ summary_polkadot_0-1000_consts.log
 
 # Block endpoints
 summary_polkadot_0-1000_block.log
+
+# Account endpoints
+summary_polkadot_0-1000_account-balance-info_accounts.log
 
 # Runtime endpoints
 summary_polkadot_runtime-spec.log
@@ -312,6 +347,9 @@ errors_polkadot_0-1000_storage_Balances.log
 # Block endpoints
 errors_polkadot_0-1000_block.log
 errors_polkadot_0-1000_block-header.log
+
+# Account endpoints (per account)
+errors_polkadot_0-1000_account-balance-info_account_Account_1.log
 
 # Runtime endpoints
 errors_polkadot_runtime-spec.log
@@ -532,3 +570,55 @@ impl Chain {
 ### 4. Add parsing and display implementations
 
 Update `FromStr` and `Display` implementations similarly to endpoints.
+
+## Test Accounts
+
+Account endpoints test against predefined accounts for each chain. These accounts are used when running `--endpoint account-balance-info`.
+
+### Polkadot
+
+| Label | Address |
+|-------|---------|
+| Account 1 | `15Mba2pkKLEaSsfH5nkVWnHqB1cbkmVVghTJbqthKSw7RmMs` |
+| Account 2 | `1HwQbUpcr99UA6W7WBK86RtMHJTBWRazpxuYfRHyhSCbE1j` |
+| Account 3 | `13nEo1kDJduJSpNkXCYFWXVLBUc2waRwcFGeFbwXWM9iALA6` |
+| Account 4 | `1zunQTaRifL1XULrRLPgSbf6YbkZnjeJiQfwZuxVoJR5mhA` |
+
+### Kusama
+
+| Label | Address |
+|-------|---------|
+| Account 1 | `HCRUhtREEbmuWufk154isxs2Nt2s2mBfjfQqYtdzRSyyii8` |
+| Account 2 | `G88i4RL8Py5mHWeeB62qaiGS2CXJpmr7ToJbMZ4FMFJxRjG` |
+| Account 3 | `Gq2No2gcF6s4DLfzzuB53G5opWCoCtK9tZeVGRGcmkSDGoK` |
+| Account 4 | `GFLdqBZKfPfbpbVB8rAc8tqqWSKpKHskkGHPGAgQ4atRkJ7` |
+
+### Asset Hub Polkadot
+
+| Label | Address |
+|-------|---------|
+| Account 1 | `19KT274PAdSchBjDmnxh6vEMdy4QFU9Bo6jgMZhen3esYGG` |
+| Account 2 | `16GMHo9HZv8CcJy4WLoMaU9qusgzx2wxKDLbXStEBvt5274B` |
+| Account 3 | `15sNh1RdsPQtrZ2w8THjGRYBjx2eAj2uWjfHiWiVvUJ6mzf2` |
+| Account 4 | `13oSJ635GZos8UYrrcwXtp3XWC1G3XHrPvN6skMLdxzUr4sr` |
+
+### Asset Hub Kusama
+
+| Label | Address |
+|-------|---------|
+| Account 1 | `JLENz97TFT2kYaQmyCSEnBsK8VhaDZNmYATfsLCHyLF6Gzu` |
+| Account 2 | `Gyyh8tbze83BxbZnwDoRs2RxRXhXEpnx8zau4jcaoutmcyY` |
+| Account 3 | `EeDhCnEPX8eitysY6ApQXxMeiZSYMcst3YixR4nzMuARyVy` |
+| Account 4 | `DSk9EUkPLu1n4ssFWwyRKYRJuJ15W2e6AiNw8eaywkv3ap6` |
+
+### Adding New Test Accounts
+
+To add or modify test accounts, edit `src/chains.rs`:
+
+```rust
+pub const POLKADOT_TEST_ACCOUNTS: &[TestAccount] = &[
+    TestAccount { address: "15Mba2pkKLEaSsfH5nkVWnHqB1cbkmVVghTJbqthKSw7RmMs", label: "Account 1" },
+    TestAccount { address: "1HwQbUpcr99UA6W7WBK86RtMHJTBWRazpxuYfRHyhSCbE1j", label: "Account 2" },
+    // Add more accounts as needed
+];
+```

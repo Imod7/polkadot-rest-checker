@@ -26,12 +26,12 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 ### Chain: polkadot
 
 - **Total pallets:** 61
-- **Last updated:** 2026-01-23T10:51:16.540475+00:00
+- **Last updated:** 2026-01-23T15:02:24.847425+00:00
 
 | Metric | Value |
 |--------|-------|
-| Endpoints tested | 3/14 |
-| Overall pass rate | 50.47% (2956/5857) |
+| Endpoints tested | 4/15 |
+| Overall pass rate | 52.79% (3278/6210) |
 
 #### Pallet Endpoints
 
@@ -51,6 +51,12 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 | block-header | ❌ | - | - |
 | block-extrinsics | ❌ | - | - |
 | block-para-inclusions | ✅ | 1500200-1500250, 5840200-5840240, 8500200-8500250, 10500200-10500250 | 61.6% |
+
+#### Account Endpoints
+
+| Endpoint | Status | Block Ranges | Pass Rate |
+|----------|--------|--------------|------------|
+| account-balance-info | ✅ | 15233222-15233250, 22233222-22233250, 24233222-24233250 | 91.2% |
 
 #### Runtime Endpoints
 

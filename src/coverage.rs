@@ -214,6 +214,31 @@ impl EndpointCoverage {
         }
     }
 
+    /// Add account endpoint coverage result
+    pub fn add_account_run(
+        &mut self,
+        _account: &str,
+        start_block: u32,
+        end_block: u32,
+        matched: u32,
+        mismatched: u32,
+        rust_errors: u32,
+        sidecar_errors: u32,
+        both_errors: u32,
+    ) {
+        self.tested = true;
+        self.last_tested = chrono::Utc::now().to_rfc3339();
+
+        self.block_ranges.push((start_block, end_block));
+        self.merge_block_ranges();
+
+        self.matched += matched;
+        self.mismatched += mismatched;
+        self.rust_errors += rust_errors;
+        self.sidecar_errors += sidecar_errors;
+        self.both_errors += both_errors;
+    }
+
     /// Merge overlapping block ranges
     fn merge_block_ranges(&mut self) {
         if self.block_ranges.is_empty() {
@@ -346,6 +371,7 @@ impl CoverageData {
         // All possible endpoints
         let pallet_endpoints = vec!["consts", "storage", "dispatchables", "errors", "events"];
         let block_endpoints = vec!["block", "block-header", "block-extrinsics", "block-para-inclusions"];
+        let account_endpoints = vec!["account-balance-info"];
         let runtime_endpoints = vec!["runtime-spec", "runtime-metadata", "tx-material", "node-version", "node-network"];
 
         for (chain_name, chain) in &self.chains {
@@ -410,6 +436,29 @@ impl CoverageData {
                 }
             }
 
+            // Account endpoints
+            report.push_str("\nACCOUNT ENDPOINTS:\n");
+            for endpoint in &account_endpoints {
+                if let Some(ep_cov) = chain.endpoints.get(*endpoint) {
+                    if ep_cov.tested {
+                        let ranges: Vec<String> = ep_cov.block_ranges.iter()
+                            .map(|(s, e)| format!("{}-{}", s, e))
+                            .collect();
+                        let pass_rate = ep_cov.pass_rate();
+                        report.push_str(&format!(
+                            "  [✓] {:<20} blocks [{}] ({:.1}% pass rate)\n",
+                            endpoint,
+                            if ranges.is_empty() { "none".to_string() } else { ranges.join(", ") },
+                            pass_rate
+                        ));
+                    } else {
+                        report.push_str(&format!("  [ ] {:<20} not tested\n", endpoint));
+                    }
+                } else {
+                    report.push_str(&format!("  [ ] {:<20} not tested\n", endpoint));
+                }
+            }
+
             // Runtime endpoints
             report.push_str("\nRUNTIME ENDPOINTS:\n");
             for endpoint in &runtime_endpoints {
@@ -426,7 +475,7 @@ impl CoverageData {
             }
 
             // Summary
-            let total_endpoints = pallet_endpoints.len() + block_endpoints.len() + runtime_endpoints.len();
+            let total_endpoints = pallet_endpoints.len() + block_endpoints.len() + account_endpoints.len() + runtime_endpoints.len();
             let tested_endpoints = chain.endpoints.values().filter(|e| e.tested).count();
 
             report.push_str(&format!("\nSUMMARY:\n"));
@@ -475,6 +524,7 @@ impl CoverageData {
         // All possible endpoints
         let pallet_endpoints = vec!["consts", "storage", "dispatchables", "errors", "events"];
         let block_endpoints = vec!["block", "block-header", "block-extrinsics", "block-para-inclusions"];
+        let account_endpoints = vec!["account-balance-info"];
         let runtime_endpoints = vec!["runtime-spec", "runtime-metadata", "tx-material", "node-version", "node-network"];
 
         report.push_str("## How it Works\n\n");
@@ -507,7 +557,7 @@ impl CoverageData {
             report.push_str(&format!("- **Last updated:** {}\n\n", chain.last_updated));
 
             // Summary stats
-            let total_endpoints = pallet_endpoints.len() + block_endpoints.len() + runtime_endpoints.len();
+            let total_endpoints = pallet_endpoints.len() + block_endpoints.len() + account_endpoints.len() + runtime_endpoints.len();
             let tested_endpoints = chain.endpoints.values().filter(|e| e.tested).count();
 
             let mut total_matched = 0u32;
@@ -561,6 +611,32 @@ impl CoverageData {
             report.push_str("| Endpoint | Status | Block Ranges | Pass Rate |\n");
             report.push_str("|----------|--------|--------------|------------|\n");
             for endpoint in &block_endpoints {
+                if let Some(ep_cov) = chain.endpoints.get(*endpoint) {
+                    if ep_cov.tested {
+                        let ranges: Vec<String> = ep_cov.block_ranges.iter()
+                            .map(|(s, e)| format!("{}-{}", s, e))
+                            .collect();
+                        let pass_rate = ep_cov.pass_rate();
+                        report.push_str(&format!(
+                            "| {} | ✅ | {} | {:.1}% |\n",
+                            endpoint,
+                            if ranges.is_empty() { "none".to_string() } else { ranges.join(", ") },
+                            pass_rate
+                        ));
+                    } else {
+                        report.push_str(&format!("| {} | ❌ | - | - |\n", endpoint));
+                    }
+                } else {
+                    report.push_str(&format!("| {} | ❌ | - | - |\n", endpoint));
+                }
+            }
+            report.push_str("\n");
+
+            // Account endpoints table
+            report.push_str("#### Account Endpoints\n\n");
+            report.push_str("| Endpoint | Status | Block Ranges | Pass Rate |\n");
+            report.push_str("|----------|--------|--------------|------------|\n");
+            for endpoint in &account_endpoints {
                 if let Some(ep_cov) = chain.endpoints.get(*endpoint) {
                     if ep_cov.tested {
                         let ranges: Vec<String> = ep_cov.block_ranges.iter()
