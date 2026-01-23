@@ -57,7 +57,7 @@ struct Args {
     pallet: Option<String>,
 
     /// Path to coverage data file
-    #[arg(long, default_value = "coverage.json")]
+    #[arg(long, default_value = "coverage/coverage.json")]
     coverage_file: String,
 
     /// Show coverage report and exit
@@ -192,6 +192,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // Save coverage data
     coverage.save(coverage_path)?;
     println!("\nCoverage data saved to: {}", args.coverage_file);
+
+    // Save markdown report
+    let markdown_path = Path::new("coverage/COVERAGE.md");
+    coverage.save_markdown_report(markdown_path)?;
+    println!("Coverage report saved to: coverage/COVERAGE.md");
 
     Ok(())
 }

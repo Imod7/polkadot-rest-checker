@@ -90,7 +90,7 @@ polkadot-rest-checker [OPTIONS]
 | `--sidecar-url` | | Sidecar API base URL | `http://localhost:8045` |
 | `--delay` | `-d` | Delay between batches (ms) | `100` |
 | `--pallet` | `-p` | Filter to specific pallet (pallet endpoints only) | all pallets |
-| `--coverage-file` | | Path to coverage data file | `coverage.json` |
+| `--coverage-file` | | Path to coverage data file | `coverage/coverage.json` |
 | `--coverage-report` | | Show coverage report and exit | - |
 
 ### Supported Chains
@@ -350,17 +350,17 @@ Block 42: MISMATCH - Responses differ
 
 ## Coverage Tracking
 
-The checker automatically tracks which endpoints, pallets, and block ranges have been tested across multiple runs. See [COVERAGE.md](COVERAGE.md) for detailed documentation on:
+The checker automatically tracks which endpoints, pallets, and block ranges have been tested across multiple runs.
 
-- How coverage tracking works
-- Viewing coverage reports
-- Coverage file format
-- Multi-chain coverage
+**Note:** [coverage/COVERAGE.md](coverage/COVERAGE.md) is auto-generated after each test run with current coverage data.
 
 Quick start:
 ```bash
-# Show coverage report
+# Show coverage report in terminal
 cargo run -- --coverage-report
+
+# Run a test (this will update coverage/COVERAGE.md automatically)
+cargo run -- --endpoint block --start 1000 --end 1010
 ```
 
 ## Tips

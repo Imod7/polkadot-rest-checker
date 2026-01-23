@@ -345,7 +345,7 @@ impl CoverageData {
 
         // All possible endpoints
         let pallet_endpoints = vec!["consts", "storage", "dispatchables", "errors", "events"];
-        let block_endpoints = vec!["block", "block-header", "block-extrinsics"];
+        let block_endpoints = vec!["block", "block-header", "block-extrinsics", "block-para-inclusions"];
         let runtime_endpoints = vec!["runtime-spec", "runtime-metadata", "tx-material", "node-version", "node-network"];
 
         for (chain_name, chain) in &self.chains {
@@ -463,5 +463,197 @@ impl CoverageData {
         }
 
         report
+    }
+
+    /// Generate markdown coverage report
+    pub fn generate_markdown_report(&self) -> String {
+        let mut report = String::new();
+
+        report.push_str("# Coverage Tracking\n\n");
+        report.push_str("This file is auto-generated from test results. Run tests to update coverage data.\n\n");
+
+        // All possible endpoints
+        let pallet_endpoints = vec!["consts", "storage", "dispatchables", "errors", "events"];
+        let block_endpoints = vec!["block", "block-header", "block-extrinsics", "block-para-inclusions"];
+        let runtime_endpoints = vec!["runtime-spec", "runtime-metadata", "tx-material", "node-version", "node-network"];
+
+        report.push_str("## How it Works\n\n");
+        report.push_str("- Every test run automatically saves results to a coverage file (default: `coverage/coverage.json`)\n");
+        report.push_str("- Coverage data accumulates across runs, tracking:\n");
+        report.push_str("  - Which endpoints have been tested\n");
+        report.push_str("  - Which pallets have been tested for each endpoint\n");
+        report.push_str("  - Which block ranges have been covered\n");
+        report.push_str("  - Pass/fail rates for each endpoint and pallet\n\n");
+
+        report.push_str("## Viewing Coverage Report\n\n");
+        report.push_str("```bash\n");
+        report.push_str("# Show coverage report\n");
+        report.push_str("cargo run -- --coverage-report\n\n");
+        report.push_str("# Use a custom coverage file\n");
+        report.push_str("cargo run -- --coverage-file coverage/my-coverage.json --coverage-report\n");
+        report.push_str("```\n\n");
+
+        if self.chains.is_empty() {
+            report.push_str("## Current Coverage\n\n");
+            report.push_str("No coverage data recorded yet. Run some tests to start tracking coverage.\n\n");
+            return report;
+        }
+
+        report.push_str("## Current Coverage\n\n");
+
+        for (chain_name, chain) in &self.chains {
+            report.push_str(&format!("### Chain: {}\n\n", chain_name));
+            report.push_str(&format!("- **Total pallets:** {}\n", chain.total_pallets));
+            report.push_str(&format!("- **Last updated:** {}\n\n", chain.last_updated));
+
+            // Summary stats
+            let total_endpoints = pallet_endpoints.len() + block_endpoints.len() + runtime_endpoints.len();
+            let tested_endpoints = chain.endpoints.values().filter(|e| e.tested).count();
+
+            let mut total_matched = 0u32;
+            let mut total_tests = 0u32;
+            for ep in chain.endpoints.values() {
+                if let Some(ref pallets) = ep.pallets {
+                    for p in pallets.values() {
+                        total_matched += p.matched;
+                        total_tests += p.matched + p.mismatched + p.rust_errors + p.sidecar_errors + p.both_errors;
+                    }
+                } else {
+                    total_matched += ep.matched;
+                    total_tests += ep.matched + ep.mismatched + ep.rust_errors + ep.sidecar_errors + ep.both_errors;
+                }
+            }
+            let overall_pass_rate = if total_tests > 0 {
+                (total_matched as f64 / total_tests as f64) * 100.0
+            } else {
+                0.0
+            };
+
+            report.push_str("| Metric | Value |\n");
+            report.push_str("|--------|-------|\n");
+            report.push_str(&format!("| Endpoints tested | {}/{} |\n", tested_endpoints, total_endpoints));
+            report.push_str(&format!("| Overall pass rate | {:.2}% ({}/{}) |\n\n", overall_pass_rate, total_matched, total_tests));
+
+            // Pallet endpoints table
+            report.push_str("#### Pallet Endpoints\n\n");
+            report.push_str("| Endpoint | Status | Pallets Tested | Pass Rate |\n");
+            report.push_str("|----------|--------|----------------|------------|\n");
+            for endpoint in &pallet_endpoints {
+                if let Some(ep_cov) = chain.endpoints.get(*endpoint) {
+                    if ep_cov.tested {
+                        let pallets_tested = ep_cov.pallets.as_ref().map(|p| p.len()).unwrap_or(0);
+                        let pass_rate = ep_cov.pass_rate();
+                        report.push_str(&format!(
+                            "| {} | ✅ | {}/{} | {:.1}% |\n",
+                            endpoint, pallets_tested, chain.total_pallets, pass_rate
+                        ));
+                    } else {
+                        report.push_str(&format!("| {} | ❌ | - | - |\n", endpoint));
+                    }
+                } else {
+                    report.push_str(&format!("| {} | ❌ | - | - |\n", endpoint));
+                }
+            }
+            report.push_str("\n");
+
+            // Block endpoints table
+            report.push_str("#### Block Endpoints\n\n");
+            report.push_str("| Endpoint | Status | Block Ranges | Pass Rate |\n");
+            report.push_str("|----------|--------|--------------|------------|\n");
+            for endpoint in &block_endpoints {
+                if let Some(ep_cov) = chain.endpoints.get(*endpoint) {
+                    if ep_cov.tested {
+                        let ranges: Vec<String> = ep_cov.block_ranges.iter()
+                            .map(|(s, e)| format!("{}-{}", s, e))
+                            .collect();
+                        let pass_rate = ep_cov.pass_rate();
+                        report.push_str(&format!(
+                            "| {} | ✅ | {} | {:.1}% |\n",
+                            endpoint,
+                            if ranges.is_empty() { "none".to_string() } else { ranges.join(", ") },
+                            pass_rate
+                        ));
+                    } else {
+                        report.push_str(&format!("| {} | ❌ | - | - |\n", endpoint));
+                    }
+                } else {
+                    report.push_str(&format!("| {} | ❌ | - | - |\n", endpoint));
+                }
+            }
+            report.push_str("\n");
+
+            // Runtime endpoints table
+            report.push_str("#### Runtime Endpoints\n\n");
+            report.push_str("| Endpoint | Status | Result |\n");
+            report.push_str("|----------|--------|--------|\n");
+            for endpoint in &runtime_endpoints {
+                if let Some(ep_cov) = chain.endpoints.get(*endpoint) {
+                    if ep_cov.tested {
+                        let status = if ep_cov.matched > 0 { "PASS" } else { "FAIL" };
+                        report.push_str(&format!("| {} | ✅ | {} |\n", endpoint, status));
+                    } else {
+                        report.push_str(&format!("| {} | ❌ | - |\n", endpoint));
+                    }
+                } else {
+                    report.push_str(&format!("| {} | ❌ | - |\n", endpoint));
+                }
+            }
+            report.push_str("\n");
+
+            // Detailed pallet coverage if available
+            let has_pallet_details = chain.endpoints.values()
+                .filter(|e| e.tested && e.pallets.is_some())
+                .any(|e| e.pallets.as_ref().map(|p| !p.is_empty()).unwrap_or(false));
+
+            if has_pallet_details {
+                report.push_str("#### Detailed Pallet Coverage\n\n");
+
+                for endpoint in &pallet_endpoints {
+                    if let Some(ep_cov) = chain.endpoints.get(*endpoint) {
+                        if ep_cov.tested {
+                            if let Some(ref pallets) = ep_cov.pallets {
+                                if !pallets.is_empty() {
+                                    report.push_str(&format!("**{}:**\n\n", endpoint));
+                                    report.push_str("| Pallet | Block Ranges | Matched | Mismatched | Errors | Pass Rate |\n");
+                                    report.push_str("|--------|--------------|---------|------------|--------|------------|\n");
+
+                                    let mut sorted_pallets: Vec<_> = pallets.iter().collect();
+                                    sorted_pallets.sort_by(|a, b| a.0.cmp(b.0));
+
+                                    for (pallet_name, pallet_cov) in sorted_pallets {
+                                        let ranges: Vec<String> = pallet_cov.block_ranges.iter()
+                                            .map(|(s, e)| format!("{}-{}", s, e))
+                                            .collect();
+                                        let total_errors = pallet_cov.rust_errors + pallet_cov.sidecar_errors + pallet_cov.both_errors;
+                                        report.push_str(&format!(
+                                            "| {} | {} | {} | {} | {} | {:.1}% |\n",
+                                            pallet_name,
+                                            ranges.join(", "),
+                                            pallet_cov.matched,
+                                            pallet_cov.mismatched,
+                                            total_errors,
+                                            pallet_cov.pass_rate()
+                                        ));
+                                    }
+                                    report.push_str("\n");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        report.push_str("## Coverage File Format\n\n");
+        report.push_str("Coverage data is stored in JSON format (`coverage/coverage.json`) and can be analyzed programmatically.\n");
+
+        report
+    }
+
+    /// Save markdown report to file
+    pub fn save_markdown_report(&self, path: &Path) -> Result<(), Box<dyn std::error::Error>> {
+        let content = self.generate_markdown_report();
+        fs::write(path, content)?;
+        Ok(())
     }
 }
