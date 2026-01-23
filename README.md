@@ -122,6 +122,7 @@ polkadot-rest-checker [OPTIONS]
 | `block` | `blocks` | `/blocks/{block}` |
 | `block-header` | `header` | `/blocks/{block}/header` |
 | `block-extrinsics` | `extrinsics` | `/blocks/{block}/extrinsics-info` |
+| `block-extrinsics-raw` | - | `/blocks/{block}/extrinsics-raw` |
 | `block-para-inclusions` | `para-inclusions` | `/blocks/{block}/para-inclusions` |
 
 > **Note:** The `para-inclusions` endpoint only works on **relay chains** (Polkadot, Kusama) as it queries parachain inclusion events which don't exist on parachains like Asset Hub.
@@ -186,6 +187,9 @@ cargo run -- --endpoint block-header --start 0 --end 10000
 
 # Test block extrinsics info
 cargo run -- --endpoint extrinsics --start 1000000 --end 1000100
+
+# Test block extrinsics raw
+cargo run -- --endpoint block-extrinsics-raw --start 1000000 --end 1000100
 
 # Test parachain inclusions (relay chain only)
 cargo run -- --endpoint para-inclusions --start 10293194 --end 10293200

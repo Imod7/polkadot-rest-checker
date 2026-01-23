@@ -26,12 +26,12 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 ### Chain: polkadot
 
 - **Total pallets:** 61
-- **Last updated:** 2026-01-23T15:02:24.847425+00:00
+- **Last updated:** 2026-01-23T15:48:34.865734+00:00
 
 | Metric | Value |
 |--------|-------|
-| Endpoints tested | 4/15 |
-| Overall pass rate | 52.79% (3278/6210) |
+| Endpoints tested | 5/16 |
+| Overall pass rate | 53.47% (3369/6301) |
 
 #### Pallet Endpoints
 
@@ -50,6 +50,7 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 | block | ❌ | - | - |
 | block-header | ❌ | - | - |
 | block-extrinsics | ❌ | - | - |
+| block-extrinsics-raw | ✅ | 3233222-3233232, 9233222-9233232, 13233222-13233250, 22233222-22233250, 23233222-23233232 | 100.0% |
 | block-para-inclusions | ✅ | 1500200-1500250, 5840200-5840240, 8500200-8500250, 10500200-10500250 | 61.6% |
 
 #### Account Endpoints
@@ -201,6 +202,98 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 | VoterList | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
 | Whitelist | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
 | XcmPallet | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+
+### Chain: asset-hub-polkadot
+
+- **Total pallets:** 55
+- **Last updated:** 2026-01-23T16:00:50.559154+00:00
+
+| Metric | Value |
+|--------|-------|
+| Endpoints tested | 1/16 |
+| Overall pass rate | 75.00% (123/164) |
+
+#### Pallet Endpoints
+
+| Endpoint | Status | Pallets Tested | Pass Rate |
+|----------|--------|----------------|------------|
+| consts | ❌ | - | - |
+| storage | ❌ | - | - |
+| dispatchables | ❌ | - | - |
+| errors | ❌ | - | - |
+| events | ❌ | - | - |
+
+#### Block Endpoints
+
+| Endpoint | Status | Block Ranges | Pass Rate |
+|----------|--------|--------------|------------|
+| block | ❌ | - | - |
+| block-header | ❌ | - | - |
+| block-extrinsics | ❌ | - | - |
+| block-extrinsics-raw | ✅ | 2600200-2600240, 10600200-10600240, 12600200-12600240 | 75.0% |
+| block-para-inclusions | ❌ | - | - |
+
+#### Account Endpoints
+
+| Endpoint | Status | Block Ranges | Pass Rate |
+|----------|--------|--------------|------------|
+| account-balance-info | ❌ | - | - |
+
+#### Runtime Endpoints
+
+| Endpoint | Status | Result |
+|----------|--------|--------|
+| runtime-spec | ❌ | - |
+| runtime-metadata | ❌ | - |
+| tx-material | ❌ | - |
+| node-version | ❌ | - |
+| node-network | ❌ | - |
+
+### Chain: kusama
+
+- **Total pallets:** 65
+- **Last updated:** 2026-01-23T15:55:06.130495+00:00
+
+| Metric | Value |
+|--------|-------|
+| Endpoints tested | 1/16 |
+| Overall pass rate | 100.00% (30/30) |
+
+#### Pallet Endpoints
+
+| Endpoint | Status | Pallets Tested | Pass Rate |
+|----------|--------|----------------|------------|
+| consts | ❌ | - | - |
+| storage | ❌ | - | - |
+| dispatchables | ❌ | - | - |
+| errors | ❌ | - | - |
+| events | ❌ | - | - |
+
+#### Block Endpoints
+
+| Endpoint | Status | Block Ranges | Pass Rate |
+|----------|--------|--------------|------------|
+| block | ❌ | - | - |
+| block-header | ❌ | - | - |
+| block-extrinsics | ❌ | - | - |
+| block-extrinsics-raw | ✅ | 233241-233255, 10233241-10233255 | 100.0% |
+| block-para-inclusions | ❌ | - | - |
+
+#### Account Endpoints
+
+| Endpoint | Status | Block Ranges | Pass Rate |
+|----------|--------|--------------|------------|
+| account-balance-info | ❌ | - | - |
+
+#### Runtime Endpoints
+
+| Endpoint | Status | Result |
+|----------|--------|--------|
+| runtime-spec | ❌ | - |
+| runtime-metadata | ❌ | - |
+| tx-material | ❌ | - |
+| node-version | ❌ | - |
+| node-network | ❌ | - |
 
 ## Coverage File Format
 
