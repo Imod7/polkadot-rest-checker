@@ -4,13 +4,16 @@ use serde_json::Value;
 use std::error::Error;
 use std::fs::File;
 use std::io::Write;
+use std::path::Path;
 use std::time::Duration;
 use tokio;
 
 mod chains;
+mod coverage;
 mod endpoints;
 
 use chains::{Chain, Pallet};
+use coverage::CoverageData;
 use endpoints::EndpointType;
 
 /// Polkadot REST API checker - test endpoint responses across block ranges
@@ -52,6 +55,14 @@ struct Args {
     /// Filter to specific pallet name (case-insensitive, only for pallet endpoints)
     #[arg(short, long)]
     pallet: Option<String>,
+
+    /// Path to coverage data file
+    #[arg(long, default_value = "coverage.json")]
+    coverage_file: String,
+
+    /// Show coverage report and exit
+    #[arg(long)]
+    coverage_report: bool,
 }
 
 /// Result of testing a block against both APIs
@@ -72,6 +83,16 @@ enum TestResult {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let args = Args::parse();
+    let coverage_path = Path::new(&args.coverage_file);
+
+    // Load existing coverage data
+    let mut coverage = CoverageData::load(coverage_path)?;
+
+    // If --coverage-report flag is set, show report and exit
+    if args.coverage_report {
+        println!("{}", coverage.generate_report());
+        return Ok(());
+    }
 
     // Parse the chain argument
     let chain: Chain = args.chain.parse().map_err(|e: String| {
@@ -120,6 +141,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         println!("Batch size: {}", batch_size);
     }
 
+    // Get total pallets for this chain (for coverage tracking)
+    let total_pallets = chain.pallets().len();
+
     // Route to appropriate scanning function based on endpoint type
     if endpoint_type.requires_pallet() {
         scan_pallet_endpoint(
@@ -133,6 +157,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
             batch_size,
             delay_between_batches,
             args.pallet.as_deref(),
+            &mut coverage,
+            total_pallets,
         )
         .await?;
     } else if endpoint_type.requires_block() {
@@ -146,6 +172,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
             end_block,
             batch_size,
             delay_between_batches,
+            &mut coverage,
+            total_pallets,
         )
         .await?;
     } else {
@@ -155,9 +183,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
             &endpoint_type,
             rust_url,
             sidecar_url,
+            &mut coverage,
+            total_pallets,
         )
         .await?;
     }
+
+    // Save coverage data
+    coverage.save(coverage_path)?;
+    println!("\nCoverage data saved to: {}", args.coverage_file);
 
     Ok(())
 }
@@ -174,6 +208,8 @@ async fn scan_pallet_endpoint(
     batch_size: u32,
     delay_between_batches: Duration,
     pallet_filter: Option<&str>,
+    coverage: &mut CoverageData,
+    total_pallets: usize,
 ) -> Result<(), Box<dyn Error>> {
     // Get pallets for the selected chain
     let all_pallets = chain.pallets();
@@ -304,6 +340,20 @@ async fn scan_pallet_endpoint(
             both_errors,
             issues,
         });
+
+        // Record coverage for this pallet
+        let chain_coverage = coverage.get_chain(&chain.to_string(), total_pallets);
+        let endpoint_coverage = chain_coverage.get_endpoint(endpoint_type.short_name(), true);
+        endpoint_coverage.add_pallet_run(
+            pallet.name,
+            start_block,
+            end_block,
+            matched,
+            mismatched,
+            rust_errors,
+            sidecar_errors,
+            both_errors,
+        );
     }
 
     // Print final summary
@@ -323,6 +373,8 @@ async fn scan_block_endpoint(
     end_block: u32,
     batch_size: u32,
     delay_between_batches: Duration,
+    coverage: &mut CoverageData,
+    total_pallets: usize,
 ) -> Result<(), Box<dyn Error>> {
     println!("\n{}", "=".repeat(60));
     println!("Scanning endpoint: {}", endpoint_type);
@@ -412,6 +464,19 @@ async fn scan_block_endpoint(
         std::fs::remove_file(&error_filename).ok();
     }
 
+    // Record coverage
+    let chain_coverage = coverage.get_chain(&chain.to_string(), total_pallets);
+    let endpoint_coverage = chain_coverage.get_endpoint(endpoint_type.short_name(), false);
+    endpoint_coverage.add_block_run(
+        start_block,
+        end_block,
+        matched,
+        mismatched,
+        rust_errors,
+        sidecar_errors,
+        both_errors,
+    );
+
     // Print summary
     print_block_summary(endpoint_type, chain, start_block, end_block, matched, mismatched, rust_errors, sidecar_errors, both_errors, &issues);
 
@@ -425,6 +490,8 @@ async fn scan_runtime_endpoint(
     endpoint_type: &EndpointType,
     rust_url: &str,
     sidecar_url: &str,
+    coverage: &mut CoverageData,
+    total_pallets: usize,
 ) -> Result<(), Box<dyn Error>> {
     // Create summary log file
     let summary_filename = format!("summary_{}_{}.log", chain, endpoint_type.short_name());
@@ -452,12 +519,18 @@ async fn scan_runtime_endpoint(
 
     let (_, result) = test_block_compare(client.clone(), rust_api_url.clone(), sidecar_api_url.clone(), 0).await;
 
+    // Track coverage result
+    let chain_coverage = coverage.get_chain(&chain.to_string(), total_pallets);
+    let endpoint_coverage = chain_coverage.get_endpoint(endpoint_type.short_name(), false);
+
     match result {
         TestResult::Match => {
             log_line!("\n  Result: MATCH - Both APIs returned identical responses");
+            endpoint_coverage.add_runtime_run(true, None);
         }
         TestResult::Mismatch { rust_response, sidecar_response } => {
             log_line!("\n  Result: MISMATCH - Responses differ");
+            endpoint_coverage.add_runtime_run(false, None);
 
             let error_filename = format!("errors_{}_{}.log", chain, endpoint_type.short_name());
             let mut error_file = File::create(&error_filename)?;
@@ -471,16 +544,19 @@ async fn scan_runtime_endpoint(
 
             log_line!("  Details saved to: {}", error_filename);
         }
-        TestResult::RustError(err) => {
+        TestResult::RustError(ref err) => {
             log_line!("\n  Result: RUST API ERROR - {}", err);
+            endpoint_coverage.add_runtime_run(false, Some(err));
         }
-        TestResult::SidecarError(err) => {
+        TestResult::SidecarError(ref err) => {
             log_line!("\n  Result: SIDECAR ERROR - {}", err);
+            endpoint_coverage.add_runtime_run(false, Some(err));
         }
-        TestResult::BothError { rust_error, sidecar_error } => {
+        TestResult::BothError { ref rust_error, ref sidecar_error } => {
             log_line!("\n  Result: BOTH APIS ERROR");
             log_line!("    Rust: {}", rust_error);
             log_line!("    Sidecar: {}", sidecar_error);
+            endpoint_coverage.add_runtime_run(false, Some(rust_error));
         }
     }
 
@@ -784,7 +860,7 @@ async fn test_block_compare(
     (block_num, result)
 }
 
-/// Compare two JSON values for equality, ignoring field order
+/// Compare two JSON values for equality, ignoring field order and string case
 fn json_equal(a: &Value, b: &Value) -> bool {
     match (a, b) {
         (Value::Object(a_map), Value::Object(b_map)) => {
@@ -800,6 +876,10 @@ fn json_equal(a: &Value, b: &Value) -> bool {
                 return false;
             }
             a_arr.iter().zip(b_arr.iter()).all(|(a_val, b_val)| json_equal(a_val, b_val))
+        }
+        // Case-insensitive string comparison
+        (Value::String(a_str), Value::String(b_str)) => {
+            a_str.to_lowercase() == b_str.to_lowercase()
         }
         _ => a == b,
     }
