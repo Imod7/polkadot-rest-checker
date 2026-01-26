@@ -23,15 +23,15 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 
 ## Current Coverage
 
-### Chain: asset-hub-polkadot
+### Chain: asset-hub-kusama
 
-- **Total pallets:** 55
-- **Last updated:** 2026-01-26T15:38:40.121821+00:00
+- **Total pallets:** 59
+- **Last updated:** 2026-01-26T16:01:38.027693+00:00
 
 | Metric | Value |
 |--------|-------|
-| Endpoints tested | 3/17 |
-| Overall pass rate | 75.00% (156/208) |
+| Endpoints tested | 1/19 |
+| Overall pass rate | 100.00% (33/33) |
 
 #### Pallet Endpoints
 
@@ -49,10 +49,12 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 |----------|--------|--------------|------------|
 | block | ❌ | - | - |
 | block-header | ❌ | - | - |
-| block-extrinsics | ✅ | 2200200-2200210 | 0.0% |
-| block-extrinsics-raw | ✅ | 2600200-2600240, 10600200-10600240, 12600200-12600240 | 75.0% |
-| rc-block-extrinsics-raw | ✅ | 1900100-1900110, 2300200-2300210 | 100.0% |
+| block-extrinsics | ❌ | - | - |
+| block-extrinsics-raw | ❌ | - | - |
+| rc-block-extrinsics-raw | ✅ | 1500200-1500210, 11300200-11300210, 30300200-30300210 | 100.0% |
 | block-para-inclusions | ❌ | - | - |
+| staking-validators | ❌ | - | - |
+| rc-staking-validators | ❌ | - | - |
 
 #### Account Endpoints
 
@@ -60,7 +62,7 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 |----------|--------|--------------|------------|
 | account-balance-info | ❌ | - | - |
 
-#### Runtime Endpoints
+#### Standalone Endpoints
 
 | Endpoint | Status | Result |
 |----------|--------|--------|
@@ -73,12 +75,12 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 ### Chain: polkadot
 
 - **Total pallets:** 61
-- **Last updated:** 2026-01-23T15:48:34.865734+00:00
+- **Last updated:** 2026-01-26T22:24:36.895271+00:00
 
 | Metric | Value |
 |--------|-------|
-| Endpoints tested | 5/17 |
-| Overall pass rate | 53.47% (3369/6301) |
+| Endpoints tested | 6/19 |
+| Overall pass rate | 53.54% (3391/6333) |
 
 #### Pallet Endpoints
 
@@ -100,6 +102,8 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 | block-extrinsics-raw | ✅ | 3233222-3233232, 9233222-9233232, 13233222-13233250, 22233222-22233250, 23233222-23233232 | 100.0% |
 | rc-block-extrinsics-raw | ❌ | - | - |
 | block-para-inclusions | ✅ | 1500200-1500250, 5840200-5840240, 8500200-8500250, 10500200-10500250 | 61.6% |
+| staking-validators | ✅ | 10494650-10494660, 20494650-20494660, 28494651-28494660 | 68.8% |
+| rc-staking-validators | ❌ | - | - |
 
 #### Account Endpoints
 
@@ -107,7 +111,7 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 |----------|--------|--------------|------------|
 | account-balance-info | ✅ | 15233222-15233250, 22233222-22233250, 24233222-24233250 | 91.2% |
 
-#### Runtime Endpoints
+#### Standalone Endpoints
 
 | Endpoint | Status | Result |
 |----------|--------|--------|
@@ -254,12 +258,12 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 ### Chain: kusama
 
 - **Total pallets:** 65
-- **Last updated:** 2026-01-23T15:55:06.130495+00:00
+- **Last updated:** 2026-01-26T22:27:46.318918+00:00
 
 | Metric | Value |
 |--------|-------|
-| Endpoints tested | 1/17 |
-| Overall pass rate | 100.00% (30/30) |
+| Endpoints tested | 2/19 |
+| Overall pass rate | 80.00% (40/50) |
 
 #### Pallet Endpoints
 
@@ -281,6 +285,8 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 | block-extrinsics-raw | ✅ | 233241-233255, 10233241-10233255 | 100.0% |
 | rc-block-extrinsics-raw | ❌ | - | - |
 | block-para-inclusions | ❌ | - | - |
+| staking-validators | ✅ | 18494651-18494660, 38494651-38494660 | 50.0% |
+| rc-staking-validators | ❌ | - | - |
 
 #### Account Endpoints
 
@@ -288,7 +294,7 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 |----------|--------|--------------|------------|
 | account-balance-info | ❌ | - | - |
 
-#### Runtime Endpoints
+#### Standalone Endpoints
 
 | Endpoint | Status | Result |
 |----------|--------|--------|
@@ -298,15 +304,15 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 | node-version | ❌ | - |
 | node-network | ❌ | - |
 
-### Chain: asset-hub-kusama
+### Chain: asset-hub-polkadot
 
-- **Total pallets:** 59
-- **Last updated:** 2026-01-26T16:01:38.027693+00:00
+- **Total pallets:** 55
+- **Last updated:** 2026-01-26T23:12:20.787076+00:00
 
 | Metric | Value |
 |--------|-------|
-| Endpoints tested | 1/17 |
-| Overall pass rate | 100.00% (33/33) |
+| Endpoints tested | 5/19 |
+| Overall pass rate | 71.20% (178/250) |
 
 #### Pallet Endpoints
 
@@ -324,10 +330,12 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 |----------|--------|--------------|------------|
 | block | ❌ | - | - |
 | block-header | ❌ | - | - |
-| block-extrinsics | ❌ | - | - |
-| block-extrinsics-raw | ❌ | - | - |
-| rc-block-extrinsics-raw | ✅ | 1500200-1500210, 11300200-11300210, 30300200-30300210 | 100.0% |
+| block-extrinsics | ✅ | 2200200-2200210 | 0.0% |
+| block-extrinsics-raw | ✅ | 2600200-2600240, 10600200-10600240, 12600200-12600240 | 75.0% |
+| rc-block-extrinsics-raw | ✅ | 1900100-1900110, 2300200-2300210 | 100.0% |
 | block-para-inclusions | ❌ | - | - |
+| staking-validators | ✅ | 10678777-10678787, 11494651-11494660, 18494651-18494660 | 35.5% |
+| rc-staking-validators | ✅ | 10678777-10678787 | 100.0% |
 
 #### Account Endpoints
 
@@ -335,7 +343,7 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 |----------|--------|--------------|------------|
 | account-balance-info | ❌ | - | - |
 
-#### Runtime Endpoints
+#### Standalone Endpoints
 
 | Endpoint | Status | Result |
 |----------|--------|--------|

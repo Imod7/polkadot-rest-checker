@@ -370,9 +370,9 @@ impl CoverageData {
 
         // All possible endpoints
         let pallet_endpoints = vec!["consts", "storage", "dispatchables", "errors", "events"];
-        let block_endpoints = vec!["block", "block-header", "block-extrinsics", "block-extrinsics-raw", "rc-block-extrinsics-raw", "block-para-inclusions"];
+        let block_endpoints = vec!["block", "block-header", "block-extrinsics", "block-extrinsics-raw", "rc-block-extrinsics-raw", "block-para-inclusions", "staking-validators", "rc-staking-validators"];
         let account_endpoints = vec!["account-balance-info"];
-        let runtime_endpoints = vec!["runtime-spec", "runtime-metadata", "tx-material", "node-version", "node-network"];
+        let standalone_endpoints = vec!["runtime-spec", "runtime-metadata", "tx-material", "node-version", "node-network"];
 
         for (chain_name, chain) in &self.chains {
             report.push_str(&format!("Chain: {}\n", chain_name));
@@ -461,7 +461,7 @@ impl CoverageData {
 
             // Runtime endpoints
             report.push_str("\nRUNTIME ENDPOINTS:\n");
-            for endpoint in &runtime_endpoints {
+            for endpoint in &standalone_endpoints {
                 if let Some(ep_cov) = chain.endpoints.get(*endpoint) {
                     if ep_cov.tested {
                         let status = if ep_cov.matched > 0 { "PASS" } else { "FAIL" };
@@ -475,7 +475,7 @@ impl CoverageData {
             }
 
             // Summary
-            let total_endpoints = pallet_endpoints.len() + block_endpoints.len() + account_endpoints.len() + runtime_endpoints.len();
+            let total_endpoints = pallet_endpoints.len() + block_endpoints.len() + account_endpoints.len() + standalone_endpoints.len();
             let tested_endpoints = chain.endpoints.values().filter(|e| e.tested).count();
 
             report.push_str(&format!("\nSUMMARY:\n"));
@@ -523,9 +523,9 @@ impl CoverageData {
 
         // All possible endpoints
         let pallet_endpoints = vec!["consts", "storage", "dispatchables", "errors", "events"];
-        let block_endpoints = vec!["block", "block-header", "block-extrinsics", "block-extrinsics-raw", "rc-block-extrinsics-raw", "block-para-inclusions"];
+        let block_endpoints = vec!["block", "block-header", "block-extrinsics", "block-extrinsics-raw", "rc-block-extrinsics-raw", "block-para-inclusions", "staking-validators", "rc-staking-validators"];
         let account_endpoints = vec!["account-balance-info"];
-        let runtime_endpoints = vec!["runtime-spec", "runtime-metadata", "tx-material", "node-version", "node-network"];
+        let standalone_endpoints = vec!["runtime-spec", "runtime-metadata", "tx-material", "node-version", "node-network"];
 
         report.push_str("## How it Works\n\n");
         report.push_str("- Every test run automatically saves results to a coverage file (default: `coverage/coverage.json`)\n");
@@ -557,7 +557,7 @@ impl CoverageData {
             report.push_str(&format!("- **Last updated:** {}\n\n", chain.last_updated));
 
             // Summary stats
-            let total_endpoints = pallet_endpoints.len() + block_endpoints.len() + account_endpoints.len() + runtime_endpoints.len();
+            let total_endpoints = pallet_endpoints.len() + block_endpoints.len() + account_endpoints.len() + standalone_endpoints.len();
             let tested_endpoints = chain.endpoints.values().filter(|e| e.tested).count();
 
             let mut total_matched = 0u32;
@@ -658,11 +658,11 @@ impl CoverageData {
             }
             report.push_str("\n");
 
-            // Runtime endpoints table
-            report.push_str("#### Runtime Endpoints\n\n");
+            // Standalone endpoints table
+            report.push_str("#### Standalone Endpoints\n\n");
             report.push_str("| Endpoint | Status | Result |\n");
             report.push_str("|----------|--------|--------|\n");
-            for endpoint in &runtime_endpoints {
+            for endpoint in &standalone_endpoints {
                 if let Some(ep_cov) = chain.endpoints.get(*endpoint) {
                     if ep_cov.tested {
                         let status = if ep_cov.matched > 0 { "PASS" } else { "FAIL" };

@@ -11,8 +11,8 @@ pub enum EndpointCategory {
     Block,
     /// Pallet-based endpoints (require iterating over pallets)
     Pallet,
-    /// Runtime endpoints (metadata, spec, etc.)
-    Runtime,
+    /// Standalone endpoints (metadata, spec, etc.)
+    Standalone,
 }
 
 /// Specific endpoint type to test
@@ -39,6 +39,8 @@ pub enum EndpointType {
     PalletDispatchables,
     PalletErrors,
     PalletEvents,
+    PalletStakingValidators,
+    RcPalletStakingValidators,
 
     // Runtime endpoints
     RuntimeSpec,
@@ -66,13 +68,15 @@ impl EndpointType {
             | EndpointType::BlockExtrinsics
             | EndpointType::BlockExtrinsicsRaw
             | EndpointType::RcBlockExtrinsicsRaw
-            | EndpointType::BlockParaInclusions => EndpointCategory::Block,
+            | EndpointType::BlockParaInclusions
+            | EndpointType::PalletStakingValidators
+            | EndpointType::RcPalletStakingValidators => EndpointCategory::Block,
 
             EndpointType::RuntimeSpec
             | EndpointType::RuntimeMetadata
             | EndpointType::TransactionMaterial
             | EndpointType::NodeVersion
-            | EndpointType::NodeNetwork => EndpointCategory::Runtime,
+            | EndpointType::NodeNetwork => EndpointCategory::Standalone,
         }
     }
 
@@ -159,6 +163,18 @@ impl EndpointType {
                     None => format!("/pallets/{}/events", pallet),
                 }
             }
+            EndpointType::PalletStakingValidators => {
+                match block {
+                    Some(b) => format!("/pallets/staking/validators?at={}", b),
+                    None => "/pallets/staking/validators".to_string(),
+                }
+            }
+            EndpointType::RcPalletStakingValidators => {
+                match block {
+                    Some(b) => format!("/rc/pallets/staking/validators?at={}", b),
+                    None => "/rc/pallets/staking/validators".to_string(),
+                }
+            }
 
             // Runtime endpoints
             EndpointType::RuntimeSpec => {
@@ -201,6 +217,8 @@ impl EndpointType {
             EndpointType::PalletDispatchables => "dispatchables",
             EndpointType::PalletErrors => "errors",
             EndpointType::PalletEvents => "events",
+            EndpointType::PalletStakingValidators => "staking-validators",
+            EndpointType::RcPalletStakingValidators => "rc-staking-validators",
             EndpointType::RuntimeSpec => "runtime-spec",
             EndpointType::RuntimeMetadata => "runtime-metadata",
             EndpointType::TransactionMaterial => "tx-material",
@@ -242,6 +260,8 @@ impl EndpointType {
             EndpointType::PalletDispatchables,
             EndpointType::PalletErrors,
             EndpointType::PalletEvents,
+            EndpointType::PalletStakingValidators,
+            EndpointType::RcPalletStakingValidators,
             EndpointType::RuntimeSpec,
             EndpointType::RuntimeMetadata,
             EndpointType::TransactionMaterial,
@@ -271,14 +291,16 @@ impl EndpointType {
         ]
     }
 
-    /// List runtime endpoint types only
-    pub fn runtime_endpoints() -> &'static [EndpointType] {
+    /// List standalone endpoint types only
+    pub fn standalone_endpoints() -> &'static [EndpointType] {
         &[
             EndpointType::RuntimeSpec,
             EndpointType::RuntimeMetadata,
             EndpointType::TransactionMaterial,
             EndpointType::NodeVersion,
             EndpointType::NodeNetwork,
+            EndpointType::PalletStakingValidators,
+            EndpointType::RcPalletStakingValidators,
         ]
     }
 }
@@ -300,6 +322,8 @@ impl fmt::Display for EndpointType {
             EndpointType::PalletDispatchables => write!(f, "pallet-dispatchables"),
             EndpointType::PalletErrors => write!(f, "pallet-errors"),
             EndpointType::PalletEvents => write!(f, "pallet-events"),
+            EndpointType::PalletStakingValidators => write!(f, "staking-validators"),
+            EndpointType::RcPalletStakingValidators => write!(f, "rc-staking-validators"),
             EndpointType::RuntimeSpec => write!(f, "runtime-spec"),
             EndpointType::RuntimeMetadata => write!(f, "runtime-metadata"),
             EndpointType::TransactionMaterial => write!(f, "tx-material"),
@@ -333,6 +357,8 @@ impl std::str::FromStr for EndpointType {
             "dispatchables" | "pallet-dispatchables" => Ok(EndpointType::PalletDispatchables),
             "errors" | "pallet-errors" => Ok(EndpointType::PalletErrors),
             "events" | "pallet-events" => Ok(EndpointType::PalletEvents),
+            "staking-validators" => Ok(EndpointType::PalletStakingValidators),
+            "rc-staking-validators" => Ok(EndpointType::RcPalletStakingValidators),
 
             // Runtime endpoints
             "runtime-spec" | "spec" => Ok(EndpointType::RuntimeSpec),
