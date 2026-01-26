@@ -26,6 +26,7 @@ pub enum EndpointType {
     BlockHeader,
     BlockExtrinsics,
     BlockExtrinsicsRaw,
+    RcBlockExtrinsicsRaw,
     BlockParaInclusions,
 
     // Node endpoints
@@ -64,6 +65,7 @@ impl EndpointType {
             | EndpointType::BlockHeader
             | EndpointType::BlockExtrinsics
             | EndpointType::BlockExtrinsicsRaw
+            | EndpointType::RcBlockExtrinsicsRaw
             | EndpointType::BlockParaInclusions => EndpointCategory::Block,
 
             EndpointType::RuntimeSpec
@@ -107,6 +109,10 @@ impl EndpointType {
             EndpointType::BlockExtrinsicsRaw => {
                 let block = block.expect("Block required for BlockExtrinsicsRaw endpoint");
                 format!("/blocks/{}/extrinsics-raw", block)
+            }
+            EndpointType::RcBlockExtrinsicsRaw => {
+                let block = block.expect("Relay Chain Block required for RcBlockExtrinsicsRaw endpoint");
+                format!("/rc/blocks/{}/extrinsics-raw", block)
             }
             EndpointType::BlockParaInclusions => {
                 let block = block.expect("Block required for BlockParaInclusions endpoint");
@@ -186,6 +192,7 @@ impl EndpointType {
             EndpointType::BlockHeader => "block-header",
             EndpointType::BlockExtrinsics => "block-extrinsics",
             EndpointType::BlockExtrinsicsRaw => "block-extrinsics-raw",
+            EndpointType::RcBlockExtrinsicsRaw => "rc-block-extrinsics-raw",
             EndpointType::BlockParaInclusions => "block-para-inclusions",
             EndpointType::NodeVersion => "node-version",
             EndpointType::NodeNetwork => "node-network",
@@ -226,6 +233,7 @@ impl EndpointType {
             EndpointType::BlockHeader,
             EndpointType::BlockExtrinsics,
             EndpointType::BlockExtrinsicsRaw,
+            EndpointType::RcBlockExtrinsicsRaw,
             EndpointType::BlockParaInclusions,
             EndpointType::NodeVersion,
             EndpointType::NodeNetwork,
@@ -258,6 +266,7 @@ impl EndpointType {
             EndpointType::BlockHeader,
             EndpointType::BlockExtrinsics,
             EndpointType::BlockExtrinsicsRaw,
+            EndpointType::RcBlockExtrinsicsRaw,
             EndpointType::BlockParaInclusions,
         ]
     }
@@ -282,6 +291,7 @@ impl fmt::Display for EndpointType {
             EndpointType::BlockHeader => write!(f, "block-header"),
             EndpointType::BlockExtrinsics => write!(f, "block-extrinsics"),
             EndpointType::BlockExtrinsicsRaw => write!(f, "block-extrinsics-raw"),
+            EndpointType::RcBlockExtrinsicsRaw => write!(f, "rc-block-extrinsics-raw"),
             EndpointType::BlockParaInclusions => write!(f, "block-para-inclusions"),
             EndpointType::NodeVersion => write!(f, "node-version"),
             EndpointType::NodeNetwork => write!(f, "node-network"),
@@ -310,6 +320,7 @@ impl std::str::FromStr for EndpointType {
             "block-header" | "header" => Ok(EndpointType::BlockHeader),
             "block-extrinsics" | "extrinsics" => Ok(EndpointType::BlockExtrinsics),
             "block-extrinsics-raw" => Ok(EndpointType::BlockExtrinsicsRaw),
+            "rc-block-extrinsics-raw" => Ok(EndpointType::RcBlockExtrinsicsRaw),
             "block-para-inclusions" | "para-inclusions" => Ok(EndpointType::BlockParaInclusions),
 
             // Node endpoints

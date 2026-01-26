@@ -370,7 +370,7 @@ impl CoverageData {
 
         // All possible endpoints
         let pallet_endpoints = vec!["consts", "storage", "dispatchables", "errors", "events"];
-        let block_endpoints = vec!["block", "block-header", "block-extrinsics", "block-extrinsics-raw", "block-para-inclusions"];
+        let block_endpoints = vec!["block", "block-header", "block-extrinsics", "block-extrinsics-raw", "rc-block-extrinsics-raw", "block-para-inclusions"];
         let account_endpoints = vec!["account-balance-info"];
         let runtime_endpoints = vec!["runtime-spec", "runtime-metadata", "tx-material", "node-version", "node-network"];
 
@@ -523,7 +523,7 @@ impl CoverageData {
 
         // All possible endpoints
         let pallet_endpoints = vec!["consts", "storage", "dispatchables", "errors", "events"];
-        let block_endpoints = vec!["block", "block-header", "block-extrinsics", "block-extrinsics-raw", "block-para-inclusions"];
+        let block_endpoints = vec!["block", "block-header", "block-extrinsics", "block-extrinsics-raw", "rc-block-extrinsics-raw", "block-para-inclusions"];
         let account_endpoints = vec!["account-balance-info"];
         let runtime_endpoints = vec!["runtime-spec", "runtime-metadata", "tx-material", "node-version", "node-network"];
 
