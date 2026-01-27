@@ -110,10 +110,13 @@ polkadot-rest-checker [OPTIONS]
 | Endpoint | Aliases | API Path |
 |----------|---------|----------|
 | `pallet-consts` | `consts` | `/pallets/{pallet}/consts?at={block}` |
+| `pallet-consts-item` | `consts-item` | `/pallets/{pallet}/consts/{constant}?at={block}` |
 | `pallet-storage` | `storage` | `/pallets/{pallet}/storage?at={block}` |
 | `pallet-dispatchables` | `dispatchables` | `/pallets/{pallet}/dispatchables?at={block}` |
 | `pallet-errors` | `errors` | `/pallets/{pallet}/errors?at={block}` |
 | `pallet-events` | `events` | `/pallets/{pallet}/events?at={block}` |
+
+> **Note:** The `consts-item` endpoint requires a special `--pallet` format: `PalletName/ConstantName` (e.g., `System/BlockHashCount`). See [Pallet Constant Item Examples](#pallet-constant-item-examples) for usage.
 
 #### Block Endpoints (iterate over blocks only)
 
@@ -175,6 +178,31 @@ cargo run -- --endpoint errors --pallet Staking --start 0 --end 100
 # Test pallet events
 cargo run -- --endpoint events --start 0 --end 100
 ```
+
+### Pallet Constant Item Examples
+
+The `consts-item` endpoint tests a specific constant within a pallet. Use the `--pallet` flag with format `PalletName/ConstantName`:
+
+```bash
+# Test a specific constant: System pallet's BlockHashCount
+cargo run -- --endpoint consts-item --pallet "System/BlockHashCount" --start 1000 --end 1010
+
+# Test Balances pallet's ExistentialDeposit constant
+cargo run -- --endpoint consts-item --pallet "Balances/ExistentialDeposit" --start 1000 --end 1010
+
+# Test Staking pallet's MaxNominations constant
+cargo run -- --endpoint consts-item --pallet "Staking/MaxNominations" --start 1000 --end 1010
+
+# Test on a specific chain
+cargo run -- --chain kusama --endpoint consts-item --pallet "System/BlockHashCount" --start 1000 --end 1010
+```
+
+Common constants to test:
+- `System/BlockHashCount` - Number of block hashes kept in storage
+- `System/BlockLength` - Maximum block length limits
+- `Balances/ExistentialDeposit` - Minimum balance to keep an account alive
+- `Staking/MaxNominations` - Maximum nominations per nominator
+- `TransactionPayment/OperationalFeeMultiplier` - Fee multiplier for operational transactions
 
 ### Block Endpoint Examples
 

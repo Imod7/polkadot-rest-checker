@@ -369,7 +369,7 @@ impl CoverageData {
         report.push_str(&format!("{}\n\n", "=".repeat(80)));
 
         // All possible endpoints
-        let pallet_endpoints = vec!["consts", "storage", "dispatchables", "errors", "events"];
+        let pallet_endpoints = vec!["consts", "consts-item", "storage", "dispatchables", "errors", "events"];
         let block_endpoints = vec!["block", "block-header", "block-extrinsics", "block-extrinsics-raw", "rc-block-extrinsics-raw", "block-para-inclusions", "staking-validators", "rc-staking-validators"];
         let account_endpoints = vec!["account-balance-info"];
         let standalone_endpoints = vec!["runtime-spec", "runtime-metadata", "tx-material", "node-version", "node-network"];
@@ -522,7 +522,7 @@ impl CoverageData {
         report.push_str("This file is auto-generated from test results. Run tests to update coverage data.\n\n");
 
         // All possible endpoints
-        let pallet_endpoints = vec!["consts", "storage", "dispatchables", "errors", "events"];
+        let pallet_endpoints = vec!["consts", "consts-item", "storage", "dispatchables", "errors", "events"];
         let block_endpoints = vec!["block", "block-header", "block-extrinsics", "block-extrinsics-raw", "rc-block-extrinsics-raw", "block-para-inclusions", "staking-validators", "rc-staking-validators"];
         let account_endpoints = vec!["account-balance-info"];
         let standalone_endpoints = vec!["runtime-spec", "runtime-metadata", "tx-material", "node-version", "node-network"];

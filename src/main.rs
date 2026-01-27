@@ -193,6 +193,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             end_block,
             batch_size,
             delay_between_batches,
+            args.pallet.as_deref(),
             &mut coverage,
             total_pallets,
             args.logs,
@@ -407,6 +408,7 @@ async fn scan_block_endpoint(
     end_block: u32,
     batch_size: u32,
     delay_between_batches: Duration,
+    pallet_filter: Option<&str>,
     coverage: &mut CoverageData,
     total_pallets: usize,
     create_logs: bool,
@@ -451,8 +453,8 @@ async fn scan_block_endpoint(
         let mut tasks = Vec::new();
         for block_num in blocks {
             let client_clone = client.clone();
-            let rust_path = endpoint_type.path(None, Some(block_num));
-            let sidecar_path = endpoint_type.path(None, Some(block_num));
+            let rust_path = endpoint_type.path(pallet_filter, Some(block_num));
+            let sidecar_path = endpoint_type.path(pallet_filter, Some(block_num));
             let rust_api_url = format!("{}{}", rust_url, rust_path);
             let sidecar_api_url = format!("{}{}", sidecar_url, sidecar_path);
 

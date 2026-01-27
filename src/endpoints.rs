@@ -35,6 +35,7 @@ pub enum EndpointType {
 
     // Pallet endpoints
     PalletConsts,
+    PalletConstsConstantItem,
     PalletStorage,
     PalletDispatchables,
     PalletErrors,
@@ -62,6 +63,9 @@ impl EndpointType {
             | EndpointType::PalletDispatchables
             | EndpointType::PalletErrors
             | EndpointType::PalletEvents => EndpointCategory::Pallet,
+
+            // PalletConstsConstantItem is block-based (tests a specific constant across blocks)
+            EndpointType::PalletConstsConstantItem => EndpointCategory::Block,
 
             EndpointType::Block
             | EndpointType::BlockHeader
@@ -133,6 +137,20 @@ impl EndpointType {
                 match block {
                     Some(b) => format!("/pallets/{}/consts?at={}", pallet, b),
                     None => format!("/pallets/{}/consts", pallet),
+                }
+            }
+            EndpointType::PalletConstsConstantItem => {
+                // Expects pallet in format "PalletName/ConstantName" (e.g., "System/BlockHashCount")
+                let pallet_const = pallet.expect("Pallet/Constant required for PalletConstsConstantItem (format: PalletName/ConstantName)");
+                let parts: Vec<&str> = pallet_const.splitn(2, '/').collect();
+                if parts.len() != 2 {
+                    panic!("PalletConstsConstantItem requires format 'PalletName/ConstantName', got: {}", pallet_const);
+                }
+                let pallet_name = parts[0];
+                let constant_name = parts[1];
+                match block {
+                    Some(b) => format!("/pallets/{}/consts/{}?at={}", pallet_name, constant_name, b),
+                    None => format!("/pallets/{}/consts/{}", pallet_name, constant_name),
                 }
             }
             EndpointType::PalletStorage => {
@@ -213,6 +231,7 @@ impl EndpointType {
             EndpointType::NodeVersion => "node-version",
             EndpointType::NodeNetwork => "node-network",
             EndpointType::PalletConsts => "consts",
+            EndpointType::PalletConstsConstantItem => "consts-item",
             EndpointType::PalletStorage => "storage",
             EndpointType::PalletDispatchables => "dispatchables",
             EndpointType::PalletErrors => "errors",
@@ -256,6 +275,7 @@ impl EndpointType {
             EndpointType::NodeVersion,
             EndpointType::NodeNetwork,
             EndpointType::PalletConsts,
+            EndpointType::PalletConstsConstantItem,
             EndpointType::PalletStorage,
             EndpointType::PalletDispatchables,
             EndpointType::PalletErrors,
@@ -272,6 +292,7 @@ impl EndpointType {
     pub fn pallet_endpoints() -> &'static [EndpointType] {
         &[
             EndpointType::PalletConsts,
+            EndpointType::PalletConstsConstantItem,
             EndpointType::PalletStorage,
             EndpointType::PalletDispatchables,
             EndpointType::PalletErrors,
@@ -318,6 +339,7 @@ impl fmt::Display for EndpointType {
             EndpointType::NodeVersion => write!(f, "node-version"),
             EndpointType::NodeNetwork => write!(f, "node-network"),
             EndpointType::PalletConsts => write!(f, "pallet-consts"),
+            EndpointType::PalletConstsConstantItem => write!(f, "pallet-consts-item"),
             EndpointType::PalletStorage => write!(f, "pallet-storage"),
             EndpointType::PalletDispatchables => write!(f, "pallet-dispatchables"),
             EndpointType::PalletErrors => write!(f, "pallet-errors"),
@@ -353,6 +375,7 @@ impl std::str::FromStr for EndpointType {
 
             // Pallet endpoints
             "consts" | "pallet-consts" => Ok(EndpointType::PalletConsts),
+            "consts-item" | "pallet-consts-item" => Ok(EndpointType::PalletConstsConstantItem),
             "storage" | "pallet-storage" => Ok(EndpointType::PalletStorage),
             "dispatchables" | "pallet-dispatchables" => Ok(EndpointType::PalletDispatchables),
             "errors" | "pallet-errors" => Ok(EndpointType::PalletErrors),
