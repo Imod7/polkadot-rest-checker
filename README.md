@@ -128,7 +128,16 @@ polkadot-rest-checker [OPTIONS]
 | `block-extrinsics-raw` | - | `/blocks/{block}/extrinsics-raw` |
 | `block-para-inclusions` | `para-inclusions` | `/blocks/{block}/para-inclusions` |
 
+#### Relay Chain Block Endpoints (iterate over blocks only)
+
+| Endpoint | Aliases | API Path |
+|----------|---------|----------|
+| `rc-block-extrinsics-raw` | - | `/rc/blocks/{block}/extrinsics-raw` |
+| `rc-block-extrinsics-idx` | - | `/rc/blocks/{block}/extrinsics/{index}` |
+
 > **Note:** The `para-inclusions` endpoint only works on **relay chains** (Polkadot, Kusama) as it queries parachain inclusion events which don't exist on parachains like Asset Hub.
+
+> **Note:** The `rc-block-extrinsics-idx` endpoint uses **dynamic extrinsic iteration**. For each block, it first fetches `/rc/blocks/{block}/extrinsics-raw` to discover how many extrinsics exist, then tests each index (0, 1, 2, ...) individually. This ensures all extrinsics in every block are tested, not just index 0.
 
 #### Account Endpoints (iterate over test accounts and blocks)
 
@@ -222,6 +231,37 @@ cargo run -- --endpoint block-extrinsics-raw --start 1000000 --end 1000100
 # Test parachain inclusions (relay chain only)
 cargo run -- --endpoint para-inclusions --start 10293194 --end 10293200
 ```
+
+### Relay Chain Extrinsic Endpoint Examples
+
+```bash
+# Test relay chain extrinsics raw
+cargo run -- --endpoint rc-block-extrinsics-raw --start 1000000 --end 1000100
+
+# Test individual extrinsics by index (dynamic iteration)
+# This will discover how many extrinsics exist in each block and test each one
+cargo run -- --endpoint rc-block-extrinsics-idx --start 1000000 --end 1000010
+
+# Example output:
+#   Processing blocks 1000000 to 1000010...
+#     Block 1000000: Found 5 extrinsics
+#     Block 1000001: Found 3 extrinsics
+#     Block 1000002: Found 7 extrinsics
+#     ...
+
+# With logging enabled to see detailed results
+cargo run -- --endpoint rc-block-extrinsics-idx --start 1000000 --end 1000010 --logs
+
+# Test on Kusama relay chain
+cargo run -- --chain kusama --endpoint rc-block-extrinsics-idx --start 1000000 --end 1000010
+```
+
+> **How `rc-block-extrinsics-idx` works:**
+> 1. For each block, fetches `/rc/blocks/{block}/extrinsics-raw` to count extrinsics
+> 2. For each extrinsic index (0 to count-1), tests `/rc/blocks/{block}/extrinsics/{index}`
+> 3. Compares responses between Rust API and Sidecar
+>
+> For a block with 5 extrinsics, this creates 5 comparison tests (one per extrinsic).
 
 ### Runtime Endpoint Examples
 

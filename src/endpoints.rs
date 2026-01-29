@@ -27,6 +27,7 @@ pub enum EndpointType {
     BlockExtrinsics,
     BlockExtrinsicsRaw,
     RcBlockExtrinsicsRaw,
+    RcBlockExtrinsicsIdx,
     BlockParaInclusions,
 
     // Node endpoints
@@ -72,6 +73,7 @@ impl EndpointType {
             | EndpointType::BlockExtrinsics
             | EndpointType::BlockExtrinsicsRaw
             | EndpointType::RcBlockExtrinsicsRaw
+            | EndpointType::RcBlockExtrinsicsIdx
             | EndpointType::BlockParaInclusions
             | EndpointType::PalletStakingValidators
             | EndpointType::RcPalletStakingValidators => EndpointCategory::Block,
@@ -91,6 +93,11 @@ impl EndpointType {
 
     /// Build the URL path for this endpoint with optional account address
     pub fn path_with_account(&self, pallet: Option<&str>, block: Option<u32>, account: Option<&str>) -> String {
+        self.path_with_extrinsic(pallet, block, account, None)
+    }
+
+    /// Build the URL path for this endpoint with optional extrinsic index
+    pub fn path_with_extrinsic(&self, pallet: Option<&str>, block: Option<u32>, account: Option<&str>, extrinsic_index: Option<u32>) -> String {
         match self {
             // Account endpoints
             EndpointType::AccountBalanceInfo => {
@@ -121,6 +128,11 @@ impl EndpointType {
             EndpointType::RcBlockExtrinsicsRaw => {
                 let block = block.expect("Relay Chain Block required for RcBlockExtrinsicsRaw endpoint");
                 format!("/rc/blocks/{}/extrinsics-raw", block)
+            }
+            EndpointType::RcBlockExtrinsicsIdx => {
+                let block = block.expect("Relay Chain Block required for RcBlockExtrinsicsIdx endpoint");
+                let idx = extrinsic_index.expect("Extrinsic index required for RcBlockExtrinsicsIdx endpoint");
+                format!("/rc/blocks/{}/extrinsics/{}", block, idx)
             }
             EndpointType::BlockParaInclusions => {
                 let block = block.expect("Block required for BlockParaInclusions endpoint");
@@ -227,6 +239,7 @@ impl EndpointType {
             EndpointType::BlockExtrinsics => "block-extrinsics",
             EndpointType::BlockExtrinsicsRaw => "block-extrinsics-raw",
             EndpointType::RcBlockExtrinsicsRaw => "rc-block-extrinsics-raw",
+            EndpointType::RcBlockExtrinsicsIdx => "rc-block-extrinsics-idx",
             EndpointType::BlockParaInclusions => "block-para-inclusions",
             EndpointType::NodeVersion => "node-version",
             EndpointType::NodeNetwork => "node-network",
@@ -261,69 +274,6 @@ impl EndpointType {
     pub fn requires_account(&self) -> bool {
         self.category() == EndpointCategory::Account
     }
-
-    /// List all available endpoint types
-    pub fn all() -> &'static [EndpointType] {
-        &[
-            EndpointType::AccountBalanceInfo,
-            EndpointType::Block,
-            EndpointType::BlockHeader,
-            EndpointType::BlockExtrinsics,
-            EndpointType::BlockExtrinsicsRaw,
-            EndpointType::RcBlockExtrinsicsRaw,
-            EndpointType::BlockParaInclusions,
-            EndpointType::NodeVersion,
-            EndpointType::NodeNetwork,
-            EndpointType::PalletConsts,
-            EndpointType::PalletConstsConstantItem,
-            EndpointType::PalletStorage,
-            EndpointType::PalletDispatchables,
-            EndpointType::PalletErrors,
-            EndpointType::PalletEvents,
-            EndpointType::PalletStakingValidators,
-            EndpointType::RcPalletStakingValidators,
-            EndpointType::RuntimeSpec,
-            EndpointType::RuntimeMetadata,
-            EndpointType::TransactionMaterial,
-        ]
-    }
-
-    /// List pallet endpoint types only
-    pub fn pallet_endpoints() -> &'static [EndpointType] {
-        &[
-            EndpointType::PalletConsts,
-            EndpointType::PalletConstsConstantItem,
-            EndpointType::PalletStorage,
-            EndpointType::PalletDispatchables,
-            EndpointType::PalletErrors,
-            EndpointType::PalletEvents,
-        ]
-    }
-
-    /// List block endpoint types only
-    pub fn block_endpoints() -> &'static [EndpointType] {
-        &[
-            EndpointType::Block,
-            EndpointType::BlockHeader,
-            EndpointType::BlockExtrinsics,
-            EndpointType::BlockExtrinsicsRaw,
-            EndpointType::RcBlockExtrinsicsRaw,
-            EndpointType::BlockParaInclusions,
-        ]
-    }
-
-    /// List standalone endpoint types only
-    pub fn standalone_endpoints() -> &'static [EndpointType] {
-        &[
-            EndpointType::RuntimeSpec,
-            EndpointType::RuntimeMetadata,
-            EndpointType::TransactionMaterial,
-            EndpointType::NodeVersion,
-            EndpointType::NodeNetwork,
-            EndpointType::PalletStakingValidators,
-            EndpointType::RcPalletStakingValidators,
-        ]
-    }
 }
 
 impl fmt::Display for EndpointType {
@@ -335,6 +285,7 @@ impl fmt::Display for EndpointType {
             EndpointType::BlockExtrinsics => write!(f, "block-extrinsics"),
             EndpointType::BlockExtrinsicsRaw => write!(f, "block-extrinsics-raw"),
             EndpointType::RcBlockExtrinsicsRaw => write!(f, "rc-block-extrinsics-raw"),
+            EndpointType::RcBlockExtrinsicsIdx => write!(f, "rc-block-extrinsics-idx"),
             EndpointType::BlockParaInclusions => write!(f, "block-para-inclusions"),
             EndpointType::NodeVersion => write!(f, "node-version"),
             EndpointType::NodeNetwork => write!(f, "node-network"),
@@ -367,6 +318,7 @@ impl std::str::FromStr for EndpointType {
             "block-extrinsics" | "extrinsics" => Ok(EndpointType::BlockExtrinsics),
             "block-extrinsics-raw" => Ok(EndpointType::BlockExtrinsicsRaw),
             "rc-block-extrinsics-raw" => Ok(EndpointType::RcBlockExtrinsicsRaw),
+            "rc-block-extrinsics-idx" => Ok(EndpointType::RcBlockExtrinsicsIdx),
             "block-para-inclusions" | "para-inclusions" => Ok(EndpointType::BlockParaInclusions),
 
             // Node endpoints

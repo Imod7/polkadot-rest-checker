@@ -12,7 +12,7 @@ mod chains;
 mod coverage;
 mod endpoints;
 
-use chains::{Chain, Pallet, TestAccount};
+use chains::{Chain, Pallet};
 use coverage::CoverageData;
 use endpoints::EndpointType;
 
@@ -299,7 +299,7 @@ async fn scan_pallet_endpoint(
         let mut rust_errors = 0u32;
         let mut sidecar_errors = 0u32;
         let mut both_errors = 0u32;
-        let mut issues: Vec<(u32, String)> = Vec::new();
+        let mut issues: Vec<(u64, String)> = Vec::new();
 
         while current_block <= end_block {
             let batch_end = std::cmp::min(current_block + batch_size, end_block + 1);
@@ -320,14 +320,14 @@ async fn scan_pallet_endpoint(
                 println!("  Block {}: {} vs {}", block_num, rust_api_url, sidecar_api_url);
 
                 tasks.push(tokio::spawn(async move {
-                    test_block_compare(client_clone, rust_api_url, sidecar_api_url, block_num).await
+                    test_block_compare(client_clone, rust_api_url, sidecar_api_url, block_num as u64).await
                 }));
             }
 
             for task in tasks {
-                let (block_num, result) = task.await?;
+                let (block_id, result) = task.await?;
                 process_result(
-                    block_num,
+                    block_id,
                     result,
                     &mut matched,
                     &mut mismatched,
@@ -440,7 +440,10 @@ async fn scan_block_endpoint(
     let mut rust_errors = 0u32;
     let mut sidecar_errors = 0u32;
     let mut both_errors = 0u32;
-    let mut issues: Vec<(u32, String)> = Vec::new();
+    let mut issues: Vec<(u64, String)> = Vec::new();
+
+    // Check if this is the special RcBlockExtrinsicsIdx endpoint that needs extrinsic iteration
+    let is_extrinsic_idx_endpoint = matches!(endpoint_type, EndpointType::RcBlockExtrinsicsIdx);
 
     while current_block <= end_block {
         let batch_end = std::cmp::min(current_block + batch_size, end_block + 1);
@@ -451,24 +454,86 @@ async fn scan_block_endpoint(
         }
 
         let mut tasks = Vec::new();
-        for block_num in blocks {
-            let client_clone = client.clone();
-            let rust_path = endpoint_type.path(pallet_filter, Some(block_num));
-            let sidecar_path = endpoint_type.path(pallet_filter, Some(block_num));
-            let rust_api_url = format!("{}{}", rust_url, rust_path);
-            let sidecar_api_url = format!("{}{}", sidecar_url, sidecar_path);
 
-            println!("  Block {}: {} vs {}", block_num, rust_api_url, sidecar_api_url);
+        if is_extrinsic_idx_endpoint {
+            // Special handling: fetch extrinsics count first, then test each index
+            for block_num in blocks {
+                // Fetch extrinsics list to get count
+                let extrinsics_url = format!("{}/rc/blocks/{}/extrinsics-raw", rust_url, block_num);
+                let extrinsics_count = match fetch_json(client, &extrinsics_url).await {
+                    Ok(json) => {
+                        // Response is an object with "extrinsics" field, not a direct array
+                        if let Some(arr) = json.get("extrinsics").and_then(|v| v.as_array()) {
+                            arr.len()
+                        } else {
+                            println!("    Block {}: Failed to parse extrinsics from response, skipping", block_num);
+                            continue;
+                        }
+                    }
+                    Err(e) => {
+                        println!("    Block {}: Failed to fetch extrinsics: {}, skipping", block_num, e);
+                        rust_errors += 1;
+                        issues.push((block_num as u64, format!("Failed to fetch extrinsics: {}", e)));
+                        continue;
+                    }
+                };
 
-            tasks.push(tokio::spawn(async move {
-                test_block_compare(client_clone, rust_api_url, sidecar_api_url, block_num).await
-            }));
+                println!("    Block {}: Found {} extrinsics", block_num, extrinsics_count);
+
+                // Create tasks for each extrinsic index
+                for ext_idx in 0..extrinsics_count {
+                    let client_clone = client.clone();
+                    let rust_path = endpoint_type.path_with_extrinsic(pallet_filter, Some(block_num), None, Some(ext_idx as u32));
+                    let sidecar_path = endpoint_type.path_with_extrinsic(pallet_filter, Some(block_num), None, Some(ext_idx as u32));
+                    let rust_api_url = format!("{}{}", rust_url, rust_path);
+                    let sidecar_api_url = format!("{}{}", sidecar_url, sidecar_path);
+
+                    // Use a composite identifier: block_num * 10000 + ext_idx for tracking
+                    // Use u64 to avoid overflow with large block numbers (e.g., 1,000,000 * 10000)
+                    let composite_id = block_num as u64 * 10000 + ext_idx as u64;
+
+                    tasks.push(tokio::spawn(async move {
+                        test_block_compare(client_clone, rust_api_url, sidecar_api_url, composite_id).await
+                    }));
+                }
+            }
+        } else {
+            // Standard handling for other endpoints
+            for block_num in blocks {
+                let client_clone = client.clone();
+                let rust_path = endpoint_type.path(pallet_filter, Some(block_num));
+                let sidecar_path = endpoint_type.path(pallet_filter, Some(block_num));
+                let rust_api_url = format!("{}{}", rust_url, rust_path);
+                let sidecar_api_url = format!("{}{}", sidecar_url, sidecar_path);
+
+                tasks.push(tokio::spawn(async move {
+                    test_block_compare(client_clone, rust_api_url, sidecar_api_url, block_num as u64).await
+                }));
+            }
         }
 
         for task in tasks {
-            let (block_num, result) = task.await?;
+            let (id, result) = task.await?;
+            // For extrinsic endpoints, decode the composite ID for better logging
+            let display_id = if is_extrinsic_idx_endpoint {
+                let block = id / 10000;
+                let ext_idx = id % 10000;
+                format!("Block {} Ext {}", block, ext_idx)
+            } else {
+                format!("Block {}", id)
+            };
+
+            // Log progress for non-match results
+            match &result {
+                TestResult::Match => {}
+                TestResult::Mismatch { .. } => println!("    {}: MISMATCH", display_id),
+                TestResult::RustError(e) => println!("    {}: Rust Error - {}", display_id, e),
+                TestResult::SidecarError(e) => println!("    {}: Sidecar Error - {}", display_id, e),
+                TestResult::BothError { .. } => println!("    {}: Both APIs Error", display_id),
+            }
+
             process_result(
-                block_num,
+                id,
                 result,
                 &mut matched,
                 &mut mismatched,
@@ -678,7 +743,7 @@ async fn scan_account_endpoint(
         let mut rust_errors = 0u32;
         let mut sidecar_errors = 0u32;
         let mut both_errors = 0u32;
-        let mut issues: Vec<(u32, String)> = Vec::new();
+        let mut issues: Vec<(u64, String)> = Vec::new();
 
         while current_block <= end_block {
             let batch_end = std::cmp::min(current_block + batch_size, end_block + 1);
@@ -697,14 +762,14 @@ async fn scan_account_endpoint(
                 let sidecar_api_url = format!("{}{}", sidecar_url, sidecar_path);
 
                 tasks.push(tokio::spawn(async move {
-                    test_block_compare(client_clone, rust_api_url, sidecar_api_url, block_num).await
+                    test_block_compare(client_clone, rust_api_url, sidecar_api_url, block_num as u64).await
                 }));
             }
 
             for task in tasks {
-                let (block_num, result) = task.await?;
+                let (block_id, result) = task.await?;
                 process_result(
-                    block_num,
+                    block_id,
                     result,
                     &mut matched,
                     &mut mismatched,
@@ -776,14 +841,14 @@ async fn scan_account_endpoint(
 
 /// Process a test result and update counters
 fn process_result(
-    block_num: u32,
+    block_num: u64,
     result: TestResult,
     matched: &mut u32,
     mismatched: &mut u32,
     rust_errors: &mut u32,
     sidecar_errors: &mut u32,
     both_errors: &mut u32,
-    issues: &mut Vec<(u32, String)>,
+    issues: &mut Vec<(u64, String)>,
     error_file: &mut Option<File>,
 ) -> Result<(), Box<dyn Error>> {
     match result {
@@ -837,7 +902,7 @@ struct PalletResult {
     rust_errors: u32,
     sidecar_errors: u32,
     both_errors: u32,
-    issues: Vec<(u32, String)>,
+    issues: Vec<(u64, String)>,
 }
 
 struct AccountResult {
@@ -848,7 +913,7 @@ struct AccountResult {
     rust_errors: u32,
     sidecar_errors: u32,
     both_errors: u32,
-    issues: Vec<(u32, String)>,
+    issues: Vec<(u64, String)>,
 }
 
 fn print_pallet_summary(
@@ -969,7 +1034,7 @@ fn print_block_summary(
     rust_errors: u32,
     sidecar_errors: u32,
     both_errors: u32,
-    issues: &[(u32, String)],
+    issues: &[(u64, String)],
     create_logs: bool,
 ) {
     // Create summary log file (only if --logs flag is set)
@@ -1180,8 +1245,8 @@ async fn test_block_compare(
     client: reqwest::Client,
     rust_url: String,
     sidecar_url: String,
-    block_num: u32,
-) -> (u32, TestResult) {
+    block_num: u64,
+) -> (u64, TestResult) {
     // Fetch from both APIs concurrently
     let (rust_result, sidecar_result) = tokio::join!(
         fetch_json(&client, &rust_url),
