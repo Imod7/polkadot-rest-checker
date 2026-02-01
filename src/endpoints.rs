@@ -30,6 +30,11 @@ pub enum EndpointType {
     RcBlockExtrinsicsIdx,
     BlockParaInclusions,
 
+    // Coretime endpoints
+    CoretimeLeases,
+    CoretimeRegions,
+    CoretimeReservations,
+
     // Node endpoints
     NodeVersion,
     NodeNetwork,
@@ -76,7 +81,10 @@ impl EndpointType {
             | EndpointType::RcBlockExtrinsicsIdx
             | EndpointType::BlockParaInclusions
             | EndpointType::PalletStakingValidators
-            | EndpointType::RcPalletStakingValidators => EndpointCategory::Block,
+            | EndpointType::RcPalletStakingValidators
+            | EndpointType::CoretimeLeases
+            | EndpointType::CoretimeReservations
+            | EndpointType::CoretimeRegions => EndpointCategory::Block,
 
             EndpointType::RuntimeSpec
             | EndpointType::RuntimeMetadata
@@ -137,6 +145,20 @@ impl EndpointType {
             EndpointType::BlockParaInclusions => {
                 let block = block.expect("Block required for BlockParaInclusions endpoint");
                 format!("/blocks/{}/para-inclusions", block)
+            }
+
+            // Coretime endpoints
+            EndpointType::CoretimeLeases => {
+                let block = block.expect("Block required for CoretimeLeases endpoint");
+                format!("/coretime/leases?at={}", block)
+            }
+            EndpointType::CoretimeReservations => {
+                let block = block.expect("Block required for CoretimeReservations endpoint");
+                format!("/coretime/reservations?at={}", block)
+            }
+            EndpointType::CoretimeRegions => {
+                let block = block.expect("Block required for CoretimeRegions endpoint");
+                format!("/coretime/regions?at={}", block)
             }
 
             // Node endpoints
@@ -241,6 +263,9 @@ impl EndpointType {
             EndpointType::RcBlockExtrinsicsRaw => "rc-block-extrinsics-raw",
             EndpointType::RcBlockExtrinsicsIdx => "rc-block-extrinsics-idx",
             EndpointType::BlockParaInclusions => "block-para-inclusions",
+            EndpointType::CoretimeLeases => "coretime-leases",
+            EndpointType::CoretimeReservations => "coretime-reservations",
+            EndpointType::CoretimeRegions => "coretime-regions",
             EndpointType::NodeVersion => "node-version",
             EndpointType::NodeNetwork => "node-network",
             EndpointType::PalletConsts => "consts",
@@ -287,6 +312,9 @@ impl fmt::Display for EndpointType {
             EndpointType::RcBlockExtrinsicsRaw => write!(f, "rc-block-extrinsics-raw"),
             EndpointType::RcBlockExtrinsicsIdx => write!(f, "rc-block-extrinsics-idx"),
             EndpointType::BlockParaInclusions => write!(f, "block-para-inclusions"),
+            EndpointType::CoretimeLeases => write!(f, "coretime-leases"),
+            EndpointType::CoretimeReservations => write!(f, "coretime-reservations"),
+            EndpointType::CoretimeRegions => write!(f, "coretime-regions"),
             EndpointType::NodeVersion => write!(f, "node-version"),
             EndpointType::NodeNetwork => write!(f, "node-network"),
             EndpointType::PalletConsts => write!(f, "pallet-consts"),
@@ -320,6 +348,11 @@ impl std::str::FromStr for EndpointType {
             "rc-block-extrinsics-raw" => Ok(EndpointType::RcBlockExtrinsicsRaw),
             "rc-block-extrinsics-idx" => Ok(EndpointType::RcBlockExtrinsicsIdx),
             "block-para-inclusions" | "para-inclusions" => Ok(EndpointType::BlockParaInclusions),
+
+            // Coretime endpoints
+            "coretime-leases" => Ok(EndpointType::CoretimeLeases),
+            "coretime-reservations" => Ok(EndpointType::CoretimeReservations),
+            "coretime-regions" | "core-reg" => Ok(EndpointType::CoretimeRegions),
 
             // Node endpoints
             "node-version" | "version" => Ok(EndpointType::NodeVersion),

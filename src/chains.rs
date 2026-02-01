@@ -9,6 +9,8 @@ pub enum Chain {
     Kusama,
     AssetHubPolkadot,
     AssetHubKusama,
+    CoretimePolkadot,
+    CoretimeKusama
 }
 
 impl fmt::Display for Chain {
@@ -18,6 +20,8 @@ impl fmt::Display for Chain {
             Chain::Kusama => write!(f, "kusama"),
             Chain::AssetHubPolkadot => write!(f, "asset-hub-polkadot"),
             Chain::AssetHubKusama => write!(f, "asset-hub-kusama"),
+            Chain::CoretimePolkadot => write!(f, "coretime-polkadot"),
+            Chain::CoretimeKusama => write!(f, "coretime-kusama"),
         }
     }
 }
@@ -31,8 +35,10 @@ impl std::str::FromStr for Chain {
             "kusama" | "ksm" => Ok(Chain::Kusama),
             "asset-hub-polkadot" | "ahp" | "statemint" => Ok(Chain::AssetHubPolkadot),
             "asset-hub-kusama" | "ahk" | "statemine" => Ok(Chain::AssetHubKusama),
+            "coretime-polkadot" => Ok(Chain::CoretimePolkadot),
+            "coretime-kusama" => Ok(Chain::CoretimeKusama),
             _ => Err(format!(
-                "Unknown chain '{}'. Valid options: polkadot, kusama, asset-hub-polkadot, asset-hub-kusama",
+                "Unknown chain '{}'. Valid options: polkadot, kusama, asset-hub-polkadot, asset-hub-kusama, coretime-polkadot, coretime-kusama",
                 s
             )),
         }
@@ -61,6 +67,7 @@ impl Chain {
             Chain::Kusama => KUSAMA_PALLETS,
             Chain::AssetHubPolkadot => ASSET_HUB_POLKADOT_PALLETS,
             Chain::AssetHubKusama => ASSET_HUB_KUSAMA_PALLETS,
+            Chain::CoretimePolkadot | Chain::CoretimeKusama => &[],
         }
     }
 
@@ -71,6 +78,7 @@ impl Chain {
             Chain::Kusama => KUSAMA_TEST_ACCOUNTS,
             Chain::AssetHubPolkadot => ASSET_HUB_POLKADOT_TEST_ACCOUNTS,
             Chain::AssetHubKusama => ASSET_HUB_KUSAMA_TEST_ACCOUNTS,
+            Chain::CoretimePolkadot | Chain::CoretimeKusama => &[],
         }
     }
 
@@ -81,6 +89,8 @@ impl Chain {
             Chain::Kusama,
             Chain::AssetHubPolkadot,
             Chain::AssetHubKusama,
+            Chain::CoretimePolkadot,
+            Chain::CoretimeKusama,
         ]
     }
 }
