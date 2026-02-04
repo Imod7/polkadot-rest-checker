@@ -442,8 +442,8 @@ async fn scan_block_endpoint(
     let mut both_errors = 0u32;
     let mut issues: Vec<(u64, String)> = Vec::new();
 
-    // Check if this is the special RcBlockExtrinsicsIdx endpoint that needs extrinsic iteration
-    let is_extrinsic_idx_endpoint = matches!(endpoint_type, EndpointType::RcBlockExtrinsicsIdx);
+    // Check if this is the special RcBlockExtrinsicsIdx or BlockExtrinsicsIdx endpoint that needs extrinsic iteration
+    let is_extrinsic_idx_endpoint = matches!(endpoint_type, EndpointType::RcBlockExtrinsicsIdx | EndpointType::BlockExtrinsicsIdx);
 
     while current_block <= end_block {
         let batch_end = std::cmp::min(current_block + batch_size, end_block + 1);

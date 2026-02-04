@@ -26,6 +26,7 @@ pub enum EndpointType {
     BlockHeader,
     BlockExtrinsics,
     BlockExtrinsicsRaw,
+    BlockExtrinsicsIdx,
     RcBlockExtrinsicsRaw,
     RcBlockExtrinsicsIdx,
     BlockParaInclusions,
@@ -77,6 +78,7 @@ impl EndpointType {
             | EndpointType::BlockHeader
             | EndpointType::BlockExtrinsics
             | EndpointType::BlockExtrinsicsRaw
+            | EndpointType::BlockExtrinsicsIdx
             | EndpointType::RcBlockExtrinsicsRaw
             | EndpointType::RcBlockExtrinsicsIdx
             | EndpointType::BlockParaInclusions
@@ -132,6 +134,11 @@ impl EndpointType {
             EndpointType::BlockExtrinsicsRaw => {
                 let block = block.expect("Block required for BlockExtrinsicsRaw endpoint");
                 format!("/blocks/{}/extrinsics-raw", block)
+            }
+            EndpointType::BlockExtrinsicsIdx => {
+                let block = block.expect("Relay Chain Block required for BlockExtrinsicsIdx endpoint");
+                let idx = extrinsic_index.expect("Extrinsic index required for BlockExtrinsicsIdx endpoint");
+                format!("/rc/blocks/{}/extrinsics/{}", block, idx)
             }
             EndpointType::RcBlockExtrinsicsRaw => {
                 let block = block.expect("Relay Chain Block required for RcBlockExtrinsicsRaw endpoint");
@@ -260,6 +267,7 @@ impl EndpointType {
             EndpointType::BlockHeader => "block-header",
             EndpointType::BlockExtrinsics => "block-extrinsics",
             EndpointType::BlockExtrinsicsRaw => "block-extrinsics-raw",
+            EndpointType::BlockExtrinsicsIdx => "block-extrinsics-idx",
             EndpointType::RcBlockExtrinsicsRaw => "rc-block-extrinsics-raw",
             EndpointType::RcBlockExtrinsicsIdx => "rc-block-extrinsics-idx",
             EndpointType::BlockParaInclusions => "block-para-inclusions",
@@ -309,6 +317,7 @@ impl fmt::Display for EndpointType {
             EndpointType::BlockHeader => write!(f, "block-header"),
             EndpointType::BlockExtrinsics => write!(f, "block-extrinsics"),
             EndpointType::BlockExtrinsicsRaw => write!(f, "block-extrinsics-raw"),
+            EndpointType::BlockExtrinsicsIdx => write!(f, "block-extrinsics-idx"),
             EndpointType::RcBlockExtrinsicsRaw => write!(f, "rc-block-extrinsics-raw"),
             EndpointType::RcBlockExtrinsicsIdx => write!(f, "rc-block-extrinsics-idx"),
             EndpointType::BlockParaInclusions => write!(f, "block-para-inclusions"),
@@ -345,6 +354,7 @@ impl std::str::FromStr for EndpointType {
             "block-header" | "header" => Ok(EndpointType::BlockHeader),
             "block-extrinsics" | "extrinsics" => Ok(EndpointType::BlockExtrinsics),
             "block-extrinsics-raw" => Ok(EndpointType::BlockExtrinsicsRaw),
+            "block-extrinsics-idx" => Ok(EndpointType::BlockExtrinsicsIdx),
             "rc-block-extrinsics-raw" => Ok(EndpointType::RcBlockExtrinsicsRaw),
             "rc-block-extrinsics-idx" => Ok(EndpointType::RcBlockExtrinsicsIdx),
             "block-para-inclusions" | "para-inclusions" => Ok(EndpointType::BlockParaInclusions),
