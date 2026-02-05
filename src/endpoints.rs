@@ -63,8 +63,7 @@ impl EndpointType {
     /// Get the category of this endpoint
     pub fn category(&self) -> EndpointCategory {
         match self {
-            EndpointType::AccountBalanceInfo
-             => EndpointCategory::Account,
+            EndpointType::AccountBalanceInfo => EndpointCategory::Account,
 
             EndpointType::PalletConsts
             | EndpointType::PalletStorage
@@ -104,12 +103,23 @@ impl EndpointType {
     }
 
     /// Build the URL path for this endpoint with optional account address
-    pub fn path_with_account(&self, pallet: Option<&str>, block: Option<u32>, account: Option<&str>) -> String {
+    pub fn path_with_account(
+        &self,
+        pallet: Option<&str>,
+        block: Option<u32>,
+        account: Option<&str>,
+    ) -> String {
         self.path_with_extrinsic(pallet, block, account, None)
     }
 
     /// Build the URL path for this endpoint with optional extrinsic index
-    pub fn path_with_extrinsic(&self, pallet: Option<&str>, block: Option<u32>, account: Option<&str>, extrinsic_index: Option<u32>) -> String {
+    pub fn path_with_extrinsic(
+        &self,
+        pallet: Option<&str>,
+        block: Option<u32>,
+        account: Option<&str>,
+        extrinsic_index: Option<u32>,
+    ) -> String {
         match self {
             // Account endpoints
             EndpointType::AccountBalanceInfo => {
@@ -138,17 +148,22 @@ impl EndpointType {
                 format!("/blocks/{}/extrinsics-raw", block)
             }
             EndpointType::BlockExtrinsicsIdx => {
-                let block = block.expect("Relay Chain Block required for BlockExtrinsicsIdx endpoint");
-                let idx = extrinsic_index.expect("Extrinsic index required for BlockExtrinsicsIdx endpoint");
+                let block =
+                    block.expect("Relay Chain Block required for BlockExtrinsicsIdx endpoint");
+                let idx = extrinsic_index
+                    .expect("Extrinsic index required for BlockExtrinsicsIdx endpoint");
                 format!("/rc/blocks/{}/extrinsics/{}", block, idx)
             }
             EndpointType::RcBlockExtrinsicsRaw => {
-                let block = block.expect("Relay Chain Block required for RcBlockExtrinsicsRaw endpoint");
+                let block =
+                    block.expect("Relay Chain Block required for RcBlockExtrinsicsRaw endpoint");
                 format!("/rc/blocks/{}/extrinsics-raw", block)
             }
             EndpointType::RcBlockExtrinsicsIdx => {
-                let block = block.expect("Relay Chain Block required for RcBlockExtrinsicsIdx endpoint");
-                let idx = extrinsic_index.expect("Extrinsic index required for RcBlockExtrinsicsIdx endpoint");
+                let block =
+                    block.expect("Relay Chain Block required for RcBlockExtrinsicsIdx endpoint");
+                let idx = extrinsic_index
+                    .expect("Extrinsic index required for RcBlockExtrinsicsIdx endpoint");
                 format!("/rc/blocks/{}/extrinsics/{}", block, idx)
             }
             EndpointType::BlockParaInclusions => {
@@ -196,7 +211,9 @@ impl EndpointType {
                 let pallet_name = parts[0];
                 let constant_name = parts[1];
                 match block {
-                    Some(b) => format!("/pallets/{}/consts/{}?at={}", pallet_name, constant_name, b),
+                    Some(b) => {
+                        format!("/pallets/{}/consts/{}?at={}", pallet_name, constant_name, b)
+                    }
                     None => format!("/pallets/{}/consts/{}", pallet_name, constant_name),
                 }
             }
@@ -228,40 +245,30 @@ impl EndpointType {
                     None => format!("/pallets/{}/events", pallet),
                 }
             }
-            EndpointType::PalletStakingValidators => {
-                match block {
-                    Some(b) => format!("/pallets/staking/validators?at={}", b),
-                    None => "/pallets/staking/validators".to_string(),
-                }
-            }
-            EndpointType::RcPalletStakingValidators => {
-                match block {
-                    Some(b) => format!("/rc/pallets/staking/validators?at={}", b),
-                    None => "/rc/pallets/staking/validators".to_string(),
-                }
-            }
+            EndpointType::PalletStakingValidators => match block {
+                Some(b) => format!("/pallets/staking/validators?at={}", b),
+                None => "/pallets/staking/validators".to_string(),
+            },
+            EndpointType::RcPalletStakingValidators => match block {
+                Some(b) => format!("/rc/pallets/staking/validators?at={}", b),
+                None => "/rc/pallets/staking/validators".to_string(),
+            },
 
             // Runtime endpoints
-            EndpointType::RuntimeSpec => {
-                match block {
-                    Some(b) => format!("/runtime/spec?at={}", b),
-                    None => "/runtime/spec".to_string(),
-                }
-            }
-            EndpointType::RuntimeMetadata => {
-                match block {
-                    Some(b) => format!("/runtime/metadata?at={}", b),
-                    None => "/runtime/metadata".to_string(),
-                }
-            }
+            EndpointType::RuntimeSpec => match block {
+                Some(b) => format!("/runtime/spec?at={}", b),
+                None => "/runtime/spec".to_string(),
+            },
+            EndpointType::RuntimeMetadata => match block {
+                Some(b) => format!("/runtime/metadata?at={}", b),
+                None => "/runtime/metadata".to_string(),
+            },
 
             // Transaction endpoints
-            EndpointType::TransactionMaterial => {
-                match block {
-                    Some(b) => format!("/transaction/material?at={}", b),
-                    None => "/transaction/material".to_string(),
-                }
-            }
+            EndpointType::TransactionMaterial => match block {
+                Some(b) => format!("/transaction/material?at={}", b),
+                None => "/transaction/material".to_string(),
+            },
         }
     }
 

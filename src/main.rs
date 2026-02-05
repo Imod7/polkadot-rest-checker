@@ -75,13 +75,19 @@ enum TestResult {
     /// Both APIs returned success with matching responses
     Match,
     /// Both APIs returned success but responses differ
-    Mismatch { rust_response: Value, sidecar_response: Value },
+    Mismatch {
+        rust_response: Value,
+        sidecar_response: Value,
+    },
     /// Rust API error
     RustError(String),
     /// Sidecar API error
     SidecarError(String),
     /// Both APIs returned errors
-    BothError { rust_error: String, sidecar_error: String },
+    BothError {
+        rust_error: String,
+        sidecar_error: String,
+    },
 }
 
 #[tokio::main]
@@ -256,7 +262,10 @@ async fn scan_pallet_endpoint(
     };
 
     if pallets.is_empty() {
-        println!("No pallets match the filter '{}'", pallet_filter.unwrap_or(""));
+        println!(
+            "No pallets match the filter '{}'",
+            pallet_filter.unwrap_or("")
+        );
         return Ok(());
     }
 
@@ -272,18 +281,28 @@ async fn scan_pallet_endpoint(
 
     for pallet in pallets {
         println!("\n{}", "=".repeat(60));
-        println!("Scanning pallet: {} (index: {}) - {}", pallet.name, pallet.index, endpoint_type);
+        println!(
+            "Scanning pallet: {} (index: {}) - {}",
+            pallet.name, pallet.index, endpoint_type
+        );
         println!("{}", "=".repeat(60));
 
         // Create error log file (only if --logs flag is set)
         let error_filename = format!(
             "errors_{}_{}-{}_{}_{}.log",
-            chain, start_block, end_block, endpoint_type.short_name(), pallet.name
+            chain,
+            start_block,
+            end_block,
+            endpoint_type.short_name(),
+            pallet.name
         );
         let mut error_file: Option<File> = if create_logs {
             let mut f = File::create(&error_filename)?;
-            writeln!(f, "# Error/Mismatch log for chain: {}, endpoint: {}, pallet: {} (index: {})",
-                chain, endpoint_type, pallet.name, pallet.index)?;
+            writeln!(
+                f,
+                "# Error/Mismatch log for chain: {}, endpoint: {}, pallet: {} (index: {})",
+                chain, endpoint_type, pallet.name, pallet.index
+            )?;
             writeln!(f, "# Block range: {} - {}", start_block, end_block)?;
             writeln!(f, "# Rust API: {}", rust_url)?;
             writeln!(f, "# Sidecar API: {}", sidecar_url)?;
@@ -306,7 +325,11 @@ async fn scan_pallet_endpoint(
             let blocks: Vec<u32> = (current_block..batch_end).collect();
 
             if current_block % 1000 == 0 || current_block == start_block {
-                println!("  Processing blocks {} to {}...", current_block, batch_end - 1);
+                println!(
+                    "  Processing blocks {} to {}...",
+                    current_block,
+                    batch_end - 1
+                );
             }
 
             let mut tasks = Vec::new();
@@ -317,10 +340,19 @@ async fn scan_pallet_endpoint(
                 let rust_api_url = format!("{}{}", rust_url, rust_path);
                 let sidecar_api_url = format!("{}{}", sidecar_url, sidecar_path);
 
-                println!("  Block {}: {} vs {}", block_num, rust_api_url, sidecar_api_url);
+                println!(
+                    "  Block {}: {} vs {}",
+                    block_num, rust_api_url, sidecar_api_url
+                );
 
                 tasks.push(tokio::spawn(async move {
-                    test_block_compare(client_clone, rust_api_url, sidecar_api_url, block_num as u64).await
+                    test_block_compare(
+                        client_clone,
+                        rust_api_url,
+                        sidecar_api_url,
+                        block_num as u64,
+                    )
+                    .await
                 }));
             }
 
@@ -392,7 +424,14 @@ async fn scan_pallet_endpoint(
     }
 
     // Print final summary
-    print_pallet_summary(&pallet_results, chain, endpoint_type, start_block, end_block, create_logs);
+    print_pallet_summary(
+        &pallet_results,
+        chain,
+        endpoint_type,
+        start_block,
+        end_block,
+        create_logs,
+    );
 
     Ok(())
 }
@@ -420,11 +459,18 @@ async fn scan_block_endpoint(
     // Create error log file (only if --logs flag is set)
     let error_filename = format!(
         "errors_{}_{}-{}_{}.log",
-        chain, start_block, end_block, endpoint_type.short_name()
+        chain,
+        start_block,
+        end_block,
+        endpoint_type.short_name()
     );
     let mut error_file: Option<File> = if create_logs {
         let mut f = File::create(&error_filename)?;
-        writeln!(f, "# Error/Mismatch log for chain: {}, endpoint: {}", chain, endpoint_type)?;
+        writeln!(
+            f,
+            "# Error/Mismatch log for chain: {}, endpoint: {}",
+            chain, endpoint_type
+        )?;
         writeln!(f, "# Block range: {} - {}", start_block, end_block)?;
         writeln!(f, "# Rust API: {}", rust_url)?;
         writeln!(f, "# Sidecar API: {}", sidecar_url)?;
@@ -443,14 +489,21 @@ async fn scan_block_endpoint(
     let mut issues: Vec<(u64, String)> = Vec::new();
 
     // Check if this is the special RcBlockExtrinsicsIdx or BlockExtrinsicsIdx endpoint that needs extrinsic iteration
-    let is_extrinsic_idx_endpoint = matches!(endpoint_type, EndpointType::RcBlockExtrinsicsIdx | EndpointType::BlockExtrinsicsIdx);
+    let is_extrinsic_idx_endpoint = matches!(
+        endpoint_type,
+        EndpointType::RcBlockExtrinsicsIdx | EndpointType::BlockExtrinsicsIdx
+    );
 
     while current_block <= end_block {
         let batch_end = std::cmp::min(current_block + batch_size, end_block + 1);
         let blocks: Vec<u32> = (current_block..batch_end).collect();
 
         if current_block % 1000 == 0 || current_block == start_block {
-            println!("  Processing blocks {} to {}...", current_block, batch_end - 1);
+            println!(
+                "  Processing blocks {} to {}...",
+                current_block,
+                batch_end - 1
+            );
         }
 
         let mut tasks = Vec::new();
@@ -466,25 +519,47 @@ async fn scan_block_endpoint(
                         if let Some(arr) = json.get("extrinsics").and_then(|v| v.as_array()) {
                             arr.len()
                         } else {
-                            println!("    Block {}: Failed to parse extrinsics from response, skipping", block_num);
+                            println!(
+                                "    Block {}: Failed to parse extrinsics from response, skipping",
+                                block_num
+                            );
                             continue;
                         }
                     }
                     Err(e) => {
-                        println!("    Block {}: Failed to fetch extrinsics: {}, skipping", block_num, e);
+                        println!(
+                            "    Block {}: Failed to fetch extrinsics: {}, skipping",
+                            block_num, e
+                        );
                         rust_errors += 1;
-                        issues.push((block_num as u64, format!("Failed to fetch extrinsics: {}", e)));
+                        issues.push((
+                            block_num as u64,
+                            format!("Failed to fetch extrinsics: {}", e),
+                        ));
                         continue;
                     }
                 };
 
-                println!("    Block {}: Found {} extrinsics", block_num, extrinsics_count);
+                println!(
+                    "    Block {}: Found {} extrinsics",
+                    block_num, extrinsics_count
+                );
 
                 // Create tasks for each extrinsic index
                 for ext_idx in 0..extrinsics_count {
                     let client_clone = client.clone();
-                    let rust_path = endpoint_type.path_with_extrinsic(pallet_filter, Some(block_num), None, Some(ext_idx as u32));
-                    let sidecar_path = endpoint_type.path_with_extrinsic(pallet_filter, Some(block_num), None, Some(ext_idx as u32));
+                    let rust_path = endpoint_type.path_with_extrinsic(
+                        pallet_filter,
+                        Some(block_num),
+                        None,
+                        Some(ext_idx as u32),
+                    );
+                    let sidecar_path = endpoint_type.path_with_extrinsic(
+                        pallet_filter,
+                        Some(block_num),
+                        None,
+                        Some(ext_idx as u32),
+                    );
                     let rust_api_url = format!("{}{}", rust_url, rust_path);
                     let sidecar_api_url = format!("{}{}", sidecar_url, sidecar_path);
 
@@ -493,7 +568,13 @@ async fn scan_block_endpoint(
                     let composite_id = block_num as u64 * 10000 + ext_idx as u64;
 
                     tasks.push(tokio::spawn(async move {
-                        test_block_compare(client_clone, rust_api_url, sidecar_api_url, composite_id).await
+                        test_block_compare(
+                            client_clone,
+                            rust_api_url,
+                            sidecar_api_url,
+                            composite_id,
+                        )
+                        .await
                     }));
                 }
             }
@@ -507,7 +588,13 @@ async fn scan_block_endpoint(
                 let sidecar_api_url = format!("{}{}", sidecar_url, sidecar_path);
 
                 tasks.push(tokio::spawn(async move {
-                    test_block_compare(client_clone, rust_api_url, sidecar_api_url, block_num as u64).await
+                    test_block_compare(
+                        client_clone,
+                        rust_api_url,
+                        sidecar_api_url,
+                        block_num as u64,
+                    )
+                    .await
                 }));
             }
         }
@@ -528,7 +615,9 @@ async fn scan_block_endpoint(
                 TestResult::Match => {}
                 TestResult::Mismatch { .. } => println!("    {}: MISMATCH", display_id),
                 TestResult::RustError(e) => println!("    {}: Rust Error - {}", display_id, e),
-                TestResult::SidecarError(e) => println!("    {}: Sidecar Error - {}", display_id, e),
+                TestResult::SidecarError(e) => {
+                    println!("    {}: Sidecar Error - {}", display_id, e)
+                }
                 TestResult::BothError { .. } => println!("    {}: Both APIs Error", display_id),
             }
 
@@ -585,7 +674,19 @@ async fn scan_block_endpoint(
     );
 
     // Print summary
-    print_block_summary(endpoint_type, chain, start_block, end_block, matched, mismatched, rust_errors, sidecar_errors, both_errors, &issues, create_logs);
+    print_block_summary(
+        endpoint_type,
+        chain,
+        start_block,
+        end_block,
+        matched,
+        mismatched,
+        rust_errors,
+        sidecar_errors,
+        both_errors,
+        &issues,
+        create_logs,
+    );
 
     Ok(())
 }
@@ -631,7 +732,13 @@ async fn scan_runtime_endpoint(
     log_line!("  Rust API: {}", rust_api_url);
     log_line!("  Sidecar API: {}", sidecar_api_url);
 
-    let (_, result) = test_block_compare(client.clone(), rust_api_url.clone(), sidecar_api_url.clone(), 0).await;
+    let (_, result) = test_block_compare(
+        client.clone(),
+        rust_api_url.clone(),
+        sidecar_api_url.clone(),
+        0,
+    )
+    .await;
 
     // Track coverage result
     let chain_coverage = coverage.get_chain(&chain.to_string(), total_pallets);
@@ -642,20 +749,35 @@ async fn scan_runtime_endpoint(
             log_line!("\n  Result: MATCH - Both APIs returned identical responses");
             endpoint_coverage.add_runtime_run(true, None);
         }
-        TestResult::Mismatch { rust_response, sidecar_response } => {
+        TestResult::Mismatch {
+            rust_response,
+            sidecar_response,
+        } => {
             log_line!("\n  Result: MISMATCH - Responses differ");
             endpoint_coverage.add_runtime_run(false, None);
 
             if create_logs {
                 let error_filename = format!("errors_{}_{}.log", chain, endpoint_type.short_name());
                 let mut error_file = File::create(&error_filename)?;
-                writeln!(error_file, "# Mismatch log for chain: {}, endpoint: {}", chain, endpoint_type)?;
+                writeln!(
+                    error_file,
+                    "# Mismatch log for chain: {}, endpoint: {}",
+                    chain, endpoint_type
+                )?;
                 writeln!(error_file, "# Rust API: {}", rust_api_url)?;
                 writeln!(error_file, "# Sidecar API: {}", sidecar_api_url)?;
                 writeln!(error_file, "#")?;
                 writeln!(error_file, "MISMATCH - Responses differ")?;
-                writeln!(error_file, "Rust API response: {}", serde_json::to_string_pretty(&rust_response)?)?;
-                writeln!(error_file, "Sidecar response: {}", serde_json::to_string_pretty(&sidecar_response)?)?;
+                writeln!(
+                    error_file,
+                    "Rust API response: {}",
+                    serde_json::to_string_pretty(&rust_response)?
+                )?;
+                writeln!(
+                    error_file,
+                    "Sidecar response: {}",
+                    serde_json::to_string_pretty(&sidecar_response)?
+                )?;
 
                 log_line!("  Details saved to: {}", error_filename);
             }
@@ -668,7 +790,10 @@ async fn scan_runtime_endpoint(
             log_line!("\n  Result: SIDECAR ERROR - {}", err);
             endpoint_coverage.add_runtime_run(false, Some(err));
         }
-        TestResult::BothError { ref rust_error, ref sidecar_error } => {
+        TestResult::BothError {
+            ref rust_error,
+            ref sidecar_error,
+        } => {
             log_line!("\n  Result: BOTH APIS ERROR");
             log_line!("    Rust: {}", rust_error);
             log_line!("    Sidecar: {}", sidecar_error);
@@ -716,18 +841,28 @@ async fn scan_account_endpoint(
 
     for account in accounts {
         println!("\n{}", "=".repeat(60));
-        println!("Scanning account: {} ({}) - {}", account.label, account.address, endpoint_type);
+        println!(
+            "Scanning account: {} ({}) - {}",
+            account.label, account.address, endpoint_type
+        );
         println!("{}", "=".repeat(60));
 
         // Create error log file (only if --logs flag is set)
         let error_filename = format!(
             "errors_{}_{}-{}_{}_account_{}.log",
-            chain, start_block, end_block, endpoint_type.short_name(), account.label.replace(" ", "_")
+            chain,
+            start_block,
+            end_block,
+            endpoint_type.short_name(),
+            account.label.replace(" ", "_")
         );
         let mut error_file: Option<File> = if create_logs {
             let mut f = File::create(&error_filename)?;
-            writeln!(f, "# Error/Mismatch log for chain: {}, endpoint: {}, account: {} ({})",
-                chain, endpoint_type, account.label, account.address)?;
+            writeln!(
+                f,
+                "# Error/Mismatch log for chain: {}, endpoint: {}, account: {} ({})",
+                chain, endpoint_type, account.label, account.address
+            )?;
             writeln!(f, "# Block range: {} - {}", start_block, end_block)?;
             writeln!(f, "# Rust API: {}", rust_url)?;
             writeln!(f, "# Sidecar API: {}", sidecar_url)?;
@@ -750,19 +885,31 @@ async fn scan_account_endpoint(
             let blocks: Vec<u32> = (current_block..batch_end).collect();
 
             if current_block % 1000 == 0 || current_block == start_block {
-                println!("  Processing blocks {} to {}...", current_block, batch_end - 1);
+                println!(
+                    "  Processing blocks {} to {}...",
+                    current_block,
+                    batch_end - 1
+                );
             }
 
             let mut tasks = Vec::new();
             for block_num in blocks {
                 let client_clone = client.clone();
-                let rust_path = endpoint_type.path_with_account(None, Some(block_num), Some(account.address));
-                let sidecar_path = endpoint_type.path_with_account(None, Some(block_num), Some(account.address));
+                let rust_path =
+                    endpoint_type.path_with_account(None, Some(block_num), Some(account.address));
+                let sidecar_path =
+                    endpoint_type.path_with_account(None, Some(block_num), Some(account.address));
                 let rust_api_url = format!("{}{}", rust_url, rust_path);
                 let sidecar_api_url = format!("{}{}", sidecar_url, sidecar_path);
 
                 tasks.push(tokio::spawn(async move {
-                    test_block_compare(client_clone, rust_api_url, sidecar_api_url, block_num as u64).await
+                    test_block_compare(
+                        client_clone,
+                        rust_api_url,
+                        sidecar_api_url,
+                        block_num as u64,
+                    )
+                    .await
                 }));
             }
 
@@ -834,7 +981,14 @@ async fn scan_account_endpoint(
     }
 
     // Print final summary
-    print_account_summary(&account_results, chain, endpoint_type, start_block, end_block, create_logs);
+    print_account_summary(
+        &account_results,
+        chain,
+        endpoint_type,
+        start_block,
+        end_block,
+        create_logs,
+    );
 
     Ok(())
 }
@@ -855,13 +1009,24 @@ fn process_result(
         TestResult::Match => {
             *matched += 1;
         }
-        TestResult::Mismatch { rust_response, sidecar_response } => {
+        TestResult::Mismatch {
+            rust_response,
+            sidecar_response,
+        } => {
             *mismatched += 1;
             let msg = "MISMATCH - Responses differ".to_string();
             if let Some(ref mut f) = error_file {
                 writeln!(f, "Block {}: {}", block_num, msg)?;
-                writeln!(f, "  Rust API response: {}", serde_json::to_string_pretty(&rust_response)?)?;
-                writeln!(f, "  Sidecar response: {}", serde_json::to_string_pretty(&sidecar_response)?)?;
+                writeln!(
+                    f,
+                    "  Rust API response: {}",
+                    serde_json::to_string_pretty(&rust_response)?
+                )?;
+                writeln!(
+                    f,
+                    "  Sidecar response: {}",
+                    serde_json::to_string_pretty(&sidecar_response)?
+                )?;
                 writeln!(f)?;
             }
             issues.push((block_num, msg));
@@ -882,9 +1047,15 @@ fn process_result(
             }
             issues.push((block_num, msg));
         }
-        TestResult::BothError { rust_error, sidecar_error } => {
+        TestResult::BothError {
+            rust_error,
+            sidecar_error,
+        } => {
             *both_errors += 1;
-            let msg = format!("BOTH ERRORS - Rust: {}, Sidecar: {}", rust_error, sidecar_error);
+            let msg = format!(
+                "BOTH ERRORS - Rust: {}, Sidecar: {}",
+                rust_error, sidecar_error
+            );
             if let Some(ref mut f) = error_file {
                 writeln!(f, "Block {}: {}", block_num, msg)?;
             }
@@ -927,7 +1098,10 @@ fn print_pallet_summary(
     // Create summary log file (only if --logs flag is set)
     let summary_filename = format!(
         "summary_{}_{}-{}_{}.log",
-        chain, start_block, end_block, endpoint_type.short_name()
+        chain,
+        start_block,
+        end_block,
+        endpoint_type.short_name()
     );
     let mut summary_file = if create_logs {
         File::create(&summary_filename).ok()
@@ -955,7 +1129,13 @@ fn print_pallet_summary(
 
     log_line!(
         "{:<25} {:>8} {:>10} {:>10} {:>10} {:>10} {:>8}",
-        "Pallet", "Matched", "Mismatch", "RustErr", "SidecarErr", "BothErr", "Rate"
+        "Pallet",
+        "Matched",
+        "Mismatch",
+        "RustErr",
+        "SidecarErr",
+        "BothErr",
+        "Rate"
     );
     log_line!("{}", "-".repeat(90));
 
@@ -966,7 +1146,11 @@ fn print_pallet_summary(
     let mut total_both_errors = 0u32;
 
     for result in results {
-        let total = result.matched + result.mismatched + result.rust_errors + result.sidecar_errors + result.both_errors;
+        let total = result.matched
+            + result.mismatched
+            + result.rust_errors
+            + result.sidecar_errors
+            + result.both_errors;
         let rate = if total > 0 {
             (result.matched as f64 / total as f64) * 100.0
         } else {
@@ -975,8 +1159,13 @@ fn print_pallet_summary(
 
         log_line!(
             "{:<25} {:>8} {:>10} {:>10} {:>10} {:>10} {:>7.2}%",
-            result.name, result.matched, result.mismatched, result.rust_errors,
-            result.sidecar_errors, result.both_errors, rate
+            result.name,
+            result.matched,
+            result.mismatched,
+            result.rust_errors,
+            result.sidecar_errors,
+            result.both_errors,
+            rate
         );
 
         total_matched += result.matched;
@@ -987,7 +1176,11 @@ fn print_pallet_summary(
     }
 
     log_line!("{}", "-".repeat(90));
-    let overall_total = total_matched + total_mismatched + total_rust_errors + total_sidecar_errors + total_both_errors;
+    let overall_total = total_matched
+        + total_mismatched
+        + total_rust_errors
+        + total_sidecar_errors
+        + total_both_errors;
     let overall_rate = if overall_total > 0 {
         (total_matched as f64 / overall_total as f64) * 100.0
     } else {
@@ -995,8 +1188,13 @@ fn print_pallet_summary(
     };
     log_line!(
         "{:<25} {:>8} {:>10} {:>10} {:>10} {:>10} {:>7.2}%",
-        "TOTAL", total_matched, total_mismatched, total_rust_errors,
-        total_sidecar_errors, total_both_errors, overall_rate
+        "TOTAL",
+        total_matched,
+        total_mismatched,
+        total_rust_errors,
+        total_sidecar_errors,
+        total_both_errors,
+        overall_rate
     );
 
     // Print issue summary
@@ -1011,7 +1209,10 @@ fn print_pallet_summary(
             log_line!("\n{} (index {}):", result.name, result.index);
             for (i, (block, error)) in result.issues.iter().enumerate() {
                 if i >= 10 {
-                    log_line!("  ... and {} more issues (see error log file)", result.issues.len() - 10);
+                    log_line!(
+                        "  ... and {} more issues (see error log file)",
+                        result.issues.len() - 10
+                    );
                     break;
                 }
                 log_line!("  Block {}: {}", block, error);
@@ -1040,7 +1241,10 @@ fn print_block_summary(
     // Create summary log file (only if --logs flag is set)
     let summary_filename = format!(
         "summary_{}_{}-{}_{}.log",
-        chain, start_block, end_block, endpoint_type.short_name()
+        chain,
+        start_block,
+        end_block,
+        endpoint_type.short_name()
     );
     let mut summary_file = if create_logs {
         File::create(&summary_filename).ok()
@@ -1085,7 +1289,10 @@ fn print_block_summary(
 
         for (i, (block, error)) in issues.iter().enumerate() {
             if i >= 20 {
-                log_line!("  ... and {} more issues (see error log file)", issues.len() - 20);
+                log_line!(
+                    "  ... and {} more issues (see error log file)",
+                    issues.len() - 20
+                );
                 break;
             }
             log_line!("  Block {}: {}", block, error);
@@ -1108,7 +1315,10 @@ fn print_account_summary(
     // Create summary log file (only if --logs flag is set)
     let summary_filename = format!(
         "summary_{}_{}-{}_{}_accounts.log",
-        chain, start_block, end_block, endpoint_type.short_name()
+        chain,
+        start_block,
+        end_block,
+        endpoint_type.short_name()
     );
     let mut summary_file = if create_logs {
         File::create(&summary_filename).ok()
@@ -1136,7 +1346,13 @@ fn print_account_summary(
 
     log_line!(
         "{:<15} {:>8} {:>10} {:>10} {:>10} {:>10} {:>8}",
-        "Account", "Matched", "Mismatch", "RustErr", "SidecarErr", "BothErr", "Rate"
+        "Account",
+        "Matched",
+        "Mismatch",
+        "RustErr",
+        "SidecarErr",
+        "BothErr",
+        "Rate"
     );
     log_line!("{}", "-".repeat(90));
 
@@ -1147,7 +1363,11 @@ fn print_account_summary(
     let mut total_both_errors = 0u32;
 
     for result in results {
-        let total = result.matched + result.mismatched + result.rust_errors + result.sidecar_errors + result.both_errors;
+        let total = result.matched
+            + result.mismatched
+            + result.rust_errors
+            + result.sidecar_errors
+            + result.both_errors;
         let rate = if total > 0 {
             (result.matched as f64 / total as f64) * 100.0
         } else {
@@ -1156,8 +1376,13 @@ fn print_account_summary(
 
         log_line!(
             "{:<15} {:>8} {:>10} {:>10} {:>10} {:>10} {:>7.2}%",
-            result.label, result.matched, result.mismatched, result.rust_errors,
-            result.sidecar_errors, result.both_errors, rate
+            result.label,
+            result.matched,
+            result.mismatched,
+            result.rust_errors,
+            result.sidecar_errors,
+            result.both_errors,
+            rate
         );
 
         total_matched += result.matched;
@@ -1168,7 +1393,11 @@ fn print_account_summary(
     }
 
     log_line!("{}", "-".repeat(90));
-    let overall_total = total_matched + total_mismatched + total_rust_errors + total_sidecar_errors + total_both_errors;
+    let overall_total = total_matched
+        + total_mismatched
+        + total_rust_errors
+        + total_sidecar_errors
+        + total_both_errors;
     let overall_rate = if overall_total > 0 {
         (total_matched as f64 / overall_total as f64) * 100.0
     } else {
@@ -1176,8 +1405,13 @@ fn print_account_summary(
     };
     log_line!(
         "{:<15} {:>8} {:>10} {:>10} {:>10} {:>10} {:>7.2}%",
-        "TOTAL", total_matched, total_mismatched, total_rust_errors,
-        total_sidecar_errors, total_both_errors, overall_rate
+        "TOTAL",
+        total_matched,
+        total_mismatched,
+        total_rust_errors,
+        total_sidecar_errors,
+        total_both_errors,
+        overall_rate
     );
 
     // Print issue summary
@@ -1192,7 +1426,10 @@ fn print_account_summary(
             log_line!("\n{} ({}):", result.label, result.address);
             for (i, (block, error)) in result.issues.iter().enumerate() {
                 if i >= 10 {
-                    log_line!("  ... and {} more issues (see error log file)", result.issues.len() - 10);
+                    log_line!(
+                        "  ... and {} more issues (see error log file)",
+                        result.issues.len() - 10
+                    );
                     break;
                 }
                 log_line!("  Block {}: {}", block, error);
@@ -1208,14 +1445,19 @@ fn print_account_summary(
 async fn get_latest_block(client: &reqwest::Client, base_url: &str) -> Result<u32, Box<dyn Error>> {
     let url = format!("{}/blocks/head", base_url);
 
-    let response = client.get(&url).send().await
+    let response = client
+        .get(&url)
+        .send()
+        .await
         .map_err(|e| format!("Failed to connect to {}: {}", url, e))?;
 
     if !response.status().is_success() {
         return Err(format!("Server returned HTTP {}: {}", response.status(), url).into());
     }
 
-    let json: Value = response.json().await
+    let json: Value = response
+        .json()
+        .await
         .map_err(|e| format!("Invalid JSON response from {}: {}", url, e))?;
 
     json["number"]
@@ -1230,13 +1472,15 @@ async fn fetch_json(client: &reqwest::Client, url: &str) -> Result<Value, String
         Ok(response) => {
             let status = response.status();
             if status.is_success() {
-                response.json::<Value>().await
+                response
+                    .json::<Value>()
+                    .await
                     .map_err(|e| format!("Invalid JSON: {}", e))
             } else {
                 Err(format!("HTTP {}", status))
             }
         }
-        Err(e) => Err(format!("Request failed: {}", e))
+        Err(e) => Err(format!("Request failed: {}", e)),
     }
 }
 
@@ -1283,14 +1527,19 @@ fn json_equal(a: &Value, b: &Value) -> bool {
                 return false;
             }
             a_map.iter().all(|(key, a_val)| {
-                b_map.get(key).map_or(false, |b_val| json_equal(a_val, b_val))
+                b_map
+                    .get(key)
+                    .map_or(false, |b_val| json_equal(a_val, b_val))
             })
         }
         (Value::Array(a_arr), Value::Array(b_arr)) => {
             if a_arr.len() != b_arr.len() {
                 return false;
             }
-            a_arr.iter().zip(b_arr.iter()).all(|(a_val, b_val)| json_equal(a_val, b_val))
+            a_arr
+                .iter()
+                .zip(b_arr.iter())
+                .all(|(a_val, b_val)| json_equal(a_val, b_val))
         }
         // Case-insensitive string comparison
         (Value::String(a_str), Value::String(b_str)) => {

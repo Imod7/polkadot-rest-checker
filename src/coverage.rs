@@ -103,7 +103,11 @@ impl PalletCoverage {
 
     /// Get pass rate as percentage
     pub fn pass_rate(&self) -> f64 {
-        let total = self.matched + self.mismatched + self.rust_errors + self.sidecar_errors + self.both_errors;
+        let total = self.matched
+            + self.mismatched
+            + self.rust_errors
+            + self.sidecar_errors
+            + self.both_errors;
         if total == 0 {
             0.0
         } else {
@@ -137,7 +141,11 @@ impl EndpointCoverage {
     pub fn new(endpoint: &str, is_pallet_endpoint: bool) -> Self {
         Self {
             endpoint: endpoint.to_string(),
-            pallets: if is_pallet_endpoint { Some(HashMap::new()) } else { None },
+            pallets: if is_pallet_endpoint {
+                Some(HashMap::new())
+            } else {
+                None
+            },
             block_ranges: Vec::new(),
             matched: 0,
             mismatched: 0,
@@ -168,7 +176,15 @@ impl EndpointCoverage {
             let coverage = pallets
                 .entry(pallet.to_string())
                 .or_insert_with(|| PalletCoverage::new(pallet));
-            coverage.add_run(start_block, end_block, matched, mismatched, rust_errors, sidecar_errors, both_errors);
+            coverage.add_run(
+                start_block,
+                end_block,
+                matched,
+                mismatched,
+                rust_errors,
+                sidecar_errors,
+                both_errors,
+            );
         }
     }
 
@@ -197,11 +213,7 @@ impl EndpointCoverage {
     }
 
     /// Add runtime endpoint coverage result
-    pub fn add_runtime_run(
-        &mut self,
-        matched: bool,
-        error: Option<&str>,
-    ) {
+    pub fn add_runtime_run(&mut self, matched: bool, error: Option<&str>) {
         self.tested = true;
         self.last_tested = chrono::Utc::now().to_rfc3339();
 
@@ -267,16 +279,23 @@ impl EndpointCoverage {
     pub fn pass_rate(&self) -> f64 {
         if let Some(ref pallets) = self.pallets {
             let total_matched: u32 = pallets.values().map(|p| p.matched).sum();
-            let total_tests: u32 = pallets.values().map(|p| {
-                p.matched + p.mismatched + p.rust_errors + p.sidecar_errors + p.both_errors
-            }).sum();
+            let total_tests: u32 = pallets
+                .values()
+                .map(|p| {
+                    p.matched + p.mismatched + p.rust_errors + p.sidecar_errors + p.both_errors
+                })
+                .sum();
             if total_tests == 0 {
                 0.0
             } else {
                 (total_matched as f64 / total_tests as f64) * 100.0
             }
         } else {
-            let total = self.matched + self.mismatched + self.rust_errors + self.sidecar_errors + self.both_errors;
+            let total = self.matched
+                + self.mismatched
+                + self.rust_errors
+                + self.sidecar_errors
+                + self.both_errors;
             if total == 0 {
                 0.0
             } else {
@@ -310,7 +329,11 @@ impl ChainCoverage {
     }
 
     /// Get or create endpoint coverage
-    pub fn get_endpoint(&mut self, endpoint: &str, is_pallet_endpoint: bool) -> &mut EndpointCoverage {
+    pub fn get_endpoint(
+        &mut self,
+        endpoint: &str,
+        is_pallet_endpoint: bool,
+    ) -> &mut EndpointCoverage {
         self.last_updated = chrono::Utc::now().to_rfc3339();
         self.endpoints
             .entry(endpoint.to_string())
@@ -369,10 +392,38 @@ impl CoverageData {
         report.push_str(&format!("{}\n\n", "=".repeat(80)));
 
         // All possible endpoints
-        let pallet_endpoints = vec!["consts", "consts-item", "storage", "dispatchables", "errors", "events"];
-        let block_endpoints = vec!["block", "block-header", "block-extrinsics", "block-extrinsics-raw", "block-extrinsics-idx", "rc-block-extrinsics-raw", "rc-block-extrinsics-idx", "block-para-inclusions", "staking-validators", "rc-staking-validators", "coretime-info", "coretime-leases", "coretime-reservations", "coretime-regions"];
+        let pallet_endpoints = vec![
+            "consts",
+            "consts-item",
+            "storage",
+            "dispatchables",
+            "errors",
+            "events",
+        ];
+        let block_endpoints = vec![
+            "block",
+            "block-header",
+            "block-extrinsics",
+            "block-extrinsics-raw",
+            "block-extrinsics-idx",
+            "rc-block-extrinsics-raw",
+            "rc-block-extrinsics-idx",
+            "block-para-inclusions",
+            "staking-validators",
+            "rc-staking-validators",
+            "coretime-info",
+            "coretime-leases",
+            "coretime-reservations",
+            "coretime-regions",
+        ];
         let account_endpoints = vec!["account-balance-info"];
-        let standalone_endpoints = vec!["runtime-spec", "runtime-metadata", "tx-material", "node-version", "node-network"];
+        let standalone_endpoints = vec![
+            "runtime-spec",
+            "runtime-metadata",
+            "tx-material",
+            "node-version",
+            "node-network",
+        ];
 
         for (chain_name, chain) in &self.chains {
             report.push_str(&format!("Chain: {}\n", chain_name));
@@ -394,7 +445,9 @@ impl CoverageData {
                         // Show block ranges for each pallet
                         if let Some(ref pallets) = ep_cov.pallets {
                             for (pallet_name, pallet_cov) in pallets {
-                                let ranges: Vec<String> = pallet_cov.block_ranges.iter()
+                                let ranges: Vec<String> = pallet_cov
+                                    .block_ranges
+                                    .iter()
                                     .map(|(s, e)| format!("{}-{}", s, e))
                                     .collect();
                                 report.push_str(&format!(
@@ -418,14 +471,20 @@ impl CoverageData {
             for endpoint in &block_endpoints {
                 if let Some(ep_cov) = chain.endpoints.get(*endpoint) {
                     if ep_cov.tested {
-                        let ranges: Vec<String> = ep_cov.block_ranges.iter()
+                        let ranges: Vec<String> = ep_cov
+                            .block_ranges
+                            .iter()
                             .map(|(s, e)| format!("{}-{}", s, e))
                             .collect();
                         let pass_rate = ep_cov.pass_rate();
                         report.push_str(&format!(
                             "  [✓] {:<20} blocks [{}] ({:.1}% pass rate)\n",
                             endpoint,
-                            if ranges.is_empty() { "none".to_string() } else { ranges.join(", ") },
+                            if ranges.is_empty() {
+                                "none".to_string()
+                            } else {
+                                ranges.join(", ")
+                            },
                             pass_rate
                         ));
                     } else {
@@ -441,14 +500,20 @@ impl CoverageData {
             for endpoint in &account_endpoints {
                 if let Some(ep_cov) = chain.endpoints.get(*endpoint) {
                     if ep_cov.tested {
-                        let ranges: Vec<String> = ep_cov.block_ranges.iter()
+                        let ranges: Vec<String> = ep_cov
+                            .block_ranges
+                            .iter()
                             .map(|(s, e)| format!("{}-{}", s, e))
                             .collect();
                         let pass_rate = ep_cov.pass_rate();
                         report.push_str(&format!(
                             "  [✓] {:<20} blocks [{}] ({:.1}% pass rate)\n",
                             endpoint,
-                            if ranges.is_empty() { "none".to_string() } else { ranges.join(", ") },
+                            if ranges.is_empty() {
+                                "none".to_string()
+                            } else {
+                                ranges.join(", ")
+                            },
                             pass_rate
                         ));
                     } else {
@@ -475,11 +540,17 @@ impl CoverageData {
             }
 
             // Summary
-            let total_endpoints = pallet_endpoints.len() + block_endpoints.len() + account_endpoints.len() + standalone_endpoints.len();
+            let total_endpoints = pallet_endpoints.len()
+                + block_endpoints.len()
+                + account_endpoints.len()
+                + standalone_endpoints.len();
             let tested_endpoints = chain.endpoints.values().filter(|e| e.tested).count();
 
             report.push_str(&format!("\nSUMMARY:\n"));
-            report.push_str(&format!("  Endpoints tested: {}/{}\n", tested_endpoints, total_endpoints));
+            report.push_str(&format!(
+                "  Endpoints tested: {}/{}\n",
+                tested_endpoints, total_endpoints
+            ));
 
             // Calculate overall pass rate
             let mut total_matched = 0u32;
@@ -488,11 +559,19 @@ impl CoverageData {
                 if let Some(ref pallets) = ep.pallets {
                     for p in pallets.values() {
                         total_matched += p.matched;
-                        total_tests += p.matched + p.mismatched + p.rust_errors + p.sidecar_errors + p.both_errors;
+                        total_tests += p.matched
+                            + p.mismatched
+                            + p.rust_errors
+                            + p.sidecar_errors
+                            + p.both_errors;
                     }
                 } else {
                     total_matched += ep.matched;
-                    total_tests += ep.matched + ep.mismatched + ep.rust_errors + ep.sidecar_errors + ep.both_errors;
+                    total_tests += ep.matched
+                        + ep.mismatched
+                        + ep.rust_errors
+                        + ep.sidecar_errors
+                        + ep.both_errors;
                 }
             }
             let overall_pass_rate = if total_tests > 0 {
@@ -500,7 +579,10 @@ impl CoverageData {
             } else {
                 0.0
             };
-            report.push_str(&format!("  Overall pass rate: {:.2}% ({}/{})\n", overall_pass_rate, total_matched, total_tests));
+            report.push_str(&format!(
+                "  Overall pass rate: {:.2}% ({}/{})\n",
+                overall_pass_rate, total_matched, total_tests
+            ));
             report.push_str(&format!("  Last updated: {}\n", chain.last_updated));
 
             report.push_str(&format!("\n{}\n", "=".repeat(80)));
@@ -519,13 +601,43 @@ impl CoverageData {
         let mut report = String::new();
 
         report.push_str("# Coverage Tracking\n\n");
-        report.push_str("This file is auto-generated from test results. Run tests to update coverage data.\n\n");
+        report.push_str(
+            "This file is auto-generated from test results. Run tests to update coverage data.\n\n",
+        );
 
         // All possible endpoints
-        let pallet_endpoints = vec!["consts", "consts-item", "storage", "dispatchables", "errors", "events"];
-        let block_endpoints = vec!["block", "block-header", "block-extrinsics", "block-extrinsics-raw", "block-extrinsics-idx", "rc-block-extrinsics-raw", "rc-block-extrinsics-idx", "block-para-inclusions", "staking-validators", "rc-staking-validators", "coretime-info", "coretime-leases", "coretime-reservations", "coretime-regions"];
+        let pallet_endpoints = vec![
+            "consts",
+            "consts-item",
+            "storage",
+            "dispatchables",
+            "errors",
+            "events",
+        ];
+        let block_endpoints = vec![
+            "block",
+            "block-header",
+            "block-extrinsics",
+            "block-extrinsics-raw",
+            "block-extrinsics-idx",
+            "rc-block-extrinsics-raw",
+            "rc-block-extrinsics-idx",
+            "block-para-inclusions",
+            "staking-validators",
+            "rc-staking-validators",
+            "coretime-info",
+            "coretime-leases",
+            "coretime-reservations",
+            "coretime-regions",
+        ];
         let account_endpoints = vec!["account-balance-info"];
-        let standalone_endpoints = vec!["runtime-spec", "runtime-metadata", "tx-material", "node-version", "node-network"];
+        let standalone_endpoints = vec![
+            "runtime-spec",
+            "runtime-metadata",
+            "tx-material",
+            "node-version",
+            "node-network",
+        ];
 
         report.push_str("## How it Works\n\n");
         report.push_str("- Every test run automatically saves results to a coverage file (default: `coverage/coverage.json`)\n");
@@ -540,12 +652,15 @@ impl CoverageData {
         report.push_str("# Show coverage report\n");
         report.push_str("cargo run -- --coverage-report\n\n");
         report.push_str("# Use a custom coverage file\n");
-        report.push_str("cargo run -- --coverage-file coverage/my-coverage.json --coverage-report\n");
+        report
+            .push_str("cargo run -- --coverage-file coverage/my-coverage.json --coverage-report\n");
         report.push_str("```\n\n");
 
         if self.chains.is_empty() {
             report.push_str("## Current Coverage\n\n");
-            report.push_str("No coverage data recorded yet. Run some tests to start tracking coverage.\n\n");
+            report.push_str(
+                "No coverage data recorded yet. Run some tests to start tracking coverage.\n\n",
+            );
             return report;
         }
 
@@ -557,7 +672,10 @@ impl CoverageData {
             report.push_str(&format!("- **Last updated:** {}\n\n", chain.last_updated));
 
             // Summary stats
-            let total_endpoints = pallet_endpoints.len() + block_endpoints.len() + account_endpoints.len() + standalone_endpoints.len();
+            let total_endpoints = pallet_endpoints.len()
+                + block_endpoints.len()
+                + account_endpoints.len()
+                + standalone_endpoints.len();
             let tested_endpoints = chain.endpoints.values().filter(|e| e.tested).count();
 
             let mut total_matched = 0u32;
@@ -566,11 +684,19 @@ impl CoverageData {
                 if let Some(ref pallets) = ep.pallets {
                     for p in pallets.values() {
                         total_matched += p.matched;
-                        total_tests += p.matched + p.mismatched + p.rust_errors + p.sidecar_errors + p.both_errors;
+                        total_tests += p.matched
+                            + p.mismatched
+                            + p.rust_errors
+                            + p.sidecar_errors
+                            + p.both_errors;
                     }
                 } else {
                     total_matched += ep.matched;
-                    total_tests += ep.matched + ep.mismatched + ep.rust_errors + ep.sidecar_errors + ep.both_errors;
+                    total_tests += ep.matched
+                        + ep.mismatched
+                        + ep.rust_errors
+                        + ep.sidecar_errors
+                        + ep.both_errors;
                 }
             }
             let overall_pass_rate = if total_tests > 0 {
@@ -581,8 +707,14 @@ impl CoverageData {
 
             report.push_str("| Metric | Value |\n");
             report.push_str("|--------|-------|\n");
-            report.push_str(&format!("| Endpoints tested | {}/{} |\n", tested_endpoints, total_endpoints));
-            report.push_str(&format!("| Overall pass rate | {:.2}% ({}/{}) |\n\n", overall_pass_rate, total_matched, total_tests));
+            report.push_str(&format!(
+                "| Endpoints tested | {}/{} |\n",
+                tested_endpoints, total_endpoints
+            ));
+            report.push_str(&format!(
+                "| Overall pass rate | {:.2}% ({}/{}) |\n\n",
+                overall_pass_rate, total_matched, total_tests
+            ));
 
             // Pallet endpoints table
             report.push_str("#### Pallet Endpoints\n\n");
@@ -613,14 +745,20 @@ impl CoverageData {
             for endpoint in &block_endpoints {
                 if let Some(ep_cov) = chain.endpoints.get(*endpoint) {
                     if ep_cov.tested {
-                        let ranges: Vec<String> = ep_cov.block_ranges.iter()
+                        let ranges: Vec<String> = ep_cov
+                            .block_ranges
+                            .iter()
                             .map(|(s, e)| format!("{}-{}", s, e))
                             .collect();
                         let pass_rate = ep_cov.pass_rate();
                         report.push_str(&format!(
                             "| {} | ✅ | {} | {:.1}% |\n",
                             endpoint,
-                            if ranges.is_empty() { "none".to_string() } else { ranges.join(", ") },
+                            if ranges.is_empty() {
+                                "none".to_string()
+                            } else {
+                                ranges.join(", ")
+                            },
                             pass_rate
                         ));
                     } else {
@@ -639,14 +777,20 @@ impl CoverageData {
             for endpoint in &account_endpoints {
                 if let Some(ep_cov) = chain.endpoints.get(*endpoint) {
                     if ep_cov.tested {
-                        let ranges: Vec<String> = ep_cov.block_ranges.iter()
+                        let ranges: Vec<String> = ep_cov
+                            .block_ranges
+                            .iter()
                             .map(|(s, e)| format!("{}-{}", s, e))
                             .collect();
                         let pass_rate = ep_cov.pass_rate();
                         report.push_str(&format!(
                             "| {} | ✅ | {} | {:.1}% |\n",
                             endpoint,
-                            if ranges.is_empty() { "none".to_string() } else { ranges.join(", ") },
+                            if ranges.is_empty() {
+                                "none".to_string()
+                            } else {
+                                ranges.join(", ")
+                            },
                             pass_rate
                         ));
                     } else {
@@ -677,7 +821,9 @@ impl CoverageData {
             report.push_str("\n");
 
             // Detailed pallet coverage if available
-            let has_pallet_details = chain.endpoints.values()
+            let has_pallet_details = chain
+                .endpoints
+                .values()
                 .filter(|e| e.tested && e.pallets.is_some())
                 .any(|e| e.pallets.as_ref().map(|p| !p.is_empty()).unwrap_or(false));
 
@@ -697,10 +843,14 @@ impl CoverageData {
                                     sorted_pallets.sort_by(|a, b| a.0.cmp(b.0));
 
                                     for (pallet_name, pallet_cov) in sorted_pallets {
-                                        let ranges: Vec<String> = pallet_cov.block_ranges.iter()
+                                        let ranges: Vec<String> = pallet_cov
+                                            .block_ranges
+                                            .iter()
                                             .map(|(s, e)| format!("{}-{}", s, e))
                                             .collect();
-                                        let total_errors = pallet_cov.rust_errors + pallet_cov.sidecar_errors + pallet_cov.both_errors;
+                                        let total_errors = pallet_cov.rust_errors
+                                            + pallet_cov.sidecar_errors
+                                            + pallet_cov.both_errors;
                                         report.push_str(&format!(
                                             "| {} | {} | {} | {} | {} | {:.1}% |\n",
                                             pallet_name,
