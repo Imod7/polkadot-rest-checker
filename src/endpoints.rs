@@ -32,6 +32,7 @@ pub enum EndpointType {
     BlockParaInclusions,
 
     // Coretime endpoints
+    CoretimeInfo,
     CoretimeLeases,
     CoretimeRegions,
     CoretimeReservations,
@@ -84,6 +85,7 @@ impl EndpointType {
             | EndpointType::BlockParaInclusions
             | EndpointType::PalletStakingValidators
             | EndpointType::RcPalletStakingValidators
+            | EndpointType::CoretimeInfo
             | EndpointType::CoretimeLeases
             | EndpointType::CoretimeReservations
             | EndpointType::CoretimeRegions => EndpointCategory::Block,
@@ -155,6 +157,10 @@ impl EndpointType {
             }
 
             // Coretime endpoints
+            EndpointType::CoretimeInfo => {
+                let block = block.expect("Block required for CoretimeInfo endpoint");
+                format!("/coretime/info?at={}", block)
+            }
             EndpointType::CoretimeLeases => {
                 let block = block.expect("Block required for CoretimeLeases endpoint");
                 format!("/coretime/leases?at={}", block)
@@ -271,6 +277,7 @@ impl EndpointType {
             EndpointType::RcBlockExtrinsicsRaw => "rc-block-extrinsics-raw",
             EndpointType::RcBlockExtrinsicsIdx => "rc-block-extrinsics-idx",
             EndpointType::BlockParaInclusions => "block-para-inclusions",
+            EndpointType::CoretimeInfo => "coretime-info",
             EndpointType::CoretimeLeases => "coretime-leases",
             EndpointType::CoretimeReservations => "coretime-reservations",
             EndpointType::CoretimeRegions => "coretime-regions",
@@ -321,6 +328,7 @@ impl fmt::Display for EndpointType {
             EndpointType::RcBlockExtrinsicsRaw => write!(f, "rc-block-extrinsics-raw"),
             EndpointType::RcBlockExtrinsicsIdx => write!(f, "rc-block-extrinsics-idx"),
             EndpointType::BlockParaInclusions => write!(f, "block-para-inclusions"),
+            EndpointType::CoretimeInfo => write!(f, "coretime-info"),
             EndpointType::CoretimeLeases => write!(f, "coretime-leases"),
             EndpointType::CoretimeReservations => write!(f, "coretime-reservations"),
             EndpointType::CoretimeRegions => write!(f, "coretime-regions"),
@@ -360,6 +368,7 @@ impl std::str::FromStr for EndpointType {
             "block-para-inclusions" | "para-inclusions" => Ok(EndpointType::BlockParaInclusions),
 
             // Coretime endpoints
+            "coretime-info" => Ok(EndpointType::CoretimeInfo),
             "coretime-leases" => Ok(EndpointType::CoretimeLeases),
             "coretime-reservations" => Ok(EndpointType::CoretimeReservations),
             "coretime-regions" | "core-reg" => Ok(EndpointType::CoretimeRegions),
