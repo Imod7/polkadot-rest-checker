@@ -127,6 +127,8 @@ polkadot-rest-checker [OPTIONS]
 | `block-header` | `header` | `/blocks/{block}/header` |
 | `block-extrinsics` | `extrinsics` | `/blocks/{block}/extrinsics-info` |
 | `block-extrinsics-raw` | - | `/blocks/{block}/extrinsics-raw` |
+| `block-extrinsics-raw-rcblock` | `block-extrinsics-raw-rc` | `/blocks/{block}/extrinsics-raw?useRcBlock=true` |
+| `block-extrinsics-idx-rcblock` | `block-extrinsics-idx-rc` | `/blocks/{block}/extrinsics/{idx}?useRcBlock=true` |
 | `block-para-inclusions` | `para-inclusions` | `/blocks/{block}/para-inclusions` |
 
 #### Relay Chain Block Endpoints (iterate over blocks only)
@@ -229,6 +231,12 @@ cargo run -- --endpoint extrinsics --start 1000000 --end 1000100
 
 # Test block extrinsics raw
 cargo run -- --endpoint block-extrinsics-raw --start 1000000 --end 1000100
+
+# Test block extrinsics raw with relay chain block (useRcBlock=true)
+cargo run -- --endpoint block-extrinsics-raw-rcblock --start 1000000 --end 1000100
+
+# Test block extrinsics by index with relay chain block (useRcBlock=true)
+cargo run -- --endpoint block-extrinsics-idx-rcblock --start 1000000 --end 1000010
 
 # Test parachain inclusions (relay chain only)
 cargo run -- --endpoint para-inclusions --start 10293194 --end 10293200

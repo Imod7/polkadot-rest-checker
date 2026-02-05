@@ -592,10 +592,10 @@ async fn scan_block_endpoint(
     let mut both_errors = 0u32;
     let mut issues: Vec<(u64, String)> = Vec::new();
 
-    // Check if this is the special RcBlockExtrinsicsIdx or BlockExtrinsicsIdx endpoint that needs extrinsic iteration
+    // Check if this is a special extrinsic index endpoint that needs extrinsic iteration
     let is_extrinsic_idx_endpoint = matches!(
         endpoint_type,
-        EndpointType::RcBlockExtrinsicsIdx | EndpointType::BlockExtrinsicsIdx
+        EndpointType::RcBlockExtrinsicsIdx | EndpointType::BlockExtrinsicsIdx | EndpointType::BlockExtrinsicsIdxRcBlock
     );
 
     while current_block <= end_block {
@@ -615,17 +615,28 @@ async fn scan_block_endpoint(
         if is_extrinsic_idx_endpoint {
             // Special handling: fetch extrinsics count first, then test each index
             for block_num in blocks {
-                // Fetch extrinsics list to get count
-                let extrinsics_url = format!("{}/rc/blocks/{}/extrinsics-raw", rust_url, block_num);
+                // Fetch extrinsics list to get count - use appropriate URL based on endpoint type
+                let extrinsics_url = if matches!(endpoint_type, EndpointType::BlockExtrinsicsIdxRcBlock) {
+                    format!("{}/blocks/{}/extrinsics-raw?useRcBlock=true", rust_url, block_num)
+                } else {
+                    format!("{}/rc/blocks/{}/extrinsics-raw", rust_url, block_num)
+                };
                 let extrinsics_count = match fetch_json(client, &extrinsics_url).await {
                     Ok(json) => {
-                        // Response is an object with "extrinsics" field, not a direct array
+                        // Response structure may vary - try "extrinsics" field first, then check for array at root
                         if let Some(arr) = json.get("extrinsics").and_then(|v| v.as_array()) {
                             arr.len()
+                        } else if let Some(arr) = json.as_array() {
+                            // Response might be a direct array
+                            arr.len()
                         } else {
+                            // Debug: print the response keys to understand structure
+                            let keys: Vec<&str> = json.as_object()
+                                .map(|obj| obj.keys().map(|k| k.as_str()).collect())
+                                .unwrap_or_default();
                             println!(
-                                "    Block {}: Failed to parse extrinsics from response, skipping",
-                                block_num
+                                "    Block {}: Failed to parse extrinsics from response (keys: {:?}), skipping",
+                                block_num, keys
                             );
                             continue;
                         }

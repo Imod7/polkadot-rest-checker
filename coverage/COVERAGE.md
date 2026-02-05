@@ -23,127 +23,6 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 
 ## Current Coverage
 
-### Chain: asset-hub-polkadot
-
-- **Total pallets:** 55
-- **Last updated:** 2026-01-29T15:34:09.480327+00:00
-
-| Metric | Value |
-|--------|-------|
-| Endpoints tested | 7/29 |
-| Overall pass rate | 69.23% (657/949) |
-
-#### Pallet Endpoints
-
-| Endpoint | Status | Pallets Tested | Pass Rate |
-|----------|--------|----------------|------------|
-| consts | ❌ | - | - |
-| consts-item | ❌ | - | - |
-| storage | ❌ | - | - |
-| dispatchables | ❌ | - | - |
-| errors | ✅ | 55/55 | 63.6% |
-| events | ❌ | - | - |
-
-#### Block Endpoints
-
-| Endpoint | Status | Block Ranges | Pass Rate |
-|----------|--------|--------------|------------|
-| block | ❌ | - | - |
-| blocks-head | ❌ | - | - |
-| block-header | ❌ | - | - |
-| block-extrinsics | ✅ | 2200200-2200210 | 0.0% |
-| block-extrinsics-raw | ✅ | 2600200-2600240, 10600200-10600240, 12600200-12600240 | 75.0% |
-| block-extrinsics-idx | ❌ | - | - |
-| rc-block-extrinsics-raw | ✅ | 1900100-1900110, 2300200-2300210, 10678777-10678787, 15678777-15678787, 22678777-22678787, 25678777-25678787 | 100.0% |
-| rc-block-extrinsics-idx | ✅ | 1000000-1000010, 28494700-28494710 | 100.0% |
-| block-para-inclusions | ❌ | - | - |
-| staking-validators | ✅ | 10678777-10678787, 11494651-11494660, 18494651-18494660 | 35.5% |
-| rc-staking-validators | ✅ | 10678777-10678787 | 100.0% |
-| coretime-info | ❌ | - | - |
-| coretime-overview | ❌ | - | - |
-| coretime-leases | ❌ | - | - |
-| coretime-reservations | ❌ | - | - |
-| coretime-regions | ❌ | - | - |
-
-#### Account Endpoints
-
-| Endpoint | Status | Block Ranges | Pass Rate |
-|----------|--------|--------------|------------|
-| account-balance-info | ❌ | - | - |
-
-#### Standalone Endpoints
-
-| Endpoint | Status | Result |
-|----------|--------|--------|
-| runtime-spec | ❌ | - |
-| runtime-metadata | ❌ | - |
-| tx-material | ❌ | - |
-| node-version | ❌ | - |
-| node-network | ❌ | - |
-| blocks-head-rcblock | ❌ | - |
-
-#### Detailed Pallet Coverage
-
-**errors:**
-
-| Pallet | Block Ranges | Matched | Mismatched | Errors | Pass Rate |
-|--------|--------------|---------|------------|--------|------------|
-| AhMigrator | 10294700-10294710 | 0 | 11 | 0 | 0.0% |
-| AhOps | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| AssetConversion | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| AssetRate | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| AssetTxPayment | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
-| Assets | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| Aura | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
-| AuraExt | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
-| Authorship | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
-| Balances | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| Bounties | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| ChildBounties | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| Claims | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| CollatorSelection | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| ConvictionVoting | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| CumulusXcm | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
-| DelegatedStaking | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| ForeignAssets | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| Indices | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| MessageQueue | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| MultiBlockElection | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| MultiBlockElectionSigned | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| MultiBlockElectionUnsigned | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
-| MultiBlockElectionVerifier | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
-| Multisig | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| Nfts | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| NominationPools | 10294700-10294710 | 0 | 11 | 0 | 0.0% |
-| Origins | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
-| ParachainInfo | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
-| ParachainSystem | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| Parameters | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
-| PolkadotXcm | 10294700-10294710 | 0 | 11 | 0 | 0.0% |
-| PoolAssets | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| Preimage | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| Proxy | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| Referenda | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| Revive | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
-| Scheduler | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| Session | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| SnowbridgeSystemFrontend | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| Staking | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| StakingRcClient | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
-| StateTrieMigration | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| System | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| Timestamp | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
-| ToKusamaXcmRouter | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
-| TransactionPayment | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
-| Treasury | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| Uniques | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| Utility | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| Vesting | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| VoterList | 10294700-10294710 | 0 | 11 | 0 | 0.0% |
-| WeightReclaim | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
-| Whitelist | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-| XcmpQueue | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
-
 ### Chain: asset-hub-kusama
 
 - **Total pallets:** 59
@@ -151,7 +30,7 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 
 | Metric | Value |
 |--------|-------|
-| Endpoints tested | 4/29 |
+| Endpoints tested | 4/31 |
 | Overall pass rate | 74.12% (922/1244) |
 
 #### Pallet Endpoints
@@ -174,7 +53,9 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 | block-header | ❌ | - | - |
 | block-extrinsics | ❌ | - | - |
 | block-extrinsics-raw | ❌ | - | - |
+| block-extrinsics-raw-rcblock | ❌ | - | - |
 | block-extrinsics-idx | ✅ | 12798138-12798149, 12940347-12940359, 12958046-12958049, 12958582-12958589 | 62.5% |
+| block-extrinsics-idx-rcblock | ❌ | - | - |
 | rc-block-extrinsics-raw | ✅ | 1500200-1500210, 10678777-10678787, 11300200-11300210, 12678777-12678787, 20678777-20678787, 22678777-22678787, 25678777-25678787, 29678777-29678787, 30300200-30300210, 31678777-31678787 | 66.7% |
 | rc-block-extrinsics-idx | ✅ | 3494700-3494710, 12958046-12958049, 13494700-13494710, 21494700-21494710, 28494700-28494710, 30423052-30423059, 30423265-30423269 | 97.0% |
 | block-para-inclusions | ❌ | - | - |
@@ -276,7 +157,7 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 
 | Metric | Value |
 |--------|-------|
-| Endpoints tested | 6/29 |
+| Endpoints tested | 6/31 |
 | Overall pass rate | 43.27% (964/2228) |
 
 #### Pallet Endpoints
@@ -299,7 +180,9 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 | block-header | ❌ | - | - |
 | block-extrinsics | ❌ | - | - |
 | block-extrinsics-raw | ✅ | 233241-233255, 10233241-10233255 | 100.0% |
+| block-extrinsics-raw-rcblock | ❌ | - | - |
 | block-extrinsics-idx | ❌ | - | - |
+| block-extrinsics-idx-rcblock | ❌ | - | - |
 | rc-block-extrinsics-raw | ❌ | - | - |
 | rc-block-extrinsics-idx | ❌ | - | - |
 | block-para-inclusions | ❌ | - | - |
@@ -543,12 +426,12 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 ### Chain: polkadot
 
 - **Total pallets:** 61
-- **Last updated:** 2026-02-05T17:57:23.455794+00:00
+- **Last updated:** 2026-02-05T18:55:21.884263+00:00
 
 | Metric | Value |
 |--------|-------|
-| Endpoints tested | 11/29 |
-| Overall pass rate | 79.70% (4162/5222) |
+| Endpoints tested | 13/31 |
+| Overall pass rate | 79.41% (4478/5639) |
 
 #### Pallet Endpoints
 
@@ -570,7 +453,9 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 | block-header | ❌ | - | - |
 | block-extrinsics | ❌ | - | - |
 | block-extrinsics-raw | ✅ | 3233222-3233232, 9233222-9233232, 13233222-13233250, 22233222-22233250, 23233222-23233232 | 100.0% |
+| block-extrinsics-raw-rcblock | ✅ | 1000000-1000100, 29290300-29290370, 29290600-29290670, 29300500-29300550 | 72.3% |
 | block-extrinsics-idx | ❌ | - | - |
+| block-extrinsics-idx-rcblock | ✅ | 30103052-30103059, 30123052-30123059, 30423052-30423059, 30723052-30723059 | 100.0% |
 | rc-block-extrinsics-raw | ❌ | - | - |
 | rc-block-extrinsics-idx | ❌ | - | - |
 | block-para-inclusions | ✅ | 1500200-1500250, 5840200-5840240, 8500200-8500250, 10500200-10500250 | 61.6% |
@@ -806,7 +691,7 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 
 | Metric | Value |
 |--------|-------|
-| Endpoints tested | 3/29 |
+| Endpoints tested | 3/31 |
 | Overall pass rate | 25.00% (6/24) |
 
 #### Pallet Endpoints
@@ -829,7 +714,9 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 | block-header | ❌ | - | - |
 | block-extrinsics | ❌ | - | - |
 | block-extrinsics-raw | ❌ | - | - |
+| block-extrinsics-raw-rcblock | ❌ | - | - |
 | block-extrinsics-idx | ❌ | - | - |
+| block-extrinsics-idx-rcblock | ❌ | - | - |
 | rc-block-extrinsics-raw | ❌ | - | - |
 | rc-block-extrinsics-idx | ❌ | - | - |
 | block-para-inclusions | ❌ | - | - |
@@ -857,6 +744,129 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 | node-version | ❌ | - |
 | node-network | ❌ | - |
 | blocks-head-rcblock | ❌ | - |
+
+### Chain: asset-hub-polkadot
+
+- **Total pallets:** 55
+- **Last updated:** 2026-01-29T15:34:09.480327+00:00
+
+| Metric | Value |
+|--------|-------|
+| Endpoints tested | 7/31 |
+| Overall pass rate | 69.23% (657/949) |
+
+#### Pallet Endpoints
+
+| Endpoint | Status | Pallets Tested | Pass Rate |
+|----------|--------|----------------|------------|
+| consts | ❌ | - | - |
+| consts-item | ❌ | - | - |
+| storage | ❌ | - | - |
+| dispatchables | ❌ | - | - |
+| errors | ✅ | 55/55 | 63.6% |
+| events | ❌ | - | - |
+
+#### Block Endpoints
+
+| Endpoint | Status | Block Ranges | Pass Rate |
+|----------|--------|--------------|------------|
+| block | ❌ | - | - |
+| blocks-head | ❌ | - | - |
+| block-header | ❌ | - | - |
+| block-extrinsics | ✅ | 2200200-2200210 | 0.0% |
+| block-extrinsics-raw | ✅ | 2600200-2600240, 10600200-10600240, 12600200-12600240 | 75.0% |
+| block-extrinsics-raw-rcblock | ❌ | - | - |
+| block-extrinsics-idx | ❌ | - | - |
+| block-extrinsics-idx-rcblock | ❌ | - | - |
+| rc-block-extrinsics-raw | ✅ | 1900100-1900110, 2300200-2300210, 10678777-10678787, 15678777-15678787, 22678777-22678787, 25678777-25678787 | 100.0% |
+| rc-block-extrinsics-idx | ✅ | 1000000-1000010, 28494700-28494710 | 100.0% |
+| block-para-inclusions | ❌ | - | - |
+| staking-validators | ✅ | 10678777-10678787, 11494651-11494660, 18494651-18494660 | 35.5% |
+| rc-staking-validators | ✅ | 10678777-10678787 | 100.0% |
+| coretime-info | ❌ | - | - |
+| coretime-overview | ❌ | - | - |
+| coretime-leases | ❌ | - | - |
+| coretime-reservations | ❌ | - | - |
+| coretime-regions | ❌ | - | - |
+
+#### Account Endpoints
+
+| Endpoint | Status | Block Ranges | Pass Rate |
+|----------|--------|--------------|------------|
+| account-balance-info | ❌ | - | - |
+
+#### Standalone Endpoints
+
+| Endpoint | Status | Result |
+|----------|--------|--------|
+| runtime-spec | ❌ | - |
+| runtime-metadata | ❌ | - |
+| tx-material | ❌ | - |
+| node-version | ❌ | - |
+| node-network | ❌ | - |
+| blocks-head-rcblock | ❌ | - |
+
+#### Detailed Pallet Coverage
+
+**errors:**
+
+| Pallet | Block Ranges | Matched | Mismatched | Errors | Pass Rate |
+|--------|--------------|---------|------------|--------|------------|
+| AhMigrator | 10294700-10294710 | 0 | 11 | 0 | 0.0% |
+| AhOps | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| AssetConversion | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| AssetRate | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| AssetTxPayment | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
+| Assets | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| Aura | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
+| AuraExt | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
+| Authorship | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
+| Balances | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| Bounties | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| ChildBounties | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| Claims | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| CollatorSelection | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| ConvictionVoting | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| CumulusXcm | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
+| DelegatedStaking | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| ForeignAssets | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| Indices | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| MessageQueue | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| MultiBlockElection | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| MultiBlockElectionSigned | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| MultiBlockElectionUnsigned | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
+| MultiBlockElectionVerifier | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
+| Multisig | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| Nfts | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| NominationPools | 10294700-10294710 | 0 | 11 | 0 | 0.0% |
+| Origins | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
+| ParachainInfo | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
+| ParachainSystem | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| Parameters | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
+| PolkadotXcm | 10294700-10294710 | 0 | 11 | 0 | 0.0% |
+| PoolAssets | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| Preimage | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| Proxy | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| Referenda | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| Revive | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
+| Scheduler | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| Session | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| SnowbridgeSystemFrontend | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| Staking | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| StakingRcClient | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
+| StateTrieMigration | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| System | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| Timestamp | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
+| ToKusamaXcmRouter | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
+| TransactionPayment | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
+| Treasury | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| Uniques | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| Utility | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| Vesting | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| VoterList | 10294700-10294710 | 0 | 11 | 0 | 0.0% |
+| WeightReclaim | 10294700-10294710 | 0 | 0 | 11 | 0.0% |
+| Whitelist | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
+| XcmpQueue | 10294700-10294710 | 11 | 0 | 0 | 100.0% |
 
 ## Coverage File Format
 
