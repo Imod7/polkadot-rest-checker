@@ -123,6 +123,7 @@ polkadot-rest-checker [OPTIONS]
 | Endpoint | Aliases | API Path |
 |----------|---------|----------|
 | `block` | `blocks` | `/blocks/{block}` |
+| `blocks-head` | - | `/blocks/head` |
 | `block-header` | `header` | `/blocks/{block}/header` |
 | `block-extrinsics` | `extrinsics` | `/blocks/{block}/extrinsics-info` |
 | `block-extrinsics-raw` | - | `/blocks/{block}/extrinsics-raw` |
@@ -156,6 +157,7 @@ Account endpoints test against a predefined set of test accounts for each chain.
 | `tx-material` | `transaction-material` | `/transaction/material` |
 | `node-version` | `version` | `/node/version` |
 | `node-network` | `network` | `/node/network` |
+| `blocks-head-rcblock` | `blocks-head-rc` | `/blocks/head?useRcBlock=true` |
 
 ## Examples
 
@@ -280,6 +282,9 @@ cargo run -- --endpoint node-version
 
 # Test node network info
 cargo run -- --endpoint node-network
+
+# Test blocks/head with relay chain block (useRcBlock=true)
+cargo run -- --endpoint blocks-head-rcblock
 ```
 
 ### Account Endpoint Examples
@@ -427,7 +432,7 @@ errors_polkadot_0-1000_account-balance-info_account_Account_1.log
 errors_polkadot_runtime-spec.log
 ```
 
-Log file contents for mismatches include both responses:
+Log file contents for mismatches include the specific field differences and both full responses:
 
 ```
 # Error/Mismatch log for chain: polkadot, endpoint: pallet-consts, pallet: System (index: 0)
@@ -435,7 +440,11 @@ Log file contents for mismatches include both responses:
 # Rust API: http://localhost:8080/v1
 # Sidecar API: http://localhost:8045
 #
-Block 42: MISMATCH - Responses differ
+Block 42: MISMATCH
+  Differences (2):
+    - at.height: rust="42" vs sidecar="43"
+    - consts[0].value: rust=1000000 vs sidecar="1000000"
+
   Rust API response: {
     "at": { ... },
     "pallet": "System",
@@ -448,12 +457,45 @@ Block 42: MISMATCH - Responses differ
   }
 ```
 
+## Diff Detection
+
+When responses differ, the checker automatically identifies and reports the specific fields that don't match. This makes debugging much faster than manually comparing large JSON responses.
+
+### Console Output
+
+Mismatches show the first few differences inline:
+
+```
+    Block 1000000: MISMATCH (3 diffs)
+      - at.height: rust="1000000" vs sidecar="1000001"
+      - extrinsics[0].method.pallet: rust="Balances" vs sidecar="balances"
+      - timestamp: missing in sidecar (rust="2024-01-01T00:00:00Z")
+      ... and 1 more
+```
+
+### Diff Types
+
+| Type | Description | Example |
+|------|-------------|---------|
+| **ValueMismatch** | Same field, different values | `at.height: rust="100" vs sidecar="101"` |
+| **MissingInSidecar** | Field exists in Rust only | `newField: missing in sidecar (rust="value")` |
+| **MissingInRust** | Field exists in Sidecar only | `oldField: missing in rust (sidecar="value")` |
+| **ArrayLengthMismatch** | Arrays have different lengths | `extrinsics: array length mismatch (rust=5 vs sidecar=3)` |
+| **TypeMismatch** | Same field, different JSON types | `value: type mismatch (rust=number vs sidecar=string)` |
+
+### Path Format
+
+Field paths use dot notation for objects and bracket notation for arrays:
+- `at.height` - nested object field
+- `extrinsics[0].method` - first element of array, then nested field
+- `pallets[2].storage[0].name` - deeply nested path
+
 ## Result Categories
 
 | Category | Description |
 |----------|-------------|
 | **Matched** | Both APIs returned identical responses |
-| **Mismatch** | Both APIs succeeded but responses differ |
+| **Mismatch** | Both APIs succeeded but responses differ (specific field differences are reported) |
 | **RustErr** | Rust API returned an error, Sidecar succeeded |
 | **SidecarErr** | Sidecar returned an error, Rust API succeeded |
 | **BothErr** | Both APIs returned errors |
@@ -479,13 +521,20 @@ cargo run -- --endpoint block --start 1000 --end 1010
 
 2. **Use `--pallet` filter** to focus on specific functionality when debugging pallet endpoints.
 
-3. **Check log files** for detailed mismatch information - the console only shows the first 10-20 issues.
+3. **Check log files** for detailed mismatch information - the console only shows the first few differences per block.
 
-4. **Adjust `--batch-size` and `--delay`** if you're hitting rate limits or timeouts.
+4. **Diff detection helps identify issues quickly** - look at the field paths (e.g., `extrinsics[0].args.value`) to pinpoint exactly where responses differ.
 
-5. **Ensure both APIs connect to the same RPC endpoint** for accurate comparisons.
+5. **Adjust `--batch-size` and `--delay`** if you're hitting rate limits or timeouts.
 
-6. **Use runtime endpoints** for quick sanity checks before running longer scans.
+6. **Ensure both APIs connect to the same RPC endpoint** for accurate comparisons.
+
+7. **Use runtime endpoints** for quick sanity checks before running longer scans.
+
+8. **Common diff patterns to watch for:**
+   - Type mismatches (number vs string) often indicate serialization differences
+   - Missing fields may indicate version differences between implementations
+   - Case differences in strings are ignored (comparison is case-insensitive)
 
 ## Troubleshooting
 
@@ -514,8 +563,8 @@ Run with an invalid endpoint to see the list of valid options:
 cargo run -- --endpoint invalid
 # Error: Unknown endpoint 'invalid'. Valid options:
 #   Pallet: consts, storage, dispatchables, errors, events
-#   Block: block, block-header, block-extrinsics, para-inclusions
-#   Runtime: runtime-spec, runtime-metadata, tx-material
+#   Block: block, blocks-head, block-header, block-extrinsics, para-inclusions
+#   Runtime: runtime-spec, runtime-metadata, tx-material, blocks-head-rcblock
 #   Node: node-version, node-network
 ```
 

@@ -23,320 +23,6 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 
 ## Current Coverage
 
-### Chain: coretime-polkadot
-
-- **Total pallets:** 0
-- **Last updated:** 2026-02-01T21:17:58.754673+00:00
-
-| Metric | Value |
-|--------|-------|
-| Endpoints tested | 3/27 |
-| Overall pass rate | 25.00% (6/24) |
-
-#### Pallet Endpoints
-
-| Endpoint | Status | Pallets Tested | Pass Rate |
-|----------|--------|----------------|------------|
-| consts | ❌ | - | - |
-| consts-item | ❌ | - | - |
-| storage | ❌ | - | - |
-| dispatchables | ❌ | - | - |
-| errors | ❌ | - | - |
-| events | ❌ | - | - |
-
-#### Block Endpoints
-
-| Endpoint | Status | Block Ranges | Pass Rate |
-|----------|--------|--------------|------------|
-| block | ❌ | - | - |
-| block-header | ❌ | - | - |
-| block-extrinsics | ❌ | - | - |
-| block-extrinsics-raw | ❌ | - | - |
-| block-extrinsics-idx | ❌ | - | - |
-| rc-block-extrinsics-raw | ❌ | - | - |
-| rc-block-extrinsics-idx | ❌ | - | - |
-| block-para-inclusions | ❌ | - | - |
-| staking-validators | ❌ | - | - |
-| rc-staking-validators | ❌ | - | - |
-| coretime-info | ❌ | - | - |
-| coretime-overview | ❌ | - | - |
-| coretime-leases | ✅ | 1970105-1970110, 2770105-2770110 | 0.0% |
-| coretime-reservations | ✅ | 1970105-1970110 | 100.0% |
-| coretime-regions | ✅ | 1970105-1970110 | 0.0% |
-
-#### Account Endpoints
-
-| Endpoint | Status | Block Ranges | Pass Rate |
-|----------|--------|--------------|------------|
-| account-balance-info | ❌ | - | - |
-
-#### Standalone Endpoints
-
-| Endpoint | Status | Result |
-|----------|--------|--------|
-| runtime-spec | ❌ | - |
-| runtime-metadata | ❌ | - |
-| tx-material | ❌ | - |
-| node-version | ❌ | - |
-| node-network | ❌ | - |
-
-### Chain: polkadot
-
-- **Total pallets:** 61
-- **Last updated:** 2026-02-05T12:16:10.272776+00:00
-
-| Metric | Value |
-|--------|-------|
-| Endpoints tested | 10/27 |
-| Overall pass rate | 79.75% (4162/5219) |
-
-#### Pallet Endpoints
-
-| Endpoint | Status | Pallets Tested | Pass Rate |
-|----------|--------|----------------|------------|
-| consts | ✅ | 61/61 | 55.7% |
-| consts-item | ✅ | 0/61 | 100.0% |
-| storage | ✅ | 61/61 | 90.2% |
-| dispatchables | ❌ | - | - |
-| errors | ✅ | 61/61 | 57.4% |
-| events | ❌ | - | - |
-
-#### Block Endpoints
-
-| Endpoint | Status | Block Ranges | Pass Rate |
-|----------|--------|--------------|------------|
-| block | ❌ | - | - |
-| block-header | ❌ | - | - |
-| block-extrinsics | ❌ | - | - |
-| block-extrinsics-raw | ✅ | 3233222-3233232, 9233222-9233232, 13233222-13233250, 22233222-22233250, 23233222-23233232 | 100.0% |
-| block-extrinsics-idx | ❌ | - | - |
-| rc-block-extrinsics-raw | ❌ | - | - |
-| rc-block-extrinsics-idx | ❌ | - | - |
-| block-para-inclusions | ✅ | 1500200-1500250, 5840200-5840240, 8500200-8500250, 10500200-10500250 | 61.6% |
-| staking-validators | ✅ | 10494650-10494660, 20494650-20494660, 28494651-28494660 | 68.8% |
-| rc-staking-validators | ❌ | - | - |
-| coretime-info | ✅ | 3200700-3200710, 8200700-8200710 | 0.0% |
-| coretime-overview | ✅ | 3200700-3200710 | 0.0% |
-| coretime-leases | ❌ | - | - |
-| coretime-reservations | ❌ | - | - |
-| coretime-regions | ❌ | - | - |
-
-#### Account Endpoints
-
-| Endpoint | Status | Block Ranges | Pass Rate |
-|----------|--------|--------------|------------|
-| account-balance-info | ✅ | 15233222-15233250, 22233222-22233250, 24233222-24233250 | 91.2% |
-
-#### Standalone Endpoints
-
-| Endpoint | Status | Result |
-|----------|--------|--------|
-| runtime-spec | ❌ | - |
-| runtime-metadata | ❌ | - |
-| tx-material | ❌ | - |
-| node-version | ❌ | - |
-| node-network | ❌ | - |
-
-#### Detailed Pallet Coverage
-
-**consts:**
-
-| Pallet | Block Ranges | Matched | Mismatched | Errors | Pass Rate |
-|--------|--------------|---------|------------|--------|------------|
-| AssetRate | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| Auctions | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| AuthorityDiscovery | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| Authorship | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| Babe | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| Balances | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| Beefy | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| BeefyMmrLeaf | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| Bounties | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| ChildBounties | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| Claims | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| Configuration | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| ConvictionVoting | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| Coretime | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| CoretimeAssignmentProvider | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| Crowdloan | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| DelegatedStaking | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| Dmp | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| ElectionProviderMultiPhase | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| FastUnstake | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| Grandpa | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| Historical | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| Hrmp | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| Indices | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| Initializer | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| MessageQueue | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| Mmr | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| Multisig | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| NominationPools | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| Offences | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| OnDemand | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| Origins | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| ParaInclusion | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| ParaInherent | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| ParaScheduler | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| ParaSessionInfo | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| ParachainsOrigin | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| Paras | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| ParasDisputes | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| ParasShared | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| ParasSlashing | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| Preimage | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| Proxy | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| RcMigrator | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| Referenda | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| Registrar | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| Scheduler | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| Session | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| Slots | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| Staking | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| StakingAhClient | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| StateTrieMigration | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| System | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| Timestamp | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| TransactionPayment | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| Treasury | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| Utility | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| Vesting | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| VoterList | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
-| Whitelist | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-| XcmPallet | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
-
-**storage:**
-
-| Pallet | Block Ranges | Matched | Mismatched | Errors | Pass Rate |
-|--------|--------------|---------|------------|--------|------------|
-| AssetRate | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Auctions | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| AuthorityDiscovery | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Authorship | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Babe | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Balances | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Beefy | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| BeefyMmrLeaf | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Bounties | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| ChildBounties | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Claims | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Configuration | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| ConvictionVoting | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Coretime | 25500200-25500250 | 0 | 0 | 51 | 0.0% |
-| CoretimeAssignmentProvider | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Crowdloan | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| DelegatedStaking | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Dmp | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| ElectionProviderMultiPhase | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| FastUnstake | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Grandpa | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Historical | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Hrmp | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Indices | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Initializer | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| MessageQueue | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Mmr | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Multisig | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| NominationPools | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Offences | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| OnDemand | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Origins | 25500200-25500250 | 0 | 0 | 51 | 0.0% |
-| ParaInclusion | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| ParaInherent | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| ParaScheduler | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| ParaSessionInfo | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| ParachainsOrigin | 25500200-25500250 | 0 | 0 | 51 | 0.0% |
-| Paras | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| ParasDisputes | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| ParasShared | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| ParasSlashing | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Preimage | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Proxy | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| RcMigrator | 25500200-25500250 | 0 | 0 | 51 | 0.0% |
-| Referenda | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Registrar | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Scheduler | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Session | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Slots | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Staking | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| StakingAhClient | 25500200-25500250 | 0 | 0 | 51 | 0.0% |
-| StateTrieMigration | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| System | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Timestamp | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| TransactionPayment | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Treasury | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Utility | 25500200-25500250 | 0 | 0 | 51 | 0.0% |
-| Vesting | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| VoterList | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| Whitelist | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-| XcmPallet | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
-
-**errors:**
-
-| Pallet | Block Ranges | Matched | Mismatched | Errors | Pass Rate |
-|--------|--------------|---------|------------|--------|------------|
-| AssetRate | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
-| Auctions | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| AuthorityDiscovery | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
-| Authorship | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
-| Babe | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| Balances | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| Beefy | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
-| BeefyMmrLeaf | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
-| Bounties | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| ChildBounties | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| Claims | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| Configuration | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| ConvictionVoting | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| Coretime | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
-| CoretimeAssignmentProvider | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
-| Crowdloan | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| DelegatedStaking | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
-| Dmp | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
-| ElectionProviderMultiPhase | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| FastUnstake | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| Grandpa | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| Historical | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
-| Hrmp | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| Indices | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| Initializer | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
-| MessageQueue | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| Mmr | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
-| Multisig | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| NominationPools | 19294700-19294710 | 0 | 11 | 0 | 0.0% |
-| Offences | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
-| OnDemand | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
-| Origins | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
-| ParaInclusion | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| ParaInherent | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| ParaScheduler | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
-| ParaSessionInfo | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
-| ParachainsOrigin | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
-| Paras | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| ParasDisputes | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| ParasShared | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
-| ParasSlashing | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| Preimage | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| Proxy | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| RcMigrator | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
-| Referenda | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| Registrar | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| Scheduler | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| Session | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| Slots | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| Staking | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| StakingAhClient | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
-| StateTrieMigration | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
-| System | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| Timestamp | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
-| TransactionPayment | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
-| Treasury | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| Utility | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| Vesting | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| VoterList | 19294700-19294710 | 0 | 11 | 0 | 0.0% |
-| Whitelist | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-| XcmPallet | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
-
 ### Chain: asset-hub-polkadot
 
 - **Total pallets:** 55
@@ -344,7 +30,7 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 
 | Metric | Value |
 |--------|-------|
-| Endpoints tested | 7/27 |
+| Endpoints tested | 7/29 |
 | Overall pass rate | 69.23% (657/949) |
 
 #### Pallet Endpoints
@@ -363,6 +49,7 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 | Endpoint | Status | Block Ranges | Pass Rate |
 |----------|--------|--------------|------------|
 | block | ❌ | - | - |
+| blocks-head | ❌ | - | - |
 | block-header | ❌ | - | - |
 | block-extrinsics | ✅ | 2200200-2200210 | 0.0% |
 | block-extrinsics-raw | ✅ | 2600200-2600240, 10600200-10600240, 12600200-12600240 | 75.0% |
@@ -393,6 +80,7 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 | tx-material | ❌ | - |
 | node-version | ❌ | - |
 | node-network | ❌ | - |
+| blocks-head-rcblock | ❌ | - |
 
 #### Detailed Pallet Coverage
 
@@ -463,7 +151,7 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 
 | Metric | Value |
 |--------|-------|
-| Endpoints tested | 4/27 |
+| Endpoints tested | 4/29 |
 | Overall pass rate | 74.12% (922/1244) |
 
 #### Pallet Endpoints
@@ -482,6 +170,7 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 | Endpoint | Status | Block Ranges | Pass Rate |
 |----------|--------|--------------|------------|
 | block | ❌ | - | - |
+| blocks-head | ❌ | - | - |
 | block-header | ❌ | - | - |
 | block-extrinsics | ❌ | - | - |
 | block-extrinsics-raw | ❌ | - | - |
@@ -512,6 +201,7 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 | tx-material | ❌ | - |
 | node-version | ❌ | - |
 | node-network | ❌ | - |
+| blocks-head-rcblock | ❌ | - |
 
 #### Detailed Pallet Coverage
 
@@ -586,7 +276,7 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 
 | Metric | Value |
 |--------|-------|
-| Endpoints tested | 6/27 |
+| Endpoints tested | 6/29 |
 | Overall pass rate | 43.27% (964/2228) |
 
 #### Pallet Endpoints
@@ -605,6 +295,7 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 | Endpoint | Status | Block Ranges | Pass Rate |
 |----------|--------|--------------|------------|
 | block | ❌ | - | - |
+| blocks-head | ❌ | - | - |
 | block-header | ❌ | - | - |
 | block-extrinsics | ❌ | - | - |
 | block-extrinsics-raw | ✅ | 233241-233255, 10233241-10233255 | 100.0% |
@@ -635,6 +326,7 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 | tx-material | ❌ | - |
 | node-version | ❌ | - |
 | node-network | ❌ | - |
+| blocks-head-rcblock | ❌ | - |
 
 #### Detailed Pallet Coverage
 
@@ -847,6 +539,324 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 | VoterList | 29205800-29205810 | 0 | 11 | 0 | 0.0% |
 | Whitelist | 29205800-29205810 | 11 | 0 | 0 | 100.0% |
 | XcmPallet | 29205800-29205810 | 11 | 0 | 0 | 100.0% |
+
+### Chain: polkadot
+
+- **Total pallets:** 61
+- **Last updated:** 2026-02-05T17:57:23.455794+00:00
+
+| Metric | Value |
+|--------|-------|
+| Endpoints tested | 11/29 |
+| Overall pass rate | 79.70% (4162/5222) |
+
+#### Pallet Endpoints
+
+| Endpoint | Status | Pallets Tested | Pass Rate |
+|----------|--------|----------------|------------|
+| consts | ✅ | 61/61 | 55.7% |
+| consts-item | ✅ | 0/61 | 100.0% |
+| storage | ✅ | 61/61 | 90.2% |
+| dispatchables | ❌ | - | - |
+| errors | ✅ | 61/61 | 57.4% |
+| events | ❌ | - | - |
+
+#### Block Endpoints
+
+| Endpoint | Status | Block Ranges | Pass Rate |
+|----------|--------|--------------|------------|
+| block | ❌ | - | - |
+| blocks-head | ❌ | - | - |
+| block-header | ❌ | - | - |
+| block-extrinsics | ❌ | - | - |
+| block-extrinsics-raw | ✅ | 3233222-3233232, 9233222-9233232, 13233222-13233250, 22233222-22233250, 23233222-23233232 | 100.0% |
+| block-extrinsics-idx | ❌ | - | - |
+| rc-block-extrinsics-raw | ❌ | - | - |
+| rc-block-extrinsics-idx | ❌ | - | - |
+| block-para-inclusions | ✅ | 1500200-1500250, 5840200-5840240, 8500200-8500250, 10500200-10500250 | 61.6% |
+| staking-validators | ✅ | 10494650-10494660, 20494650-20494660, 28494651-28494660 | 68.8% |
+| rc-staking-validators | ❌ | - | - |
+| coretime-info | ✅ | 3200700-3200710, 8200700-8200710 | 0.0% |
+| coretime-overview | ✅ | 3200700-3200710 | 0.0% |
+| coretime-leases | ❌ | - | - |
+| coretime-reservations | ❌ | - | - |
+| coretime-regions | ❌ | - | - |
+
+#### Account Endpoints
+
+| Endpoint | Status | Block Ranges | Pass Rate |
+|----------|--------|--------------|------------|
+| account-balance-info | ✅ | 15233222-15233250, 22233222-22233250, 24233222-24233250 | 91.2% |
+
+#### Standalone Endpoints
+
+| Endpoint | Status | Result |
+|----------|--------|--------|
+| runtime-spec | ❌ | - |
+| runtime-metadata | ❌ | - |
+| tx-material | ❌ | - |
+| node-version | ❌ | - |
+| node-network | ❌ | - |
+| blocks-head-rcblock | ✅ | FAIL |
+
+#### Detailed Pallet Coverage
+
+**consts:**
+
+| Pallet | Block Ranges | Matched | Mismatched | Errors | Pass Rate |
+|--------|--------------|---------|------------|--------|------------|
+| AssetRate | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| Auctions | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| AuthorityDiscovery | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| Authorship | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| Babe | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| Balances | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| Beefy | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| BeefyMmrLeaf | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| Bounties | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| ChildBounties | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| Claims | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| Configuration | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| ConvictionVoting | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| Coretime | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| CoretimeAssignmentProvider | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| Crowdloan | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| DelegatedStaking | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| Dmp | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| ElectionProviderMultiPhase | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| FastUnstake | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| Grandpa | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| Historical | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| Hrmp | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| Indices | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| Initializer | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| MessageQueue | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| Mmr | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| Multisig | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| NominationPools | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| Offences | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| OnDemand | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| Origins | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| ParaInclusion | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| ParaInherent | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| ParaScheduler | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| ParaSessionInfo | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| ParachainsOrigin | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| Paras | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| ParasDisputes | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| ParasShared | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| ParasSlashing | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| Preimage | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| Proxy | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| RcMigrator | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| Referenda | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| Registrar | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| Scheduler | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| Session | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| Slots | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| Staking | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| StakingAhClient | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| StateTrieMigration | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| System | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| Timestamp | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| TransactionPayment | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| Treasury | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| Utility | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| Vesting | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| VoterList | 25678777-25678787 | 11 | 0 | 0 | 100.0% |
+| Whitelist | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+| XcmPallet | 25678777-25678787 | 0 | 0 | 11 | 0.0% |
+
+**storage:**
+
+| Pallet | Block Ranges | Matched | Mismatched | Errors | Pass Rate |
+|--------|--------------|---------|------------|--------|------------|
+| AssetRate | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Auctions | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| AuthorityDiscovery | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Authorship | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Babe | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Balances | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Beefy | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| BeefyMmrLeaf | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Bounties | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| ChildBounties | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Claims | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Configuration | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| ConvictionVoting | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Coretime | 25500200-25500250 | 0 | 0 | 51 | 0.0% |
+| CoretimeAssignmentProvider | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Crowdloan | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| DelegatedStaking | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Dmp | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| ElectionProviderMultiPhase | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| FastUnstake | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Grandpa | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Historical | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Hrmp | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Indices | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Initializer | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| MessageQueue | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Mmr | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Multisig | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| NominationPools | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Offences | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| OnDemand | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Origins | 25500200-25500250 | 0 | 0 | 51 | 0.0% |
+| ParaInclusion | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| ParaInherent | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| ParaScheduler | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| ParaSessionInfo | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| ParachainsOrigin | 25500200-25500250 | 0 | 0 | 51 | 0.0% |
+| Paras | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| ParasDisputes | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| ParasShared | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| ParasSlashing | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Preimage | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Proxy | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| RcMigrator | 25500200-25500250 | 0 | 0 | 51 | 0.0% |
+| Referenda | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Registrar | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Scheduler | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Session | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Slots | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Staking | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| StakingAhClient | 25500200-25500250 | 0 | 0 | 51 | 0.0% |
+| StateTrieMigration | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| System | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Timestamp | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| TransactionPayment | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Treasury | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Utility | 25500200-25500250 | 0 | 0 | 51 | 0.0% |
+| Vesting | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| VoterList | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| Whitelist | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+| XcmPallet | 25500200-25500250 | 51 | 0 | 0 | 100.0% |
+
+**errors:**
+
+| Pallet | Block Ranges | Matched | Mismatched | Errors | Pass Rate |
+|--------|--------------|---------|------------|--------|------------|
+| AssetRate | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
+| Auctions | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| AuthorityDiscovery | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
+| Authorship | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
+| Babe | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| Balances | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| Beefy | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
+| BeefyMmrLeaf | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
+| Bounties | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| ChildBounties | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| Claims | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| Configuration | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| ConvictionVoting | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| Coretime | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
+| CoretimeAssignmentProvider | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
+| Crowdloan | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| DelegatedStaking | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
+| Dmp | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
+| ElectionProviderMultiPhase | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| FastUnstake | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| Grandpa | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| Historical | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
+| Hrmp | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| Indices | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| Initializer | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
+| MessageQueue | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| Mmr | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
+| Multisig | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| NominationPools | 19294700-19294710 | 0 | 11 | 0 | 0.0% |
+| Offences | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
+| OnDemand | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
+| Origins | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
+| ParaInclusion | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| ParaInherent | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| ParaScheduler | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
+| ParaSessionInfo | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
+| ParachainsOrigin | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
+| Paras | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| ParasDisputes | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| ParasShared | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
+| ParasSlashing | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| Preimage | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| Proxy | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| RcMigrator | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
+| Referenda | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| Registrar | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| Scheduler | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| Session | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| Slots | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| Staking | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| StakingAhClient | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
+| StateTrieMigration | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
+| System | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| Timestamp | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
+| TransactionPayment | 19294700-19294710 | 0 | 0 | 11 | 0.0% |
+| Treasury | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| Utility | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| Vesting | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| VoterList | 19294700-19294710 | 0 | 11 | 0 | 0.0% |
+| Whitelist | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+| XcmPallet | 19294700-19294710 | 11 | 0 | 0 | 100.0% |
+
+### Chain: coretime-polkadot
+
+- **Total pallets:** 0
+- **Last updated:** 2026-02-01T21:17:58.754673+00:00
+
+| Metric | Value |
+|--------|-------|
+| Endpoints tested | 3/29 |
+| Overall pass rate | 25.00% (6/24) |
+
+#### Pallet Endpoints
+
+| Endpoint | Status | Pallets Tested | Pass Rate |
+|----------|--------|----------------|------------|
+| consts | ❌ | - | - |
+| consts-item | ❌ | - | - |
+| storage | ❌ | - | - |
+| dispatchables | ❌ | - | - |
+| errors | ❌ | - | - |
+| events | ❌ | - | - |
+
+#### Block Endpoints
+
+| Endpoint | Status | Block Ranges | Pass Rate |
+|----------|--------|--------------|------------|
+| block | ❌ | - | - |
+| blocks-head | ❌ | - | - |
+| block-header | ❌ | - | - |
+| block-extrinsics | ❌ | - | - |
+| block-extrinsics-raw | ❌ | - | - |
+| block-extrinsics-idx | ❌ | - | - |
+| rc-block-extrinsics-raw | ❌ | - | - |
+| rc-block-extrinsics-idx | ❌ | - | - |
+| block-para-inclusions | ❌ | - | - |
+| staking-validators | ❌ | - | - |
+| rc-staking-validators | ❌ | - | - |
+| coretime-info | ❌ | - | - |
+| coretime-overview | ❌ | - | - |
+| coretime-leases | ✅ | 1970105-1970110, 2770105-2770110 | 0.0% |
+| coretime-reservations | ✅ | 1970105-1970110 | 100.0% |
+| coretime-regions | ✅ | 1970105-1970110 | 0.0% |
+
+#### Account Endpoints
+
+| Endpoint | Status | Block Ranges | Pass Rate |
+|----------|--------|--------------|------------|
+| account-balance-info | ❌ | - | - |
+
+#### Standalone Endpoints
+
+| Endpoint | Status | Result |
+|----------|--------|--------|
+| runtime-spec | ❌ | - |
+| runtime-metadata | ❌ | - |
+| tx-material | ❌ | - |
+| node-version | ❌ | - |
+| node-network | ❌ | - |
+| blocks-head-rcblock | ❌ | - |
 
 ## Coverage File Format
 

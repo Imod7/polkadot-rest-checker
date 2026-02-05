@@ -23,6 +23,8 @@ pub enum EndpointType {
 
     // Block endpoints
     Block,
+    BlocksHead,
+    BlocksHeadRcBlock,
     BlockHeader,
     BlockExtrinsics,
     BlockExtrinsicsRaw,
@@ -76,6 +78,7 @@ impl EndpointType {
             EndpointType::PalletConstsConstantItem => EndpointCategory::Block,
 
             EndpointType::Block
+            | EndpointType::BlocksHead
             | EndpointType::BlockHeader
             | EndpointType::BlockExtrinsics
             | EndpointType::BlockExtrinsicsRaw
@@ -95,7 +98,8 @@ impl EndpointType {
             | EndpointType::RuntimeMetadata
             | EndpointType::TransactionMaterial
             | EndpointType::NodeVersion
-            | EndpointType::NodeNetwork => EndpointCategory::Standalone,
+            | EndpointType::NodeNetwork
+            | EndpointType::BlocksHeadRcBlock => EndpointCategory::Standalone,
         }
     }
 
@@ -137,6 +141,8 @@ impl EndpointType {
                 let block = block.expect("Block required for Block endpoint");
                 format!("/blocks/{}", block)
             }
+            EndpointType::BlocksHead => "/blocks/head".to_string(),
+            EndpointType::BlocksHeadRcBlock => "/blocks/head?useRcBlock=true".to_string(),
             EndpointType::BlockHeader => {
                 let block = block.expect("Block required for BlockHeader endpoint");
                 format!("/blocks/{}/header", block)
@@ -283,6 +289,8 @@ impl EndpointType {
         match self {
             EndpointType::AccountBalanceInfo => "account-balance-info",
             EndpointType::Block => "block",
+            EndpointType::BlocksHead => "blocks-head",
+            EndpointType::BlocksHeadRcBlock => "blocks-head-rcblock",
             EndpointType::BlockHeader => "block-header",
             EndpointType::BlockExtrinsics => "block-extrinsics",
             EndpointType::BlockExtrinsicsRaw => "block-extrinsics-raw",
@@ -335,6 +343,8 @@ impl fmt::Display for EndpointType {
         match self {
             EndpointType::AccountBalanceInfo => write!(f, "account-balance-info"),
             EndpointType::Block => write!(f, "block"),
+            EndpointType::BlocksHead => write!(f, "blocks-head"),
+            EndpointType::BlocksHeadRcBlock => write!(f, "blocks-head-rcblock"),
             EndpointType::BlockHeader => write!(f, "block-header"),
             EndpointType::BlockExtrinsics => write!(f, "block-extrinsics"),
             EndpointType::BlockExtrinsicsRaw => write!(f, "block-extrinsics-raw"),
@@ -374,6 +384,8 @@ impl std::str::FromStr for EndpointType {
 
             // Block endpoints
             "block" | "blocks" => Ok(EndpointType::Block),
+            "blocks-head" => Ok(EndpointType::BlocksHead),
+            "blocks-head-rcblock" | "blocks-head-rc" => Ok(EndpointType::BlocksHeadRcBlock),
             "block-header" | "header" => Ok(EndpointType::BlockHeader),
             "block-extrinsics" | "extrinsics" => Ok(EndpointType::BlockExtrinsics),
             "block-extrinsics-raw" => Ok(EndpointType::BlockExtrinsicsRaw),

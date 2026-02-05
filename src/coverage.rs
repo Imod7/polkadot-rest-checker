@@ -402,6 +402,7 @@ impl CoverageData {
         ];
         let block_endpoints = vec![
             "block",
+            "blocks-head",
             "block-header",
             "block-extrinsics",
             "block-extrinsics-raw",
@@ -424,6 +425,7 @@ impl CoverageData {
             "tx-material",
             "node-version",
             "node-network",
+            "blocks-head-rcblock",
         ];
 
         for (chain_name, chain) in &self.chains {
@@ -617,6 +619,7 @@ impl CoverageData {
         ];
         let block_endpoints = vec![
             "block",
+            "blocks-head",
             "block-header",
             "block-extrinsics",
             "block-extrinsics-raw",
@@ -639,6 +642,7 @@ impl CoverageData {
             "tx-material",
             "node-version",
             "node-network",
+            "blocks-head-rcblock",
         ];
 
         report.push_str("## How it Works\n\n");

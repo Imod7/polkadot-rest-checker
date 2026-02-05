@@ -69,6 +69,109 @@ struct Args {
     logs: bool,
 }
 
+/// Represents a single difference between two JSON values
+#[derive(Debug, Clone)]
+struct JsonDiff {
+    /// Path to the differing field (e.g., "at.height" or "extrinsics[0].method")
+    path: String,
+    /// Value from Rust API (None if field missing)
+    rust_value: Option<Value>,
+    /// Value from Sidecar API (None if field missing)
+    sidecar_value: Option<Value>,
+    /// Type of difference
+    diff_type: DiffType,
+}
+
+#[derive(Debug, Clone)]
+enum DiffType {
+    /// Values are different
+    ValueMismatch,
+    /// Field exists in Rust but not in Sidecar
+    MissingInSidecar,
+    /// Field exists in Sidecar but not in Rust
+    MissingInRust,
+    /// Array lengths differ
+    ArrayLengthMismatch,
+    /// Type mismatch (e.g., string vs number)
+    TypeMismatch,
+}
+
+impl std::fmt::Display for JsonDiff {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self.diff_type {
+            DiffType::ValueMismatch => {
+                write!(
+                    f,
+                    "{}: rust={} vs sidecar={}",
+                    self.path,
+                    self.rust_value.as_ref().map_or("null".to_string(), |v| truncate_value(v, 100)),
+                    self.sidecar_value.as_ref().map_or("null".to_string(), |v| truncate_value(v, 100))
+                )
+            }
+            DiffType::MissingInSidecar => {
+                write!(
+                    f,
+                    "{}: missing in sidecar (rust={})",
+                    self.path,
+                    self.rust_value.as_ref().map_or("null".to_string(), |v| truncate_value(v, 100))
+                )
+            }
+            DiffType::MissingInRust => {
+                write!(
+                    f,
+                    "{}: missing in rust (sidecar={})",
+                    self.path,
+                    self.sidecar_value.as_ref().map_or("null".to_string(), |v| truncate_value(v, 100))
+                )
+            }
+            DiffType::ArrayLengthMismatch => {
+                write!(
+                    f,
+                    "{}: array length mismatch (rust={} vs sidecar={})",
+                    self.path,
+                    self.rust_value.as_ref().and_then(|v| v.as_array()).map_or(0, |a| a.len()),
+                    self.sidecar_value.as_ref().and_then(|v| v.as_array()).map_or(0, |a| a.len())
+                )
+            }
+            DiffType::TypeMismatch => {
+                write!(
+                    f,
+                    "{}: type mismatch (rust={} vs sidecar={})",
+                    self.path,
+                    value_type_name(self.rust_value.as_ref()),
+                    value_type_name(self.sidecar_value.as_ref())
+                )
+            }
+        }
+    }
+}
+
+/// Get a short type name for a JSON value
+fn value_type_name(v: Option<&Value>) -> &'static str {
+    match v {
+        None => "null",
+        Some(Value::Null) => "null",
+        Some(Value::Bool(_)) => "bool",
+        Some(Value::Number(_)) => "number",
+        Some(Value::String(_)) => "string",
+        Some(Value::Array(_)) => "array",
+        Some(Value::Object(_)) => "object",
+    }
+}
+
+/// Truncate a JSON value to a maximum length for display
+fn truncate_value(v: &Value, max_len: usize) -> String {
+    let s = match v {
+        Value::String(s) => format!("\"{}\"", s),
+        _ => v.to_string(),
+    };
+    if s.len() > max_len {
+        format!("{}...", &s[..max_len])
+    } else {
+        s
+    }
+}
+
 /// Result of testing a block against both APIs
 #[derive(Debug)]
 enum TestResult {
@@ -78,6 +181,7 @@ enum TestResult {
     Mismatch {
         rust_response: Value,
         sidecar_response: Value,
+        diffs: Vec<JsonDiff>,
     },
     /// Rust API error
     RustError(String),
@@ -613,7 +717,16 @@ async fn scan_block_endpoint(
             // Log progress for non-match results
             match &result {
                 TestResult::Match => {}
-                TestResult::Mismatch { .. } => println!("    {}: MISMATCH", display_id),
+                TestResult::Mismatch { diffs, .. } => {
+                    println!("    {}: MISMATCH ({} diff{})", display_id, diffs.len(), if diffs.len() == 1 { "" } else { "s" });
+                    // Show first 3 diffs inline for quick debugging
+                    for diff in diffs.iter().take(3) {
+                        println!("      - {}", diff);
+                    }
+                    if diffs.len() > 3 {
+                        println!("      ... and {} more", diffs.len() - 3);
+                    }
+                }
                 TestResult::RustError(e) => println!("    {}: Rust Error - {}", display_id, e),
                 TestResult::SidecarError(e) => {
                     println!("    {}: Sidecar Error - {}", display_id, e)
@@ -752,8 +865,16 @@ async fn scan_runtime_endpoint(
         TestResult::Mismatch {
             rust_response,
             sidecar_response,
+            diffs,
         } => {
-            log_line!("\n  Result: MISMATCH - Responses differ");
+            log_line!("\n  Result: MISMATCH - {} difference(s) found", diffs.len());
+            // Show first few diffs in console
+            for (i, diff) in diffs.iter().take(5).enumerate() {
+                log_line!("    {}. {}", i + 1, diff);
+            }
+            if diffs.len() > 5 {
+                log_line!("    ... and {} more", diffs.len() - 5);
+            }
             endpoint_coverage.add_runtime_run(false, None);
 
             if create_logs {
@@ -767,7 +888,11 @@ async fn scan_runtime_endpoint(
                 writeln!(error_file, "# Rust API: {}", rust_api_url)?;
                 writeln!(error_file, "# Sidecar API: {}", sidecar_api_url)?;
                 writeln!(error_file, "#")?;
-                writeln!(error_file, "MISMATCH - Responses differ")?;
+                writeln!(error_file, "MISMATCH - {} difference(s) found:", diffs.len())?;
+                for diff in &diffs {
+                    writeln!(error_file, "  - {}", diff)?;
+                }
+                writeln!(error_file)?;
                 writeln!(
                     error_file,
                     "Rust API response: {}",
@@ -1012,11 +1137,35 @@ fn process_result(
         TestResult::Mismatch {
             rust_response,
             sidecar_response,
+            diffs,
         } => {
             *mismatched += 1;
-            let msg = "MISMATCH - Responses differ".to_string();
+            // Create a summary of the differences
+            let diff_summary = if diffs.is_empty() {
+                "unknown differences".to_string()
+            } else if diffs.len() == 1 {
+                format!("1 difference: {}", diffs[0])
+            } else if diffs.len() <= 5 {
+                format!(
+                    "{} differences:\n    - {}",
+                    diffs.len(),
+                    diffs.iter().map(|d| d.to_string()).collect::<Vec<_>>().join("\n    - ")
+                )
+            } else {
+                format!(
+                    "{} differences (showing first 5):\n    - {}",
+                    diffs.len(),
+                    diffs.iter().take(5).map(|d| d.to_string()).collect::<Vec<_>>().join("\n    - ")
+                )
+            };
+            let msg = format!("MISMATCH - {}", diff_summary);
             if let Some(ref mut f) = error_file {
-                writeln!(f, "Block {}: {}", block_num, msg)?;
+                writeln!(f, "Block {}: MISMATCH", block_num)?;
+                writeln!(f, "  Differences ({}):", diffs.len())?;
+                for diff in &diffs {
+                    writeln!(f, "    - {}", diff)?;
+                }
+                writeln!(f)?;
                 writeln!(
                     f,
                     "  Rust API response: {}",
@@ -1502,9 +1651,11 @@ async fn test_block_compare(
             if json_equal(&rust_json, &sidecar_json) {
                 TestResult::Match
             } else {
+                let diffs = json_diff(&rust_json, &sidecar_json);
                 TestResult::Mismatch {
                     rust_response: rust_json,
                     sidecar_response: sidecar_json,
+                    diffs,
                 }
             }
         }
@@ -1546,5 +1697,116 @@ fn json_equal(a: &Value, b: &Value) -> bool {
             a_str.to_lowercase() == b_str.to_lowercase()
         }
         _ => a == b,
+    }
+}
+
+/// Find all differences between two JSON values
+fn json_diff(rust: &Value, sidecar: &Value) -> Vec<JsonDiff> {
+    let mut diffs = Vec::new();
+    json_diff_recursive(rust, sidecar, String::new(), &mut diffs);
+    diffs
+}
+
+/// Recursively find differences between two JSON values
+fn json_diff_recursive(rust: &Value, sidecar: &Value, path: String, diffs: &mut Vec<JsonDiff>) {
+    match (rust, sidecar) {
+        (Value::Object(rust_map), Value::Object(sidecar_map)) => {
+            // Check for fields in rust but not in sidecar
+            for (key, rust_val) in rust_map {
+                let field_path = if path.is_empty() {
+                    key.clone()
+                } else {
+                    format!("{}.{}", path, key)
+                };
+
+                match sidecar_map.get(key) {
+                    Some(sidecar_val) => {
+                        json_diff_recursive(rust_val, sidecar_val, field_path, diffs);
+                    }
+                    None => {
+                        diffs.push(JsonDiff {
+                            path: field_path,
+                            rust_value: Some(rust_val.clone()),
+                            sidecar_value: None,
+                            diff_type: DiffType::MissingInSidecar,
+                        });
+                    }
+                }
+            }
+
+            // Check for fields in sidecar but not in rust
+            for (key, sidecar_val) in sidecar_map {
+                if !rust_map.contains_key(key) {
+                    let field_path = if path.is_empty() {
+                        key.clone()
+                    } else {
+                        format!("{}.{}", path, key)
+                    };
+                    diffs.push(JsonDiff {
+                        path: field_path,
+                        rust_value: None,
+                        sidecar_value: Some(sidecar_val.clone()),
+                        diff_type: DiffType::MissingInRust,
+                    });
+                }
+            }
+        }
+
+        (Value::Array(rust_arr), Value::Array(sidecar_arr)) => {
+            if rust_arr.len() != sidecar_arr.len() {
+                diffs.push(JsonDiff {
+                    path: path.clone(),
+                    rust_value: Some(Value::Array(rust_arr.clone())),
+                    sidecar_value: Some(Value::Array(sidecar_arr.clone())),
+                    diff_type: DiffType::ArrayLengthMismatch,
+                });
+                // Still compare elements up to the shorter length
+            }
+
+            let min_len = rust_arr.len().min(sidecar_arr.len());
+            for i in 0..min_len {
+                let elem_path = if path.is_empty() {
+                    format!("[{}]", i)
+                } else {
+                    format!("{}[{}]", path, i)
+                };
+                json_diff_recursive(&rust_arr[i], &sidecar_arr[i], elem_path, diffs);
+            }
+        }
+
+        // Case-insensitive string comparison
+        (Value::String(rust_str), Value::String(sidecar_str)) => {
+            if rust_str.to_lowercase() != sidecar_str.to_lowercase() {
+                diffs.push(JsonDiff {
+                    path,
+                    rust_value: Some(rust.clone()),
+                    sidecar_value: Some(sidecar.clone()),
+                    diff_type: DiffType::ValueMismatch,
+                });
+            }
+        }
+
+        // Type mismatch
+        (_, _) if std::mem::discriminant(rust) != std::mem::discriminant(sidecar) => {
+            diffs.push(JsonDiff {
+                path,
+                rust_value: Some(rust.clone()),
+                sidecar_value: Some(sidecar.clone()),
+                diff_type: DiffType::TypeMismatch,
+            });
+        }
+
+        // Same type, different value
+        (_, _) if rust != sidecar => {
+            diffs.push(JsonDiff {
+                path,
+                rust_value: Some(rust.clone()),
+                sidecar_value: Some(sidecar.clone()),
+                diff_type: DiffType::ValueMismatch,
+            });
+        }
+
+        // Equal values - no diff
+        _ => {}
     }
 }
