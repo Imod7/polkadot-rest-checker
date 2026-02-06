@@ -491,6 +491,12 @@ Mismatches show the first few differences inline:
 | **ArrayLengthMismatch** | Arrays have different lengths | `extrinsics: array length mismatch (rust=5 vs sidecar=3)` |
 | **TypeMismatch** | Same field, different JSON types | `value: type mismatch (rust=number vs sidecar=string)` |
 
+### Diff Sorting
+
+Diffs are sorted so that **non-TypeMismatch diffs appear first**. This means the inline console output (first 3 diffs) and log summaries (first 5 diffs) prioritize real value/structural differences over expected type mismatches.
+
+This is particularly useful for endpoints like `coretime/overview` where many fields have known type differences (e.g., polkadot-rest-api returns numbers while sidecar returns strings for u16/u32 fields). With sorting, the first diffs shown are the ones that matter — actual value mismatches, missing fields, or array length differences — rather than being buried under type mismatch noise.
+
 ### Path Format
 
 Field paths use dot notation for objects and bracket notation for arrays:
@@ -543,6 +549,8 @@ cargo run -- --endpoint block --start 1000 --end 1010
    - Type mismatches (number vs string) often indicate serialization differences
    - Missing fields may indicate version differences between implementations
    - Case differences in strings are ignored (comparison is case-insensitive)
+
+9. **Diffs are sorted by importance** — non-TypeMismatch diffs (value mismatches, missing fields, array length differences) are shown first. TypeMismatch diffs are shown last. This helps you focus on real issues when many fields have expected number-vs-string type differences.
 
 ## Troubleshooting
 
