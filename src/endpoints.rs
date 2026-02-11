@@ -20,6 +20,7 @@ pub enum EndpointCategory {
 pub enum EndpointType {
     // Account endpoints
     AccountBalanceInfo,
+    AccountForeignAssetBalances,
 
     // Block endpoints
     Block,
@@ -69,6 +70,7 @@ impl EndpointType {
     pub fn category(&self) -> EndpointCategory {
         match self {
             EndpointType::AccountBalanceInfo => EndpointCategory::Account,
+            EndpointType::AccountForeignAssetBalances => EndpointCategory::Account,
 
             EndpointType::PalletConsts
             | EndpointType::PalletStorage
@@ -137,6 +139,13 @@ impl EndpointType {
                 match block {
                     Some(b) => format!("/accounts/{}/balance-info?at={}", account, b),
                     None => format!("/accounts/{}/balance-info", account),
+                }
+            }
+            EndpointType::AccountForeignAssetBalances => {
+                let account = account.expect("Account required for AccountForeignAssetBalances endpoint");
+                match block {
+                    Some(b) => format!("/accounts/{}/foreign-asset-balances?at={}", account, b),
+                    None => format!("/accounts/{}/foreign-asset-balances", account),
                 }
             }
 
@@ -303,6 +312,7 @@ impl EndpointType {
     pub fn short_name(&self) -> &'static str {
         match self {
             EndpointType::AccountBalanceInfo => "account-balance-info",
+            EndpointType::AccountForeignAssetBalances => "account-foreign-asset-balance",
             EndpointType::Block => "block",
             EndpointType::BlocksHead => "blocks-head",
             EndpointType::BlocksHeadRcBlock => "blocks-head-rcblock",
@@ -359,6 +369,7 @@ impl fmt::Display for EndpointType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             EndpointType::AccountBalanceInfo => write!(f, "account-balance-info"),
+            EndpointType::AccountForeignAssetBalances => write!(f, "account-foreign-asset-balance"),
             EndpointType::Block => write!(f, "block"),
             EndpointType::BlocksHead => write!(f, "blocks-head"),
             EndpointType::BlocksHeadRcBlock => write!(f, "blocks-head-rcblock"),
@@ -400,6 +411,7 @@ impl std::str::FromStr for EndpointType {
         match s.to_lowercase().as_str() {
             // Account endpoints
             "account-balance-info" | "accounts-balance-info" => Ok(EndpointType::AccountBalanceInfo),
+            "account-fa-bl" | "account-foreign-asset-balance" => Ok(EndpointType::AccountForeignAssetBalances),
 
             // Block endpoints
             "block" | "blocks" => Ok(EndpointType::Block),

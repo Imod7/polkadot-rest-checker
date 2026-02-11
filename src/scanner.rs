@@ -738,6 +738,11 @@ pub async fn scan_account_endpoint(
                 let rust_api_url = format!("{}{}", rust_url, rust_path);
                 let sidecar_api_url = format!("{}{}", sidecar_url, sidecar_path);
 
+                println!(
+                    "  Block {}: {} vs {}",
+                    block_num, rust_api_url, sidecar_api_url
+                );
+
                 tasks.push(tokio::spawn(async move {
                     test_block_compare(
                         client_clone,
@@ -869,11 +874,11 @@ fn process_result(
                 )
             } else {
                 format!(
-                    "{} differences (showing first 5):\n    - {}",
+                    "{} differences (showing first 10):\n    - {}",
                     diffs.len(),
                     diffs
                         .iter()
-                        .take(5)
+                        .take(10)
                         .map(|d| d.to_string())
                         .collect::<Vec<_>>()
                         .join("\n    - ")

@@ -11,6 +11,31 @@ A CLI tool for testing and comparing responses between the new Rust-based `polka
 - Detailed error and mismatch logging to files
 - Summary reports with match rates
 
+## Project Structure
+
+```
+src/
+├── main.rs        # CLI argument parsing and orchestration
+├── scanner.rs     # Scanning strategies (pallet, block, runtime, account)
+├── http.rs        # HTTP helpers and response comparison (TestResult)
+├── diff.rs        # JSON diffing engine (JsonDiff, DiffType, json_equal, json_diff)
+├── reporting.rs   # Summary formatting and log file output
+├── endpoints.rs   # Endpoint type definitions and URL path generation
+├── chains.rs      # Chain definitions, pallets, and test accounts
+└── coverage.rs    # Coverage tracking and reporting
+```
+
+| Module | Responsibility |
+|--------|---------------|
+| **main.rs** | CLI args (`Args`), `main()` entry point — routes to the appropriate scanner |
+| **scanner.rs** | Four scanning strategies: `scan_pallet_endpoint`, `scan_block_endpoint`, `scan_runtime_endpoint`, `scan_account_endpoint`, plus shared `process_result` |
+| **http.rs** | `TestResult` enum, `fetch_json`, `get_latest_block`, `test_block_compare` — all HTTP communication and response comparison |
+| **diff.rs** | `JsonDiff`, `DiffType`, recursive JSON comparison (`json_diff`, `json_equal`) with diff sorting (non-TypeMismatch first) |
+| **reporting.rs** | `PalletResult`, `AccountResult`, `print_pallet_summary`, `print_block_summary`, `print_account_summary` — formatted output to console and log files |
+| **endpoints.rs** | `EndpointType` enum with URL path generation, endpoint classification (`requires_pallet`, `requires_block`, `requires_account`) |
+| **chains.rs** | `Chain` enum, `Pallet` definitions, `TestAccount` lists per chain |
+| **coverage.rs** | `CoverageData` persistence and markdown report generation |
+
 ## Prerequisites
 
 You need two API servers running:
@@ -297,15 +322,24 @@ cargo run -- --endpoint blocks-head-rcblock
 
 ### Account Endpoint Examples
 
-```bash
-# Test account balance-info across blocks
-cargo run -- --endpoint account-balance-info --start 20000000 --end 20000100
+Example for `/accounts/{}/balance-info?at={}` endpoint
 
+```bash
 # Test on Kusama
 cargo run -- --chain kusama --endpoint account-balance-info --start 1000000 --end 1000100
 
 # Test with logs enabled
 cargo run -- --endpoint account-balance-info --start 20000000 --end 20000100 --logs
+```
+
+Example for `/accounts/{accountId}/foreign-asset-balances` endpoint
+
+```bash
+# Test on Kusama Asset Hub
+cargo run -- --chain asset-hub-kusama --endpoint account-foreign-asset-balance --start 12300400 --end 12300410
+
+# Test on Kusama Asset Hub very early blocks
+cargo run -- --chain asset-hub-kusama --endpoint account-foreign-asset-balance --start 100410 --end 100420
 ```
 
 ### Chain-Specific Examples

@@ -420,7 +420,7 @@ impl CoverageData {
             "coretime-reservations",
             "coretime-regions",
         ];
-        let account_endpoints = vec!["account-balance-info"];
+        let account_endpoints = vec!["account-balance-info", "account-foreign-asset-balance"];
         let standalone_endpoints = vec![
             "runtime-spec",
             "runtime-metadata",
@@ -639,7 +639,7 @@ impl CoverageData {
             "coretime-reservations",
             "coretime-regions",
         ];
-        let account_endpoints = vec!["account-balance-info"];
+        let account_endpoints = vec!["account-balance-info", "account-foreign-asset-balance"];
         let standalone_endpoints = vec![
             "runtime-spec",
             "runtime-metadata",
