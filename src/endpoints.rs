@@ -53,7 +53,9 @@ pub enum EndpointType {
     PalletStorage,
     PalletDispatchables,
     PalletErrors,
+    RcPalletErrors,
     PalletEvents,
+    RcPalletEvents,
     PalletStakingValidators,
     RcPalletStakingValidators,
 
@@ -76,7 +78,9 @@ impl EndpointType {
             | EndpointType::PalletStorage
             | EndpointType::PalletDispatchables
             | EndpointType::PalletErrors
-            | EndpointType::PalletEvents => EndpointCategory::Pallet,
+            | EndpointType::RcPalletErrors
+            | EndpointType::PalletEvents 
+            | EndpointType::RcPalletEvents => EndpointCategory::Pallet,
 
             // PalletConstsConstantItem is block-based (tests a specific constant across blocks)
             EndpointType::PalletConstsConstantItem => EndpointCategory::Block,
@@ -274,11 +278,25 @@ impl EndpointType {
                     None => format!("/pallets/{}/errors", pallet),
                 }
             }
+            EndpointType::RcPalletErrors => {
+                let pallet = pallet.expect("Pallet required for RcPalletErrors");
+                match block {
+                    Some(b) => format!("/rc/pallets/{}/errors?at={}", pallet, b),
+                    None => format!("/rc/pallets/{}/errors", pallet),
+                }
+            }
             EndpointType::PalletEvents => {
                 let pallet = pallet.expect("Pallet required for PalletEvents");
                 match block {
                     Some(b) => format!("/pallets/{}/events?at={}", pallet, b),
                     None => format!("/pallets/{}/events", pallet),
+                }
+            }
+            EndpointType::RcPalletEvents => {
+                let pallet = pallet.expect("Pallet required for RcPalletEvents");
+                match block {
+                    Some(b) => format!("/rc/pallets/{}/events?at={}", pallet, b),
+                    None => format!("/rc/pallets/{}/events", pallet),
                 }
             }
             EndpointType::PalletStakingValidators => match block {
@@ -305,44 +323,6 @@ impl EndpointType {
                 Some(b) => format!("/transaction/material?at={}", b),
                 None => "/transaction/material".to_string(),
             },
-        }
-    }
-
-    /// Get a short name for this endpoint (used in filenames)
-    pub fn short_name(&self) -> &'static str {
-        match self {
-            EndpointType::AccountBalanceInfo => "account-balance-info",
-            EndpointType::AccountForeignAssetBalances => "account-foreign-asset-balance",
-            EndpointType::Block => "block",
-            EndpointType::BlocksHead => "blocks-head",
-            EndpointType::BlocksHeadRcBlock => "blocks-head-rcblock",
-            EndpointType::BlockHeader => "block-header",
-            EndpointType::BlockExtrinsics => "block-extrinsics",
-            EndpointType::BlockExtrinsicsRaw => "block-extrinsics-raw",
-            EndpointType::BlockExtrinsicsRawRcBlock => "block-extrinsics-raw-rcblock",
-            EndpointType::BlockExtrinsicsIdx => "block-extrinsics-idx",
-            EndpointType::BlockExtrinsicsIdxRcBlock => "block-extrinsics-idx-rcblock",
-            EndpointType::RcBlockExtrinsicsRaw => "rc-block-extrinsics-raw",
-            EndpointType::RcBlockExtrinsicsIdx => "rc-block-extrinsics-idx",
-            EndpointType::BlockParaInclusions => "block-para-inclusions",
-            EndpointType::CoretimeInfo => "coretime-info",
-            EndpointType::CoretimeOverview => "coretime-overview",
-            EndpointType::CoretimeLeases => "coretime-leases",
-            EndpointType::CoretimeReservations => "coretime-reservations",
-            EndpointType::CoretimeRegions => "coretime-regions",
-            EndpointType::NodeVersion => "node-version",
-            EndpointType::NodeNetwork => "node-network",
-            EndpointType::PalletConsts => "consts",
-            EndpointType::PalletConstsConstantItem => "consts-item",
-            EndpointType::PalletStorage => "storage",
-            EndpointType::PalletDispatchables => "dispatchables",
-            EndpointType::PalletErrors => "errors",
-            EndpointType::PalletEvents => "events",
-            EndpointType::PalletStakingValidators => "staking-validators",
-            EndpointType::RcPalletStakingValidators => "rc-staking-validators",
-            EndpointType::RuntimeSpec => "runtime-spec",
-            EndpointType::RuntimeMetadata => "runtime-metadata",
-            EndpointType::TransactionMaterial => "tx-material",
         }
     }
 
@@ -394,7 +374,9 @@ impl fmt::Display for EndpointType {
             EndpointType::PalletStorage => write!(f, "pallet-storage"),
             EndpointType::PalletDispatchables => write!(f, "pallet-dispatchables"),
             EndpointType::PalletErrors => write!(f, "pallet-errors"),
+            EndpointType::RcPalletErrors => write!(f, "rc-pallet-errors"),
             EndpointType::PalletEvents => write!(f, "pallet-events"),
+            EndpointType::RcPalletEvents => write!(f, "rc-pallet-events"),
             EndpointType::PalletStakingValidators => write!(f, "staking-validators"),
             EndpointType::RcPalletStakingValidators => write!(f, "rc-staking-validators"),
             EndpointType::RuntimeSpec => write!(f, "runtime-spec"),
@@ -444,7 +426,9 @@ impl std::str::FromStr for EndpointType {
             "storage" | "pallet-storage" => Ok(EndpointType::PalletStorage),
             "dispatchables" | "pallet-dispatchables" => Ok(EndpointType::PalletDispatchables),
             "errors" | "pallet-errors" => Ok(EndpointType::PalletErrors),
-            "events" | "pallet-events" => Ok(EndpointType::PalletEvents),
+            "rc-pallet-errors" => Ok(EndpointType::RcPalletErrors),
+            "pallet-events" => Ok(EndpointType::PalletEvents),
+            "rc-pallet-events" => Ok(EndpointType::RcPalletEvents),
             "staking-validators" => Ok(EndpointType::PalletStakingValidators),
             "rc-staking-validators" => Ok(EndpointType::RcPalletStakingValidators),
 

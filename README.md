@@ -215,6 +215,9 @@ cargo run -- --endpoint errors --pallet Staking --start 0 --end 100
 
 # Test pallet events
 cargo run -- --endpoint events --start 0 --end 100
+
+# Test /rc/pallets/{}/errors?at={} endpoint on PAH chain and for a defined block range
+cargo run -- --chain asset-hub-polkadot --endpoint rc-pallet-errors --start 1145000 --end 1145010
 ```
 
 ### Pallet Constant Item Examples
@@ -349,7 +352,7 @@ cargo run -- --chain asset-hub-kusama --endpoint account-foreign-asset-balance -
 cargo run -- --chain kusama --endpoint block-header --start 0 --end 1000
 
 # Test on Asset Hub Polkadot
-cargo run -- --chain asset-hub-polkadot --endpoint consts --pallet Assets --start 0 --end 500
+cargo run -- --chain asset-hub-polkadot --endpoint consts --pallet Assets --start 0 --end 10
 
 # Test on Asset Hub Kusama (using alias)
 cargo run -- --chain ahk --endpoint storage --start 0 --end 100

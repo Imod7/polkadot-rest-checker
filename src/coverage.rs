@@ -393,12 +393,14 @@ impl CoverageData {
 
         // All possible endpoints
         let pallet_endpoints = vec![
-            "consts",
-            "consts-item",
-            "storage",
-            "dispatchables",
-            "errors",
-            "events",
+            "pallet-consts",
+            "pallet-consts-item",
+            "pallet-storage",
+            "pallet-dispatchables",
+            "pallet-errors",
+            "rc-pallet-errors",
+            "pallet-events",
+            "rc-pallet-events",
         ];
         let block_endpoints = vec![
             "block",
@@ -601,23 +603,17 @@ impl CoverageData {
         report
     }
 
-    /// Generate markdown coverage report
-    pub fn generate_markdown_report(&self) -> String {
-        let mut report = String::new();
-
-        report.push_str("# Coverage Tracking\n\n");
-        report.push_str(
-            "This file is auto-generated from test results. Run tests to update coverage data.\n\n",
-        );
-
-        // All possible endpoints
+    /// Return the list of all known endpoint names by category.
+    fn endpoint_lists() -> (Vec<&'static str>, Vec<&'static str>, Vec<&'static str>, Vec<&'static str>) {
         let pallet_endpoints = vec![
-            "consts",
-            "consts-item",
-            "storage",
-            "dispatchables",
-            "errors",
-            "events",
+            "pallet-consts",
+            "pallet-consts-item",
+            "pallet-storage",
+            "pallet-dispatchables",
+            "pallet-errors",
+            "rc-pallet-errors",
+            "pallet-events",
+            "rc-pallet-events",
         ];
         let block_endpoints = vec![
             "block",
@@ -648,6 +644,23 @@ impl CoverageData {
             "node-network",
             "blocks-head-rcblock",
         ];
+        (pallet_endpoints, block_endpoints, account_endpoints, standalone_endpoints)
+    }
+
+    /// Generate markdown coverage summary report (endpoint-level tables only).
+    pub fn generate_summary_report(&self, details_filename: &str) -> String {
+        let mut report = String::new();
+        let (pallet_endpoints, block_endpoints, account_endpoints, standalone_endpoints) =
+            Self::endpoint_lists();
+
+        report.push_str("# Coverage Summary\n\n");
+        report.push_str(
+            "This file is auto-generated from test results. Run tests to update coverage data.\n\n",
+        );
+        report.push_str(&format!(
+            "- **Details**: [{}]({})\n\n",
+            details_filename, details_filename
+        ));
 
         report.push_str("## How it Works\n\n");
         report.push_str("- Every test run automatically saves results to a coverage file (default: `coverage/coverage.json`)\n");
@@ -681,7 +694,6 @@ impl CoverageData {
             report.push_str(&format!("- **Total pallets:** {}\n", chain.total_pallets));
             report.push_str(&format!("- **Last updated:** {}\n\n", chain.last_updated));
 
-            // Summary stats
             let total_endpoints = pallet_endpoints.len()
                 + block_endpoints.len()
                 + account_endpoints.len()
@@ -735,9 +747,15 @@ impl CoverageData {
                     if ep_cov.tested {
                         let pallets_tested = ep_cov.pallets.as_ref().map(|p| p.len()).unwrap_or(0);
                         let pass_rate = ep_cov.pass_rate();
+                        let has_details = ep_cov.pallets.as_ref().map(|p| !p.is_empty()).unwrap_or(false);
+                        let name = if has_details {
+                            format!("[{}]({}#{})", endpoint, details_filename, endpoint)
+                        } else {
+                            endpoint.to_string()
+                        };
                         report.push_str(&format!(
                             "| {} | ✅ | {}/{} | {:.1}% |\n",
-                            endpoint, pallets_tested, chain.total_pallets, pass_rate
+                            name, pallets_tested, chain.total_pallets, pass_rate
                         ));
                     } else {
                         report.push_str(&format!("| {} | ❌ | - | - |\n", endpoint));
@@ -829,8 +847,36 @@ impl CoverageData {
                 }
             }
             report.push_str("\n");
+        }
 
-            // Detailed pallet coverage if available
+        report.push_str("## Coverage File Format\n\n");
+        report.push_str("Coverage data is stored in JSON format (`coverage/coverage.json`) and can be analyzed programmatically.\n");
+
+        report
+    }
+
+    /// Generate markdown coverage details report (per-pallet breakdowns).
+    pub fn generate_details_report(&self, summary_filename: &str) -> String {
+        let mut report = String::new();
+        let (pallet_endpoints, _, _, _) = Self::endpoint_lists();
+
+        report.push_str("# Coverage Details\n\n");
+        report.push_str(
+            "Per-pallet coverage breakdown. Auto-generated from test results.\n\n",
+        );
+        report.push_str(&format!(
+            "- **Summary**: [{}]({})\n\n",
+            summary_filename, summary_filename
+        ));
+
+        if self.chains.is_empty() {
+            report.push_str("No coverage data recorded yet.\n");
+            return report;
+        }
+
+        for (chain_name, chain) in &self.chains {
+            report.push_str(&format!("## Chain: {}\n\n", chain_name));
+
             let has_pallet_details = chain
                 .endpoints
                 .values()
@@ -838,16 +884,14 @@ impl CoverageData {
                 .any(|e| e.pallets.as_ref().map(|p| !p.is_empty()).unwrap_or(false));
 
             if has_pallet_details {
-                report.push_str("#### Detailed Pallet Coverage\n\n");
-
                 for endpoint in &pallet_endpoints {
                     if let Some(ep_cov) = chain.endpoints.get(*endpoint) {
                         if ep_cov.tested {
                             if let Some(ref pallets) = ep_cov.pallets {
                                 if !pallets.is_empty() {
-                                    report.push_str(&format!("**{}:**\n\n", endpoint));
-                                    report.push_str("| Pallet | Block Ranges | Matched | Mismatched | Errors | Pass Rate |\n");
-                                    report.push_str("|--------|--------------|---------|------------|--------|------------|\n");
+                                    report.push_str(&format!("### {}\n\n", endpoint));
+                                    report.push_str("| Pallet | Block Ranges | Matched | Mismatched | Rust Err | Sidecar Err | Both Err (diff codes) | Pass Rate |\n");
+                                    report.push_str("|--------|--------------|---------|------------|----------|-------------|----------------------|------------|\n");
 
                                     let mut sorted_pallets: Vec<_> = pallets.iter().collect();
                                     sorted_pallets.sort_by(|a, b| a.0.cmp(b.0));
@@ -858,16 +902,15 @@ impl CoverageData {
                                             .iter()
                                             .map(|(s, e)| format!("{}-{}", s, e))
                                             .collect();
-                                        let total_errors = pallet_cov.rust_errors
-                                            + pallet_cov.sidecar_errors
-                                            + pallet_cov.both_errors;
                                         report.push_str(&format!(
-                                            "| {} | {} | {} | {} | {} | {:.1}% |\n",
+                                            "| {} | {} | {} | {} | {} | {} | {} | {:.1}% |\n",
                                             pallet_name,
                                             ranges.join(", "),
                                             pallet_cov.matched,
                                             pallet_cov.mismatched,
-                                            total_errors,
+                                            pallet_cov.rust_errors,
+                                            pallet_cov.sidecar_errors,
+                                            pallet_cov.both_errors,
                                             pallet_cov.pass_rate()
                                         ));
                                     }
@@ -877,19 +920,27 @@ impl CoverageData {
                         }
                     }
                 }
+            } else {
+                report.push_str("No detailed pallet coverage data recorded yet.\n\n");
             }
         }
-
-        report.push_str("## Coverage File Format\n\n");
-        report.push_str("Coverage data is stored in JSON format (`coverage/coverage.json`) and can be analyzed programmatically.\n");
 
         report
     }
 
-    /// Save markdown report to file
+    /// Save markdown reports to files (summary + details)
     pub fn save_markdown_report(&self, path: &Path) -> Result<(), Box<dyn std::error::Error>> {
-        let content = self.generate_markdown_report();
-        fs::write(path, content)?;
+        let dir = path.parent().unwrap_or(Path::new("."));
+
+        let summary_path = dir.join("COVERAGE_SUMMARY.md");
+        let details_path = dir.join("COVERAGE_DETAILS.md");
+
+        let summary = self.generate_summary_report("COVERAGE_DETAILS.md");
+        fs::write(&summary_path, summary)?;
+
+        let details = self.generate_details_report("COVERAGE_SUMMARY.md");
+        fs::write(&details_path, details)?;
+
         Ok(())
     }
 }

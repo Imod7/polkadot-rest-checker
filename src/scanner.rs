@@ -8,8 +8,51 @@ use crate::coverage::CoverageData;
 use crate::endpoints::EndpointType;
 use crate::http::{fetch_json, test_block_compare, TestResult};
 use crate::reporting::{
-    print_account_summary, print_block_summary, print_pallet_summary, AccountResult, PalletResult,
+    print_account_summary, print_block_summary, print_pallet_summary,
+    write_account_mismatch_report, write_block_mismatch_report, write_pallet_mismatch_report,
+    AccountResult, PalletResult,
 };
+
+/// Print inline diff details for non-match results
+fn log_result_inline(display_id: &str, result: &TestResult) {
+    match result {
+        TestResult::Match => {}
+        TestResult::Mismatch { diffs, .. } => {
+            println!(
+                "    {}: MISMATCH ({} diff{})",
+                display_id,
+                diffs.len(),
+                if diffs.len() == 1 { "" } else { "s" }
+            );
+            // Show first 3 diffs inline for quick debugging
+            for diff in diffs.iter().take(3) {
+                println!("      - {}", diff);
+            }
+            if diffs.len() > 3 {
+                println!("      ... and {} more", diffs.len() - 3);
+            }
+        }
+        TestResult::RustError(e) => {
+            println!("    {}: Rust Error - {}", display_id, e)
+        }
+        TestResult::SidecarError(e) => {
+            println!("    {}: Sidecar Error - {}", display_id, e)
+        }
+        TestResult::BothError {
+            rust_error,
+            sidecar_error,
+        } => {
+            if rust_error == sidecar_error {
+                // Same error = silent match
+            } else {
+                println!(
+                    "    {}: Both APIs Error (different codes: rust={}, sidecar={})",
+                    display_id, rust_error, sidecar_error
+                );
+            }
+        }
+    }
+}
 
 /// Scan pallet-based endpoints (iterates over pallets and blocks)
 pub async fn scan_pallet_endpoint(
@@ -73,7 +116,7 @@ pub async fn scan_pallet_endpoint(
             chain,
             start_block,
             end_block,
-            endpoint_type.short_name(),
+            endpoint_type,
             pallet.name
         );
         let mut error_file: Option<File> = if create_logs {
@@ -138,6 +181,7 @@ pub async fn scan_pallet_endpoint(
 
             for task in tasks {
                 let (block_id, result) = task.await?;
+                log_result_inline(&format!("Block {}", block_id), &result);
                 process_result(
                     block_id,
                     result,
@@ -190,7 +234,7 @@ pub async fn scan_pallet_endpoint(
 
         // Record coverage for this pallet
         let chain_coverage = coverage.get_chain(&chain.to_string(), total_pallets);
-        let endpoint_coverage = chain_coverage.get_endpoint(endpoint_type.short_name(), true);
+        let endpoint_coverage = chain_coverage.get_endpoint(&endpoint_type.to_string(), true);
         endpoint_coverage.add_pallet_run(
             pallet.name,
             start_block,
@@ -211,6 +255,17 @@ pub async fn scan_pallet_endpoint(
         start_block,
         end_block,
         create_logs,
+    );
+
+    // Write markdown mismatch report (always, when there are issues)
+    write_pallet_mismatch_report(
+        &pallet_results,
+        chain,
+        endpoint_type,
+        start_block,
+        end_block,
+        rust_url,
+        sidecar_url,
     );
 
     Ok(())
@@ -242,7 +297,7 @@ pub async fn scan_block_endpoint(
         chain,
         start_block,
         end_block,
-        endpoint_type.short_name()
+        endpoint_type
     );
     let mut error_file: Option<File> = if create_logs {
         let mut f = File::create(&error_filename)?;
@@ -408,34 +463,7 @@ pub async fn scan_block_endpoint(
                 format!("Block {}", id)
             };
 
-            // Log progress for non-match results
-            match &result {
-                TestResult::Match => {}
-                TestResult::Mismatch { diffs, .. } => {
-                    println!(
-                        "    {}: MISMATCH ({} diff{})",
-                        display_id,
-                        diffs.len(),
-                        if diffs.len() == 1 { "" } else { "s" }
-                    );
-                    // Show first 3 diffs inline for quick debugging
-                    for diff in diffs.iter().take(3) {
-                        println!("      - {}", diff);
-                    }
-                    if diffs.len() > 3 {
-                        println!("      ... and {} more", diffs.len() - 3);
-                    }
-                }
-                TestResult::RustError(e) => {
-                    println!("    {}: Rust Error - {}", display_id, e)
-                }
-                TestResult::SidecarError(e) => {
-                    println!("    {}: Sidecar Error - {}", display_id, e)
-                }
-                TestResult::BothError { .. } => {
-                    println!("    {}: Both APIs Error", display_id)
-                }
-            }
+            log_result_inline(&display_id, &result);
 
             process_result(
                 id,
@@ -478,7 +506,7 @@ pub async fn scan_block_endpoint(
 
     // Record coverage
     let chain_coverage = coverage.get_chain(&chain.to_string(), total_pallets);
-    let endpoint_coverage = chain_coverage.get_endpoint(endpoint_type.short_name(), false);
+    let endpoint_coverage = chain_coverage.get_endpoint(&endpoint_type.to_string(), false);
     endpoint_coverage.add_block_run(
         start_block,
         end_block,
@@ -504,6 +532,22 @@ pub async fn scan_block_endpoint(
         create_logs,
     );
 
+    // Write markdown mismatch report (always, when there are issues)
+    write_block_mismatch_report(
+        endpoint_type,
+        chain,
+        start_block,
+        end_block,
+        rust_url,
+        sidecar_url,
+        matched,
+        mismatched,
+        rust_errors,
+        sidecar_errors,
+        both_errors,
+        &issues,
+    );
+
     Ok(())
 }
 
@@ -519,7 +563,7 @@ pub async fn scan_runtime_endpoint(
     create_logs: bool,
 ) -> Result<(), Box<dyn Error>> {
     // Create summary log file (only if --logs flag is set)
-    let summary_filename = format!("summary_{}_{}.log", chain, endpoint_type.short_name());
+    let summary_filename = format!("summary_{}_{}.log", chain, endpoint_type);
     let mut summary_file: Option<File> = if create_logs {
         Some(File::create(&summary_filename)?)
     } else {
@@ -558,7 +602,7 @@ pub async fn scan_runtime_endpoint(
 
     // Track coverage result
     let chain_coverage = coverage.get_chain(&chain.to_string(), total_pallets);
-    let endpoint_coverage = chain_coverage.get_endpoint(endpoint_type.short_name(), false);
+    let endpoint_coverage = chain_coverage.get_endpoint(&endpoint_type.to_string(), false);
 
     match result {
         TestResult::Match => {
@@ -585,7 +629,7 @@ pub async fn scan_runtime_endpoint(
 
             if create_logs {
                 let error_filename =
-                    format!("errors_{}_{}.log", chain, endpoint_type.short_name());
+                    format!("errors_{}_{}.log", chain, endpoint_type);
                 let mut error_file = File::create(&error_filename)?;
                 writeln!(
                     error_file,
@@ -689,7 +733,7 @@ pub async fn scan_account_endpoint(
             chain,
             start_block,
             end_block,
-            endpoint_type.short_name(),
+            endpoint_type,
             account.label.replace(" ", "_")
         );
         let mut error_file: Option<File> = if create_logs {
@@ -756,6 +800,7 @@ pub async fn scan_account_endpoint(
 
             for task in tasks {
                 let (block_id, result) = task.await?;
+                log_result_inline(&format!("Block {}", block_id), &result);
                 process_result(
                     block_id,
                     result,
@@ -809,7 +854,7 @@ pub async fn scan_account_endpoint(
 
         // Record coverage for this account
         let chain_coverage = coverage.get_chain(&chain.to_string(), total_pallets);
-        let endpoint_coverage = chain_coverage.get_endpoint(endpoint_type.short_name(), false);
+        let endpoint_coverage = chain_coverage.get_endpoint(&endpoint_type.to_string(), false);
         endpoint_coverage.add_account_run(
             account.address,
             start_block,
@@ -830,6 +875,17 @@ pub async fn scan_account_endpoint(
         start_block,
         end_block,
         create_logs,
+    );
+
+    // Write markdown mismatch report (always, when there are issues)
+    write_account_mismatch_report(
+        &account_results,
+        chain,
+        endpoint_type,
+        start_block,
+        end_block,
+        rust_url,
+        sidecar_url,
     );
 
     Ok(())
@@ -926,15 +982,20 @@ fn process_result(
             rust_error,
             sidecar_error,
         } => {
-            *both_errors += 1;
-            let msg = format!(
-                "BOTH ERRORS - Rust: {}, Sidecar: {}",
-                rust_error, sidecar_error
-            );
-            if let Some(ref mut f) = error_file {
-                writeln!(f, "Block {}: {}", block_num, msg)?;
+            // Both APIs erroring counts as a match in summary
+            *matched += 1;
+            // Only record in details when error codes differ
+            if rust_error != sidecar_error {
+                *both_errors += 1;
+                let msg = format!(
+                    "BOTH ERRORS (different codes) - Rust: {}, Sidecar: {}",
+                    rust_error, sidecar_error
+                );
+                if let Some(ref mut f) = error_file {
+                    writeln!(f, "Block {}: {}", block_num, msg)?;
+                }
+                issues.push((block_num, msg));
             }
-            issues.push((block_num, msg));
         }
     }
     Ok(())

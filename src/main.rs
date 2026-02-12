@@ -205,10 +205,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     coverage.save(coverage_path)?;
     println!("\nCoverage data saved to: {}", args.coverage_file);
 
-    // Save markdown report
-    let markdown_path = Path::new("coverage/COVERAGE.md");
+    // Save markdown reports (summary + details)
+    let markdown_path = Path::new("coverage/COVERAGE_SUMMARY.md");
     coverage.save_markdown_report(markdown_path)?;
-    println!("Coverage report saved to: coverage/COVERAGE.md");
+    println!("Coverage reports saved to: coverage/COVERAGE_SUMMARY.md + coverage/COVERAGE_DETAILS.md");
 
     Ok(())
 }
