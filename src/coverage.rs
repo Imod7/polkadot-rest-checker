@@ -391,46 +391,8 @@ impl CoverageData {
         report.push_str("                           API COVERAGE REPORT\n");
         report.push_str(&format!("{}\n\n", "=".repeat(80)));
 
-        // All possible endpoints
-        let pallet_endpoints = vec![
-            "pallet-consts",
-            "pallet-consts-item",
-            "pallet-storage",
-            "pallet-dispatchables",
-            "pallet-errors",
-            "rc-pallet-errors",
-            "pallet-events",
-            "rc-pallet-events",
-        ];
-        let block_endpoints = vec![
-            "block",
-            "blocks-head",
-            "block-header",
-            "block-extrinsics",
-            "block-extrinsics-raw",
-            "block-extrinsics-raw-rcblock",
-            "block-extrinsics-idx",
-            "block-extrinsics-idx-rcblock",
-            "rc-block-extrinsics-raw",
-            "rc-block-extrinsics-idx",
-            "block-para-inclusions",
-            "staking-validators",
-            "rc-staking-validators",
-            "coretime-info",
-            "coretime-overview",
-            "coretime-leases",
-            "coretime-reservations",
-            "coretime-regions",
-        ];
-        let account_endpoints = vec!["account-balance-info", "account-foreign-asset-balance"];
-        let standalone_endpoints = vec![
-            "runtime-spec",
-            "runtime-metadata",
-            "tx-material",
-            "node-version",
-            "node-network",
-            "blocks-head-rcblock",
-        ];
+        let (pallet_endpoints, block_endpoints, account_endpoints, standalone_endpoints) =
+            Self::endpoint_lists();
 
         for (chain_name, chain) in &self.chains {
             report.push_str(&format!("Chain: {}\n", chain_name));
@@ -609,7 +571,9 @@ impl CoverageData {
             "pallet-consts",
             "pallet-consts-item",
             "pallet-storage",
+            "rc-pallet-storage",
             "pallet-dispatchables",
+            "rc-pallet-dispatchables",
             "pallet-errors",
             "rc-pallet-errors",
             "pallet-events",
@@ -618,7 +582,7 @@ impl CoverageData {
         let block_endpoints = vec![
             "block",
             "blocks-head",
-            "block-header",
+            "blocks-header",
             "block-extrinsics",
             "block-extrinsics-raw",
             "block-extrinsics-raw-rcblock",
@@ -740,8 +704,8 @@ impl CoverageData {
 
             // Pallet endpoints table
             report.push_str("#### Pallet Endpoints\n\n");
-            report.push_str("| Endpoint | Status | Pallets Tested | Pass Rate |\n");
-            report.push_str("|----------|--------|----------------|------------|\n");
+            report.push_str("| Endpoint | Status | Pallets Tested | Block Ranges | Pass Rate |\n");
+            report.push_str("|----------|--------|----------------|--------------|------------|\n");
             for endpoint in &pallet_endpoints {
                 if let Some(ep_cov) = chain.endpoints.get(*endpoint) {
                     if ep_cov.tested {
@@ -753,15 +717,41 @@ impl CoverageData {
                         } else {
                             endpoint.to_string()
                         };
+                        // Aggregate block ranges across all pallets
+                        let block_ranges_str = if let Some(ref pallets) = ep_cov.pallets {
+                            let mut all_ranges: Vec<(u32, u32)> = pallets
+                                .values()
+                                .flat_map(|p| p.block_ranges.iter().copied())
+                                .collect();
+                            all_ranges.sort_by_key(|r| r.0);
+                            // Merge overlapping
+                            let mut merged: Vec<(u32, u32)> = Vec::new();
+                            for (start, end) in all_ranges {
+                                if let Some(last) = merged.last_mut() {
+                                    if start <= last.1 + 1 {
+                                        last.1 = last.1.max(end);
+                                        continue;
+                                    }
+                                }
+                                merged.push((start, end));
+                            }
+                            if merged.is_empty() {
+                                "-".to_string()
+                            } else {
+                                merged.iter().map(|(s, e)| format!("{}-{}", s, e)).collect::<Vec<_>>().join(", ")
+                            }
+                        } else {
+                            "-".to_string()
+                        };
                         report.push_str(&format!(
-                            "| {} | ✅ | {}/{} | {:.1}% |\n",
-                            name, pallets_tested, chain.total_pallets, pass_rate
+                            "| {} | ✅ | {}/{} | {} | {:.1}% |\n",
+                            name, pallets_tested, chain.total_pallets, block_ranges_str, pass_rate
                         ));
                     } else {
-                        report.push_str(&format!("| {} | ❌ | - | - |\n", endpoint));
+                        report.push_str(&format!("| {} | ❌ | - | - | - |\n", endpoint));
                     }
                 } else {
-                    report.push_str(&format!("| {} | ❌ | - | - |\n", endpoint));
+                    report.push_str(&format!("| {} | ❌ | - | - | - |\n", endpoint));
                 }
             }
             report.push_str("\n");

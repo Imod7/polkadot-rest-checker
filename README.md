@@ -188,16 +188,6 @@ Account endpoints test against a predefined set of test accounts for each chain.
 
 ## Examples
 
-### Quick Start - Test pallet constants
-
-```bash
-# Test all pallets on Polkadot (default)
-cargo run -- --start 0 --end 100
-
-# Test only the System pallet
-cargo run -- --pallet System --start 0 --end 100
-```
-
 ### Pallet Endpoint Examples
 
 ```bash
@@ -215,10 +205,30 @@ cargo run -- --endpoint errors --pallet Staking --start 0 --end 100
 
 # Test pallet events
 cargo run -- --endpoint events --start 0 --end 100
+```
 
+Polkadot Asset Hub
+```bash
 # Test /rc/pallets/{}/errors?at={} endpoint on PAH chain and for a defined block range
 cargo run -- --chain asset-hub-polkadot --endpoint rc-pallet-errors --start 1145000 --end 1145010
+
+# Test /rc/pallets/{}/events?at={} endpoint on PAH chain and for a defined block range
+cargo run -- --chain asset-hub-polkadot --endpoint rc-pallet-events --start 1118000 --end 1118005
 ```
+
+Polkadot
+```bash
+cargo run -- --chain polkadot --endpoint pallet-errors --start 20500600 --end 20500607
+
+cargo run -- --chain polkadot --endpoint pallet-dispatchables --start 10500600 --end 10500607
+
+cargo run -- --chain polkadot --endpoint pallet-events --start 14500600 --end 14500607
+
+cargo run -- --chain polkadot --endpoint pallet-storage --start 24500600 --end 24500607
+
+cargo run -- --chain polkadot --endpoint pallet-consts --start 22500600 --end 22500607
+```
+
 
 ### Pallet Constant Item Examples
 
@@ -251,8 +261,11 @@ Common constants to test:
 # Test full block data
 cargo run -- --endpoint block --start 1000000 --end 1001000
 
-# Test block headers only (faster)
-cargo run -- --endpoint block-header --start 0 --end 10000
+# Test /blocks/head endpoint for Polkadot Asset Hub
+cargo run -- --chain asset-hub-polkadot --endpoint blocks-head
+
+# Test /blocks/{}/header endpoint for Polkadot Asset Hub
+cargo run -- --chain asset-hub-polkadot --endpoint block-header --start 2118600 --end 2118605
 
 # Test block extrinsics info
 cargo run -- --endpoint extrinsics --start 1000000 --end 1000100
@@ -301,26 +314,49 @@ cargo run -- --chain kusama --endpoint rc-block-extrinsics-idx --start 1000000 -
 >
 > For a block with 5 extrinsics, this creates 5 comparison tests (one per extrinsic).
 
-### Runtime Endpoint Examples
+### Standalone Endpoint Examples
 
+Polkadot Asset Hub
 ```bash
 # Test runtime spec (single request, no block iteration)
-cargo run -- --endpoint runtime-spec
+cargo run -- --chain asset-hub-polkadot --endpoint runtime-spec
 
 # Test runtime metadata
-cargo run -- --endpoint metadata
+cargo run -- --chain asset-hub-polkadot --endpoint runtime-metadata
 
 # Test transaction material
-cargo run -- --endpoint tx-material
+cargo run -- --chain asset-hub-polkadot --endpoint tx-material
 
 # Test node version
-cargo run -- --endpoint node-version
+cargo run -- --chain asset-hub-polkadot --endpoint node-version
 
 # Test node network info
-cargo run -- --endpoint node-network
+cargo run -- --chain asset-hub-polkadot --endpoint node-network
 
-# Test blocks/head with relay chain block (useRcBlock=true)
-cargo run -- --endpoint blocks-head-rcblock
+# Test `/blocks/head?useRcBlock=true` with relay chain block
+cargo run -- --chain asset-hub-polkadot --endpoint blocks-head-rcblock
+
+cargo run -- --chain asset-hub-polkadot --endpoint blocks-head
+```
+
+Polkadot
+```bash
+# Test runtime spec (single request, no block iteration)
+cargo run -- --chain polkadot --endpoint runtime-spec
+
+# Test runtime metadata
+cargo run -- --chain polkadot --endpoint runtime-metadata
+
+# Test transaction material
+cargo run -- --chain polkadot --endpoint tx-material
+
+# Test node version
+cargo run -- --chain polkadot --endpoint node-version
+
+# Test node network info
+cargo run -- --chain polkadot --endpoint node-network
+
+cargo run -- --chain polkadot --endpoint blocks-head
 ```
 
 ### Account Endpoint Examples

@@ -26,7 +26,7 @@ pub enum EndpointType {
     Block,
     BlocksHead,
     BlocksHeadRcBlock,
-    BlockHeader,
+    BlocksHeader,
     BlockExtrinsics,
     BlockExtrinsicsRaw,
     BlockExtrinsicsRawRcBlock,
@@ -51,7 +51,9 @@ pub enum EndpointType {
     PalletConsts,
     PalletConstsConstantItem,
     PalletStorage,
+    RcPalletStorage,
     PalletDispatchables,
+    RcPalletDispatchables,
     PalletErrors,
     RcPalletErrors,
     PalletEvents,
@@ -76,7 +78,9 @@ impl EndpointType {
 
             EndpointType::PalletConsts
             | EndpointType::PalletStorage
+            | EndpointType::RcPalletStorage
             | EndpointType::PalletDispatchables
+            | EndpointType::RcPalletDispatchables
             | EndpointType::PalletErrors
             | EndpointType::RcPalletErrors
             | EndpointType::PalletEvents 
@@ -86,8 +90,7 @@ impl EndpointType {
             EndpointType::PalletConstsConstantItem => EndpointCategory::Block,
 
             EndpointType::Block
-            | EndpointType::BlocksHead
-            | EndpointType::BlockHeader
+            | EndpointType::BlocksHeader
             | EndpointType::BlockExtrinsics
             | EndpointType::BlockExtrinsicsRaw
             | EndpointType::BlockExtrinsicsRawRcBlock
@@ -109,7 +112,8 @@ impl EndpointType {
             | EndpointType::TransactionMaterial
             | EndpointType::NodeVersion
             | EndpointType::NodeNetwork
-            | EndpointType::BlocksHeadRcBlock => EndpointCategory::Standalone,
+            | EndpointType::BlocksHeadRcBlock
+            | EndpointType::BlocksHead => EndpointCategory::Standalone,
         }
     }
 
@@ -160,8 +164,8 @@ impl EndpointType {
             }
             EndpointType::BlocksHead => "/blocks/head".to_string(),
             EndpointType::BlocksHeadRcBlock => "/blocks/head?useRcBlock=true".to_string(),
-            EndpointType::BlockHeader => {
-                let block = block.expect("Block required for BlockHeader endpoint");
+            EndpointType::BlocksHeader => {
+                let block = block.expect("Block required for BlocksHeader endpoint");
                 format!("/blocks/{}/header", block)
             }
             EndpointType::BlockExtrinsics => {
@@ -264,11 +268,25 @@ impl EndpointType {
                     None => format!("/pallets/{}/storage", pallet),
                 }
             }
+            EndpointType::RcPalletStorage => {
+                let pallet = pallet.expect("Pallet required for RcPalletStorage");
+                match block {
+                    Some(b) => format!("/rc/pallets/{}/storage?at={}", pallet, b),
+                    None => format!("/rc/pallets/{}/storage", pallet),
+                }
+            }
             EndpointType::PalletDispatchables => {
                 let pallet = pallet.expect("Pallet required for PalletDispatchables");
                 match block {
                     Some(b) => format!("/pallets/{}/dispatchables?at={}", pallet, b),
                     None => format!("/pallets/{}/dispatchables", pallet),
+                }
+            }
+            EndpointType::RcPalletDispatchables => {
+                let pallet = pallet.expect("Pallet required for RcPalletDispatchables");
+                match block {
+                    Some(b) => format!("/rc/pallets/{}/dispatchables?at={}", pallet, b),
+                    None => format!("/rc/pallets/{}/dispatchables", pallet),
                 }
             }
             EndpointType::PalletErrors => {
@@ -345,44 +363,68 @@ impl EndpointType {
     }
 }
 
+/// Each entry: (variant, canonical name, aliases)
+const ENDPOINT_NAMES: &[(fn() -> EndpointType, &str, &[&str])] = &[
+    // Account
+    (|| EndpointType::AccountBalanceInfo, "account-balance-info", &["accounts-balance-info"]),
+    (|| EndpointType::AccountForeignAssetBalances, "account-foreign-asset-balance", &["account-fa-bl"]),
+    // Block
+    (|| EndpointType::Block, "block", &["blocks"]),
+    (|| EndpointType::BlocksHead, "blocks-head", &[]),
+    (|| EndpointType::BlocksHeadRcBlock, "blocks-head-rcblock", &["blocks-head-rc"]),
+    (|| EndpointType::BlocksHeader, "block-header", &["header"]),
+    (|| EndpointType::BlockExtrinsics, "block-extrinsics", &["extrinsics"]),
+    (|| EndpointType::BlockExtrinsicsRaw, "block-extrinsics-raw", &[]),
+    (|| EndpointType::BlockExtrinsicsRawRcBlock, "block-extrinsics-raw-rcblock", &["block-extrinsics-raw-rc"]),
+    (|| EndpointType::BlockExtrinsicsIdx, "block-extrinsics-idx", &[]),
+    (|| EndpointType::BlockExtrinsicsIdxRcBlock, "block-extrinsics-idx-rcblock", &["block-extrinsics-idx-rc"]),
+    (|| EndpointType::RcBlockExtrinsicsRaw, "rc-block-extrinsics-raw", &[]),
+    (|| EndpointType::RcBlockExtrinsicsIdx, "rc-block-extrinsics-idx", &[]),
+    (|| EndpointType::BlockParaInclusions, "block-para-inclusions", &["para-inclusions"]),
+    // Coretime
+    (|| EndpointType::CoretimeInfo, "coretime-info", &[]),
+    (|| EndpointType::CoretimeOverview, "coretime-overview", &[]),
+    (|| EndpointType::CoretimeLeases, "coretime-leases", &[]),
+    (|| EndpointType::CoretimeReservations, "coretime-reservations", &[]),
+    (|| EndpointType::CoretimeRegions, "coretime-regions", &["core-reg"]),
+    // Node
+    (|| EndpointType::NodeVersion, "node-version", &["version"]),
+    (|| EndpointType::NodeNetwork, "node-network", &["network"]),
+    // Pallet
+    (|| EndpointType::PalletConsts, "pallet-consts", &["consts"]),
+    (|| EndpointType::PalletConstsConstantItem, "pallet-consts-item", &["consts-item"]),
+    (|| EndpointType::PalletStorage, "pallet-storage", &["storage"]),
+    (|| EndpointType::RcPalletStorage, "rc-pallet-storage", &[]),
+    (|| EndpointType::PalletDispatchables, "pallet-dispatchables", &["dispatchables"]),
+    (|| EndpointType::RcPalletDispatchables, "rc-pallet-dispatchables", &[]),
+    (|| EndpointType::PalletErrors, "pallet-errors", &["errors"]),
+    (|| EndpointType::RcPalletErrors, "rc-pallet-errors", &[]),
+    (|| EndpointType::PalletEvents, "pallet-events", &[]),
+    (|| EndpointType::RcPalletEvents, "rc-pallet-events", &[]),
+    (|| EndpointType::PalletStakingValidators, "staking-validators", &[]),
+    (|| EndpointType::RcPalletStakingValidators, "rc-staking-validators", &[]),
+    // Runtime
+    (|| EndpointType::RuntimeSpec, "runtime-spec", &["spec"]),
+    (|| EndpointType::RuntimeMetadata, "runtime-metadata", &["metadata"]),
+    // Transaction
+    (|| EndpointType::TransactionMaterial, "tx-material", &["transaction-material"]),
+];
+
+impl EndpointType {
+    /// Get the canonical string name for this endpoint.
+    pub fn name(&self) -> &'static str {
+        for (constructor, canonical, _) in ENDPOINT_NAMES {
+            if constructor() == *self {
+                return canonical;
+            }
+        }
+        unreachable!("All variants must be in ENDPOINT_NAMES")
+    }
+}
+
 impl fmt::Display for EndpointType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            EndpointType::AccountBalanceInfo => write!(f, "account-balance-info"),
-            EndpointType::AccountForeignAssetBalances => write!(f, "account-foreign-asset-balance"),
-            EndpointType::Block => write!(f, "block"),
-            EndpointType::BlocksHead => write!(f, "blocks-head"),
-            EndpointType::BlocksHeadRcBlock => write!(f, "blocks-head-rcblock"),
-            EndpointType::BlockHeader => write!(f, "block-header"),
-            EndpointType::BlockExtrinsics => write!(f, "block-extrinsics"),
-            EndpointType::BlockExtrinsicsRaw => write!(f, "block-extrinsics-raw"),
-            EndpointType::BlockExtrinsicsRawRcBlock => write!(f, "block-extrinsics-raw-rcblock"),
-            EndpointType::BlockExtrinsicsIdx => write!(f, "block-extrinsics-idx"),
-            EndpointType::BlockExtrinsicsIdxRcBlock => write!(f, "block-extrinsics-idx-rcblock"),
-            EndpointType::RcBlockExtrinsicsRaw => write!(f, "rc-block-extrinsics-raw"),
-            EndpointType::RcBlockExtrinsicsIdx => write!(f, "rc-block-extrinsics-idx"),
-            EndpointType::BlockParaInclusions => write!(f, "block-para-inclusions"),
-            EndpointType::CoretimeInfo => write!(f, "coretime-info"),
-            EndpointType::CoretimeOverview => write!(f, "coretime-overview"),
-            EndpointType::CoretimeLeases => write!(f, "coretime-leases"),
-            EndpointType::CoretimeReservations => write!(f, "coretime-reservations"),
-            EndpointType::CoretimeRegions => write!(f, "coretime-regions"),
-            EndpointType::NodeVersion => write!(f, "node-version"),
-            EndpointType::NodeNetwork => write!(f, "node-network"),
-            EndpointType::PalletConsts => write!(f, "pallet-consts"),
-            EndpointType::PalletConstsConstantItem => write!(f, "pallet-consts-item"),
-            EndpointType::PalletStorage => write!(f, "pallet-storage"),
-            EndpointType::PalletDispatchables => write!(f, "pallet-dispatchables"),
-            EndpointType::PalletErrors => write!(f, "pallet-errors"),
-            EndpointType::RcPalletErrors => write!(f, "rc-pallet-errors"),
-            EndpointType::PalletEvents => write!(f, "pallet-events"),
-            EndpointType::RcPalletEvents => write!(f, "rc-pallet-events"),
-            EndpointType::PalletStakingValidators => write!(f, "staking-validators"),
-            EndpointType::RcPalletStakingValidators => write!(f, "rc-staking-validators"),
-            EndpointType::RuntimeSpec => write!(f, "runtime-spec"),
-            EndpointType::RuntimeMetadata => write!(f, "runtime-metadata"),
-            EndpointType::TransactionMaterial => write!(f, "tx-material"),
-        }
+        f.write_str(self.name())
     }
 }
 
@@ -390,57 +432,15 @@ impl std::str::FromStr for EndpointType {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.to_lowercase().as_str() {
-            // Account endpoints
-            "account-balance-info" | "accounts-balance-info" => Ok(EndpointType::AccountBalanceInfo),
-            "account-fa-bl" | "account-foreign-asset-balance" => Ok(EndpointType::AccountForeignAssetBalances),
-
-            // Block endpoints
-            "block" | "blocks" => Ok(EndpointType::Block),
-            "blocks-head" => Ok(EndpointType::BlocksHead),
-            "blocks-head-rcblock" | "blocks-head-rc" => Ok(EndpointType::BlocksHeadRcBlock),
-            "block-header" | "header" => Ok(EndpointType::BlockHeader),
-            "block-extrinsics" | "extrinsics" => Ok(EndpointType::BlockExtrinsics),
-            "block-extrinsics-raw" => Ok(EndpointType::BlockExtrinsicsRaw),
-            "block-extrinsics-raw-rcblock" | "block-extrinsics-raw-rc" => Ok(EndpointType::BlockExtrinsicsRawRcBlock),
-            "block-extrinsics-idx" => Ok(EndpointType::BlockExtrinsicsIdx),
-            "block-extrinsics-idx-rcblock" | "block-extrinsics-idx-rc" => Ok(EndpointType::BlockExtrinsicsIdxRcBlock),
-            "rc-block-extrinsics-raw" => Ok(EndpointType::RcBlockExtrinsicsRaw),
-            "rc-block-extrinsics-idx" => Ok(EndpointType::RcBlockExtrinsicsIdx),
-            "block-para-inclusions" | "para-inclusions" => Ok(EndpointType::BlockParaInclusions),
-
-            // Coretime endpoints
-            "coretime-info" => Ok(EndpointType::CoretimeInfo),
-            "coretime-overview" => Ok(EndpointType::CoretimeOverview),
-            "coretime-leases" => Ok(EndpointType::CoretimeLeases),
-            "coretime-reservations" => Ok(EndpointType::CoretimeReservations),
-            "coretime-regions" | "core-reg" => Ok(EndpointType::CoretimeRegions),
-
-            // Node endpoints
-            "node-version" | "version" => Ok(EndpointType::NodeVersion),
-            "node-network" | "network" => Ok(EndpointType::NodeNetwork),
-
-            // Pallet endpoints
-            "consts" | "pallet-consts" => Ok(EndpointType::PalletConsts),
-            "consts-item" | "pallet-consts-item" => Ok(EndpointType::PalletConstsConstantItem),
-            "storage" | "pallet-storage" => Ok(EndpointType::PalletStorage),
-            "dispatchables" | "pallet-dispatchables" => Ok(EndpointType::PalletDispatchables),
-            "errors" | "pallet-errors" => Ok(EndpointType::PalletErrors),
-            "rc-pallet-errors" => Ok(EndpointType::RcPalletErrors),
-            "pallet-events" => Ok(EndpointType::PalletEvents),
-            "rc-pallet-events" => Ok(EndpointType::RcPalletEvents),
-            "staking-validators" => Ok(EndpointType::PalletStakingValidators),
-            "rc-staking-validators" => Ok(EndpointType::RcPalletStakingValidators),
-
-            // Runtime endpoints
-            "runtime-spec" | "spec" => Ok(EndpointType::RuntimeSpec),
-            "runtime-metadata" | "metadata" => Ok(EndpointType::RuntimeMetadata),
-            "tx-material" | "transaction-material" => Ok(EndpointType::TransactionMaterial),
-
-            _ => Err(format!(
-                "Unknown endpoint '{}'. Valid options:\n  Account: balance-info\n Block: block, block-header, block-extrinsics, para-inclusions\n Pallet: consts, storage, dispatchables, errors, events\n  Runtime: runtime-spec, runtime-metadata, tx-material\n  Node: node-version, node-network",
-                s
-            )),
+        let lower = s.to_lowercase();
+        for (constructor, canonical, aliases) in ENDPOINT_NAMES {
+            if *canonical == lower || aliases.contains(&lower.as_str()) {
+                return Ok(constructor());
+            }
         }
+        Err(format!(
+            "Unknown endpoint '{}'. Valid options:\n  Account: account-balance-info, account-foreign-asset-balance\n  Block: block, block-header, block-extrinsics, para-inclusions\n  Pallet: pallet-consts, pallet-storage, pallet-dispatchables, pallet-errors, pallet-events\n  Runtime: runtime-spec, runtime-metadata, tx-material\n  Node: node-version, node-network",
+            s
+        ))
     }
 }
