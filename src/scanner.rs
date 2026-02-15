@@ -353,15 +353,20 @@ pub async fn scan_block_endpoint(
             // Special handling: fetch extrinsics count first, then test each index
             for block_num in blocks {
                 // Fetch extrinsics list to get count - use appropriate URL based on endpoint type
-                let extrinsics_url =
-                    if matches!(endpoint_type, EndpointType::BlockExtrinsicsIdxRcBlock) {
-                        format!(
-                            "{}/blocks/{}/extrinsics-raw?useRcBlock=true",
-                            rust_url, block_num
-                        )
-                    } else {
+                let extrinsics_url = match endpoint_type {
+                    // /blocks/{blockId}/extrinsics/{index}
+                    EndpointType::BlockExtrinsicsIdx => {
+                        format!("{}/blocks/{}/extrinsics-raw", rust_url, block_num)
+                    }
+                    // /blocks/{blockId}/extrinsics/{index}?useRcBlock=true
+                    EndpointType::BlockExtrinsicsIdxRcBlock => {
+                        format!("{}/blocks/{}/extrinsics-raw?useRcBlock=true", rust_url, block_num)
+                    }
+                    // /rc/blocks/{blockId}/extrinsics/{index}
+                    _ => {
                         format!("{}/rc/blocks/{}/extrinsics-raw", rust_url, block_num)
-                    };
+                    }
+                };
                 let extrinsics_count = match fetch_json(client, &extrinsics_url).await {
                     Ok(json) => {
                         // Response structure may vary - try "extrinsics" field first, then check for array at root

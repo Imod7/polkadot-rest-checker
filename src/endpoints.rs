@@ -182,7 +182,7 @@ impl EndpointType {
             }
             EndpointType::BlockExtrinsicsIdx => {
                 let block =
-                    block.expect("Relay Chain Block required for BlockExtrinsicsIdx endpoint");
+                    block.expect("Block required for BlockExtrinsicsIdx endpoint");
                 let idx = extrinsic_index
                     .expect("Extrinsic index required for BlockExtrinsicsIdx endpoint");
                 format!("/blocks/{}/extrinsics/{}", block, idx)
@@ -353,7 +353,7 @@ impl EndpointType {
             EndpointType::BlocksHead => "/blocks/head",
             EndpointType::BlocksHeadRcBlock => "/blocks/head?useRcBlock=true",
             EndpointType::BlocksHeader => "/blocks/{blockId}/header",
-            EndpointType::BlockExtrinsics => "/blocks/{blockId}/extrinsics-info",
+            EndpointType::BlockExtrinsics => "/blocks/{blockId}/extrinsics",
             EndpointType::BlockExtrinsicsRaw => "/blocks/{blockId}/extrinsics-raw",
             EndpointType::BlockExtrinsicsRawRcBlock => "/blocks/{blockId}/extrinsics-raw?useRcBlock=true",
             EndpointType::BlockExtrinsicsIdx => "/blocks/{blockId}/extrinsics/{index}",
@@ -414,7 +414,7 @@ const ENDPOINT_NAMES: &[(fn() -> EndpointType, &str, &[&str])] = &[
     (|| EndpointType::Block, "block", &["blocks"]),
     (|| EndpointType::BlocksHead, "blocks-head", &[]),
     (|| EndpointType::BlocksHeadRcBlock, "blocks-head-rcblock", &["blocks-head-rc"]),
-    (|| EndpointType::BlocksHeader, "block-header", &["header"]),
+    (|| EndpointType::BlocksHeader, "blocks-header", &["header"]),
     (|| EndpointType::BlockExtrinsics, "block-extrinsics", &["extrinsics"]),
     (|| EndpointType::BlockExtrinsicsRaw, "block-extrinsics-raw", &[]),
     (|| EndpointType::BlockExtrinsicsRawRcBlock, "block-extrinsics-raw-rcblock", &["block-extrinsics-raw-rc"]),
@@ -481,7 +481,7 @@ impl std::str::FromStr for EndpointType {
             }
         }
         Err(format!(
-            "Unknown endpoint '{}'. Valid options:\n  Account: account-balance-info, account-foreign-asset-balance\n  Block: block, block-header, block-extrinsics, para-inclusions\n  Pallet: pallet-consts, pallet-storage, pallet-dispatchables, pallet-errors, pallet-events\n  Runtime: runtime-spec, runtime-metadata, tx-material\n  Node: node-version, node-network",
+            "Unknown endpoint '{}'. Valid options:\n  Account: account-balance-info, account-foreign-asset-balance\n  Block: block, blocks-header, block-extrinsics, para-inclusions\n  Pallet: pallet-consts, pallet-storage, pallet-dispatchables, pallet-errors, pallet-events\n  Runtime: runtime-spec, runtime-metadata, tx-material\n  Node: node-version, node-network",
             s
         ))
     }

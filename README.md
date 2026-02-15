@@ -235,6 +235,23 @@ cargo run -- --chain polkadot --endpoint pallet-storage --start 24500600 --end 2
 cargo run -- --chain polkadot --endpoint pallet-consts --start 22500600 --end 22500607
 ```
 
+Kusama
+```bash
+# Test /pallets/{}/errors endpoint in Kusama for this block range and track the memory consumption plus record any mismatches in a separate report
+cargo run -- --chain kusama --endpoint pallet-errors --start 25500600 --end 25500650 --memory --report
+
+# Test /pallets/{palletId}/dispatchables endpoint in Kusama for this block range and track the memory consumption plus record any mismatches in a separate report
+cargo run -- --chain kusama --endpoint pallet-dispatchables --start 22500600 --end 22500630 --memory --report
+
+# Test /pallets/{palletId}/events endpoint in Kusama for this block range and track the memory consumption plus record any mismatches in a separate report
+cargo run -- --chain kusama --endpoint pallet-events --start 17500600 --end 17500620 --memory --report
+
+# Test /pallets/{palletId}/storage endpoint in Kusama for this block range and track the memory consumption plus record any mismatches in a separate report
+cargo run -- --chain kusama --endpoint pallet-storage --start 29500600 --end 29500620 --memory --report
+
+# This returns error - NEED TO FIX THIS
+cargo run -- --chain kusama --endpoint pallet-consts-item --start 21200200 --end 21200250 --memory --report 
+```
 
 ### Pallet Constant Item Examples
 
@@ -307,6 +324,21 @@ cargo run -- --chain asset-hub-polkadot --endpoint block-extrinsics-idx-rcblock 
 
 # Test /blocks/{}/para-inclusions endpoint in Polkadot Asset Hub for this block range and track the memory consumption plus record any mismatches in a separate report
 cargo run -- --chain asset-hub-polkadot --endpoint block-para-inclusions --start 11100000 --end 11101000 --memory --report
+```
+
+Kusama
+```bash
+# /blocks/{blockId}/extrinsics/{index}
+cargo run -- --chain kusama --endpoint block-extrinsics-idx --start 28300000 --end 28302000 --memory --report
+
+# Test /blocks/{}/extrinsics-raw
+cargo run -- --chain kusama --endpoint block-extrinsics-raw --start 30300000 --end 30306000 --memory --report
+
+# Test /blocks/{}/para-inclusions endpoint in Kusama for this block range and track the memory consumption plus record any mismatches in a separate report
+cargo run -- --chain kusama --endpoint block-para-inclusions --start 11100000 --end 11101000 --memory --report
+
+# /blocks/{blockId}/header
+cargo run -- --chain kusama --endpoint blocks-header --start 24100000 --end 24110000 --memory --report
 ```
 
 ### Relay Chain Extrinsic Endpoint Examples
@@ -389,10 +421,14 @@ cargo run -- --chain polkadot --endpoint blocks-head
 
 Example for `/accounts/{}/balance-info?at={}` endpoint
 
+Kusama
 ```bash
-# Test on Kusama
-cargo run -- --chain kusama --endpoint account-balance-info --start 1000000 --end 1000100
+# Test `/accounts/{accountId}/balance-info` on Kusama
+cargo run -- --chain kusama --endpoint account-balance-info --start 30000000 --end 30009000 --memory --report
 
+```
+
+```bash
 # Test with logs enabled
 cargo run -- --endpoint account-balance-info --start 20000000 --end 20000100 --logs
 ```
