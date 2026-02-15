@@ -8,6 +8,52 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 
+/// Merge overlapping or adjacent block ranges in-place.
+fn merge_ranges(ranges: &mut Vec<(u32, u32)>) {
+    if ranges.is_empty() {
+        return;
+    }
+
+    ranges.sort_by_key(|r| r.0);
+
+    let mut merged = Vec::new();
+    let mut current = ranges[0];
+
+    for &(start, end) in &ranges[1..] {
+        if start <= current.1 + 1 {
+            current.1 = current.1.max(end);
+        } else {
+            merged.push(current);
+            current = (start, end);
+        }
+    }
+    merged.push(current);
+
+    *ranges = merged;
+}
+
+/// Compute pass rate as a percentage from matched count and total count.
+fn pass_rate(matched: u32, total: u32) -> f64 {
+    if total == 0 {
+        0.0
+    } else {
+        (matched as f64 / total as f64) * 100.0
+    }
+}
+
+/// Format block ranges as a comma-separated string (e.g. "0-100, 500-600").
+fn format_ranges(ranges: &[(u32, u32)]) -> String {
+    if ranges.is_empty() {
+        "none".to_string()
+    } else {
+        ranges
+            .iter()
+            .map(|(s, e)| format!("{}-{}", s, e))
+            .collect::<Vec<_>>()
+            .join(", ")
+    }
+}
+
 /// Coverage data for a single endpoint + pallet combination
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PalletCoverage {
@@ -57,11 +103,9 @@ impl PalletCoverage {
         sidecar_errors: u32,
         both_errors: u32,
     ) {
-        // Add block range (merge overlapping ranges later if needed)
         self.block_ranges.push((start_block, end_block));
-        self.merge_block_ranges();
+        merge_ranges(&mut self.block_ranges);
 
-        // Update totals
         let blocks_in_run = end_block.saturating_sub(start_block) + 1;
         self.total_blocks_tested += blocks_in_run;
         self.matched += matched;
@@ -70,49 +114,16 @@ impl PalletCoverage {
         self.sidecar_errors += sidecar_errors;
         self.both_errors += both_errors;
 
-        // Update timestamp
         self.last_tested = chrono::Utc::now().to_rfc3339();
     }
 
-    /// Merge overlapping block ranges
-    fn merge_block_ranges(&mut self) {
-        if self.block_ranges.is_empty() {
-            return;
-        }
-
-        // Sort by start block
-        self.block_ranges.sort_by_key(|r| r.0);
-
-        let mut merged = Vec::new();
-        let mut current = self.block_ranges[0];
-
-        for &(start, end) in &self.block_ranges[1..] {
-            if start <= current.1 + 1 {
-                // Overlapping or adjacent, merge
-                current.1 = current.1.max(end);
-            } else {
-                // Not overlapping, push current and start new
-                merged.push(current);
-                current = (start, end);
-            }
-        }
-        merged.push(current);
-
-        self.block_ranges = merged;
+    fn total_tests(&self) -> u32 {
+        self.matched + self.mismatched + self.rust_errors + self.sidecar_errors + self.both_errors
     }
 
     /// Get pass rate as percentage
     pub fn pass_rate(&self) -> f64 {
-        let total = self.matched
-            + self.mismatched
-            + self.rust_errors
-            + self.sidecar_errors
-            + self.both_errors;
-        if total == 0 {
-            0.0
-        } else {
-            (self.matched as f64 / total as f64) * 100.0
-        }
+        pass_rate(self.matched, self.total_tests())
     }
 }
 
@@ -188,7 +199,7 @@ impl EndpointCoverage {
         }
     }
 
-    /// Add block endpoint coverage result
+    /// Add block or account endpoint coverage result
     pub fn add_block_run(
         &mut self,
         start_block: u32,
@@ -203,7 +214,7 @@ impl EndpointCoverage {
         self.last_tested = chrono::Utc::now().to_rfc3339();
 
         self.block_ranges.push((start_block, end_block));
-        self.merge_block_ranges();
+        merge_ranges(&mut self.block_ranges);
 
         self.matched += matched;
         self.mismatched += mismatched;
@@ -212,21 +223,7 @@ impl EndpointCoverage {
         self.both_errors += both_errors;
     }
 
-    /// Add runtime endpoint coverage result
-    pub fn add_runtime_run(&mut self, matched: bool, error: Option<&str>) {
-        self.tested = true;
-        self.last_tested = chrono::Utc::now().to_rfc3339();
-
-        if matched {
-            self.matched += 1;
-        } else if let Some(_) = error {
-            self.rust_errors += 1;
-        } else {
-            self.mismatched += 1;
-        }
-    }
-
-    /// Add account endpoint coverage result
+    /// Add account endpoint coverage result (delegates to add_block_run)
     pub fn add_account_run(
         &mut self,
         _account: &str,
@@ -238,69 +235,51 @@ impl EndpointCoverage {
         sidecar_errors: u32,
         both_errors: u32,
     ) {
+        self.add_block_run(
+            start_block,
+            end_block,
+            matched,
+            mismatched,
+            rust_errors,
+            sidecar_errors,
+            both_errors,
+        );
+    }
+
+    /// Add runtime endpoint coverage result
+    pub fn add_runtime_run(&mut self, matched: bool, error: Option<&str>) {
         self.tested = true;
         self.last_tested = chrono::Utc::now().to_rfc3339();
 
-        self.block_ranges.push((start_block, end_block));
-        self.merge_block_ranges();
-
-        self.matched += matched;
-        self.mismatched += mismatched;
-        self.rust_errors += rust_errors;
-        self.sidecar_errors += sidecar_errors;
-        self.both_errors += both_errors;
+        if matched {
+            self.matched += 1;
+        } else if error.is_some() {
+            self.rust_errors += 1;
+        } else {
+            self.mismatched += 1;
+        }
     }
 
-    /// Merge overlapping block ranges
-    fn merge_block_ranges(&mut self) {
-        if self.block_ranges.is_empty() {
-            return;
-        }
+    fn total_tests(&self) -> u32 {
+        self.matched + self.mismatched + self.rust_errors + self.sidecar_errors + self.both_errors
+    }
 
-        self.block_ranges.sort_by_key(|r| r.0);
-
-        let mut merged = Vec::new();
-        let mut current = self.block_ranges[0];
-
-        for &(start, end) in &self.block_ranges[1..] {
-            if start <= current.1 + 1 {
-                current.1 = current.1.max(end);
-            } else {
-                merged.push(current);
-                current = (start, end);
-            }
-        }
-        merged.push(current);
-
-        self.block_ranges = merged;
+    /// Whether this endpoint has any issues (mismatches or errors)
+    pub fn has_issues(&self) -> bool {
+        self.mismatched > 0
+            || self.rust_errors > 0
+            || self.sidecar_errors > 0
+            || self.both_errors > 0
     }
 
     /// Get pass rate
     pub fn pass_rate(&self) -> f64 {
         if let Some(ref pallets) = self.pallets {
             let total_matched: u32 = pallets.values().map(|p| p.matched).sum();
-            let total_tests: u32 = pallets
-                .values()
-                .map(|p| {
-                    p.matched + p.mismatched + p.rust_errors + p.sidecar_errors + p.both_errors
-                })
-                .sum();
-            if total_tests == 0 {
-                0.0
-            } else {
-                (total_matched as f64 / total_tests as f64) * 100.0
-            }
+            let total_tests: u32 = pallets.values().map(|p| p.total_tests()).sum();
+            pass_rate(total_matched, total_tests)
         } else {
-            let total = self.matched
-                + self.mismatched
-                + self.rust_errors
-                + self.sidecar_errors
-                + self.both_errors;
-            if total == 0 {
-                0.0
-            } else {
-                (self.matched as f64 / total as f64) * 100.0
-            }
+            pass_rate(self.matched, self.total_tests())
         }
     }
 }
@@ -338,6 +317,24 @@ impl ChainCoverage {
         self.endpoints
             .entry(endpoint.to_string())
             .or_insert_with(|| EndpointCoverage::new(endpoint, is_pallet_endpoint))
+    }
+
+    /// Compute overall stats (total_matched, total_tests) across all endpoints.
+    fn overall_stats(&self) -> (u32, u32) {
+        let mut total_matched = 0u32;
+        let mut total_tests = 0u32;
+        for ep in self.endpoints.values() {
+            if let Some(ref pallets) = ep.pallets {
+                for p in pallets.values() {
+                    total_matched += p.matched;
+                    total_tests += p.total_tests();
+                }
+            } else {
+                total_matched += ep.matched;
+                total_tests += ep.total_tests();
+            }
+        }
+        (total_matched, total_tests)
     }
 }
 
@@ -383,7 +380,7 @@ impl CoverageData {
             .or_insert_with(|| ChainCoverage::new(chain, total_pallets))
     }
 
-    /// Generate coverage report
+    /// Generate coverage report (plain text for terminal)
     pub fn generate_report(&self) -> String {
         let mut report = String::new();
 
@@ -405,24 +402,17 @@ impl CoverageData {
                 if let Some(ep_cov) = chain.endpoints.get(*endpoint) {
                     if ep_cov.tested {
                         let pallets_tested = ep_cov.pallets.as_ref().map(|p| p.len()).unwrap_or(0);
-                        let pass_rate = ep_cov.pass_rate();
                         report.push_str(&format!(
                             "  [✓] {:<20} {:>3}/{:<3} pallets tested ({:.1}% pass rate)\n",
-                            endpoint, pallets_tested, chain.total_pallets, pass_rate
+                            endpoint, pallets_tested, chain.total_pallets, ep_cov.pass_rate()
                         ));
 
-                        // Show block ranges for each pallet
                         if let Some(ref pallets) = ep_cov.pallets {
                             for (pallet_name, pallet_cov) in pallets {
-                                let ranges: Vec<String> = pallet_cov
-                                    .block_ranges
-                                    .iter()
-                                    .map(|(s, e)| format!("{}-{}", s, e))
-                                    .collect();
                                 report.push_str(&format!(
                                     "      - {}: blocks [{}] ({:.1}% pass)\n",
                                     pallet_name,
-                                    ranges.join(", "),
+                                    format_ranges(&pallet_cov.block_ranges),
                                     pallet_cov.pass_rate()
                                 ));
                             }
@@ -438,59 +428,13 @@ impl CoverageData {
             // Block endpoints
             report.push_str("\nBLOCK ENDPOINTS:\n");
             for endpoint in &block_endpoints {
-                if let Some(ep_cov) = chain.endpoints.get(*endpoint) {
-                    if ep_cov.tested {
-                        let ranges: Vec<String> = ep_cov
-                            .block_ranges
-                            .iter()
-                            .map(|(s, e)| format!("{}-{}", s, e))
-                            .collect();
-                        let pass_rate = ep_cov.pass_rate();
-                        report.push_str(&format!(
-                            "  [✓] {:<20} blocks [{}] ({:.1}% pass rate)\n",
-                            endpoint,
-                            if ranges.is_empty() {
-                                "none".to_string()
-                            } else {
-                                ranges.join(", ")
-                            },
-                            pass_rate
-                        ));
-                    } else {
-                        report.push_str(&format!("  [ ] {:<20} not tested\n", endpoint));
-                    }
-                } else {
-                    report.push_str(&format!("  [ ] {:<20} not tested\n", endpoint));
-                }
+                Self::write_plain_block_line(&mut report, chain, endpoint);
             }
 
             // Account endpoints
             report.push_str("\nACCOUNT ENDPOINTS:\n");
             for endpoint in &account_endpoints {
-                if let Some(ep_cov) = chain.endpoints.get(*endpoint) {
-                    if ep_cov.tested {
-                        let ranges: Vec<String> = ep_cov
-                            .block_ranges
-                            .iter()
-                            .map(|(s, e)| format!("{}-{}", s, e))
-                            .collect();
-                        let pass_rate = ep_cov.pass_rate();
-                        report.push_str(&format!(
-                            "  [✓] {:<20} blocks [{}] ({:.1}% pass rate)\n",
-                            endpoint,
-                            if ranges.is_empty() {
-                                "none".to_string()
-                            } else {
-                                ranges.join(", ")
-                            },
-                            pass_rate
-                        ));
-                    } else {
-                        report.push_str(&format!("  [ ] {:<20} not tested\n", endpoint));
-                    }
-                } else {
-                    report.push_str(&format!("  [ ] {:<20} not tested\n", endpoint));
-                }
+                Self::write_plain_block_line(&mut report, chain, endpoint);
             }
 
             // Runtime endpoints
@@ -514,43 +458,17 @@ impl CoverageData {
                 + account_endpoints.len()
                 + standalone_endpoints.len();
             let tested_endpoints = chain.endpoints.values().filter(|e| e.tested).count();
+            let (total_matched, total_tests) = chain.overall_stats();
+            let overall = pass_rate(total_matched, total_tests);
 
-            report.push_str(&format!("\nSUMMARY:\n"));
+            report.push_str("\nSUMMARY:\n");
             report.push_str(&format!(
                 "  Endpoints tested: {}/{}\n",
                 tested_endpoints, total_endpoints
             ));
-
-            // Calculate overall pass rate
-            let mut total_matched = 0u32;
-            let mut total_tests = 0u32;
-            for ep in chain.endpoints.values() {
-                if let Some(ref pallets) = ep.pallets {
-                    for p in pallets.values() {
-                        total_matched += p.matched;
-                        total_tests += p.matched
-                            + p.mismatched
-                            + p.rust_errors
-                            + p.sidecar_errors
-                            + p.both_errors;
-                    }
-                } else {
-                    total_matched += ep.matched;
-                    total_tests += ep.matched
-                        + ep.mismatched
-                        + ep.rust_errors
-                        + ep.sidecar_errors
-                        + ep.both_errors;
-                }
-            }
-            let overall_pass_rate = if total_tests > 0 {
-                (total_matched as f64 / total_tests as f64) * 100.0
-            } else {
-                0.0
-            };
             report.push_str(&format!(
                 "  Overall pass rate: {:.2}% ({}/{})\n",
-                overall_pass_rate, total_matched, total_tests
+                overall, total_matched, total_tests
             ));
             report.push_str(&format!("  Last updated: {}\n", chain.last_updated));
 
@@ -563,6 +481,24 @@ impl CoverageData {
         }
 
         report
+    }
+
+    /// Write a plain-text line for a block-like (block or account) endpoint.
+    fn write_plain_block_line(report: &mut String, chain: &ChainCoverage, endpoint: &str) {
+        if let Some(ep_cov) = chain.endpoints.get(endpoint) {
+            if ep_cov.tested {
+                report.push_str(&format!(
+                    "  [✓] {:<20} blocks [{}] ({:.1}% pass rate)\n",
+                    endpoint,
+                    format_ranges(&ep_cov.block_ranges),
+                    ep_cov.pass_rate()
+                ));
+            } else {
+                report.push_str(&format!("  [ ] {:<20} not tested\n", endpoint));
+            }
+        } else {
+            report.push_str(&format!("  [ ] {:<20} not tested\n", endpoint));
+        }
     }
 
     /// Return the list of all known endpoint names by category.
@@ -663,33 +599,8 @@ impl CoverageData {
                 + account_endpoints.len()
                 + standalone_endpoints.len();
             let tested_endpoints = chain.endpoints.values().filter(|e| e.tested).count();
-
-            let mut total_matched = 0u32;
-            let mut total_tests = 0u32;
-            for ep in chain.endpoints.values() {
-                if let Some(ref pallets) = ep.pallets {
-                    for p in pallets.values() {
-                        total_matched += p.matched;
-                        total_tests += p.matched
-                            + p.mismatched
-                            + p.rust_errors
-                            + p.sidecar_errors
-                            + p.both_errors;
-                    }
-                } else {
-                    total_matched += ep.matched;
-                    total_tests += ep.matched
-                        + ep.mismatched
-                        + ep.rust_errors
-                        + ep.sidecar_errors
-                        + ep.both_errors;
-                }
-            }
-            let overall_pass_rate = if total_tests > 0 {
-                (total_matched as f64 / total_tests as f64) * 100.0
-            } else {
-                0.0
-            };
+            let (total_matched, total_tests) = chain.overall_stats();
+            let overall = pass_rate(total_matched, total_tests);
 
             report.push_str("| Metric | Value |\n");
             report.push_str("|--------|-------|\n");
@@ -699,7 +610,7 @@ impl CoverageData {
             ));
             report.push_str(&format!(
                 "| Overall pass rate | {:.2}% ({}/{}) |\n\n",
-                overall_pass_rate, total_matched, total_tests
+                overall, total_matched, total_tests
             ));
 
             // Pallet endpoints table
@@ -710,7 +621,6 @@ impl CoverageData {
                 if let Some(ep_cov) = chain.endpoints.get(*endpoint) {
                     if ep_cov.tested {
                         let pallets_tested = ep_cov.pallets.as_ref().map(|p| p.len()).unwrap_or(0);
-                        let pass_rate = ep_cov.pass_rate();
                         let has_details = ep_cov.pallets.as_ref().map(|p| !p.is_empty()).unwrap_or(false);
                         let name = if has_details {
                             format!("[{}]({}#{})", endpoint, details_filename, endpoint)
@@ -723,29 +633,18 @@ impl CoverageData {
                                 .values()
                                 .flat_map(|p| p.block_ranges.iter().copied())
                                 .collect();
-                            all_ranges.sort_by_key(|r| r.0);
-                            // Merge overlapping
-                            let mut merged: Vec<(u32, u32)> = Vec::new();
-                            for (start, end) in all_ranges {
-                                if let Some(last) = merged.last_mut() {
-                                    if start <= last.1 + 1 {
-                                        last.1 = last.1.max(end);
-                                        continue;
-                                    }
-                                }
-                                merged.push((start, end));
-                            }
-                            if merged.is_empty() {
+                            merge_ranges(&mut all_ranges);
+                            if all_ranges.is_empty() {
                                 "-".to_string()
                             } else {
-                                merged.iter().map(|(s, e)| format!("{}-{}", s, e)).collect::<Vec<_>>().join(", ")
+                                format_ranges(&all_ranges)
                             }
                         } else {
                             "-".to_string()
                         };
                         report.push_str(&format!(
                             "| {} | ✅ | {}/{} | {} | {:.1}% |\n",
-                            name, pallets_tested, chain.total_pallets, block_ranges_str, pass_rate
+                            name, pallets_tested, chain.total_pallets, block_ranges_str, ep_cov.pass_rate()
                         ));
                     } else {
                         report.push_str(&format!("| {} | ❌ | - | - | - |\n", endpoint));
@@ -761,30 +660,7 @@ impl CoverageData {
             report.push_str("| Endpoint | Status | Block Ranges | Pass Rate |\n");
             report.push_str("|----------|--------|--------------|------------|\n");
             for endpoint in &block_endpoints {
-                if let Some(ep_cov) = chain.endpoints.get(*endpoint) {
-                    if ep_cov.tested {
-                        let ranges: Vec<String> = ep_cov
-                            .block_ranges
-                            .iter()
-                            .map(|(s, e)| format!("{}-{}", s, e))
-                            .collect();
-                        let pass_rate = ep_cov.pass_rate();
-                        report.push_str(&format!(
-                            "| {} | ✅ | {} | {:.1}% |\n",
-                            endpoint,
-                            if ranges.is_empty() {
-                                "none".to_string()
-                            } else {
-                                ranges.join(", ")
-                            },
-                            pass_rate
-                        ));
-                    } else {
-                        report.push_str(&format!("| {} | ❌ | - | - |\n", endpoint));
-                    }
-                } else {
-                    report.push_str(&format!("| {} | ❌ | - | - |\n", endpoint));
-                }
+                Self::write_md_block_row(&mut report, chain, endpoint, details_filename);
             }
             report.push_str("\n");
 
@@ -793,30 +669,7 @@ impl CoverageData {
             report.push_str("| Endpoint | Status | Block Ranges | Pass Rate |\n");
             report.push_str("|----------|--------|--------------|------------|\n");
             for endpoint in &account_endpoints {
-                if let Some(ep_cov) = chain.endpoints.get(*endpoint) {
-                    if ep_cov.tested {
-                        let ranges: Vec<String> = ep_cov
-                            .block_ranges
-                            .iter()
-                            .map(|(s, e)| format!("{}-{}", s, e))
-                            .collect();
-                        let pass_rate = ep_cov.pass_rate();
-                        report.push_str(&format!(
-                            "| {} | ✅ | {} | {:.1}% |\n",
-                            endpoint,
-                            if ranges.is_empty() {
-                                "none".to_string()
-                            } else {
-                                ranges.join(", ")
-                            },
-                            pass_rate
-                        ));
-                    } else {
-                        report.push_str(&format!("| {} | ❌ | - | - |\n", endpoint));
-                    }
-                } else {
-                    report.push_str(&format!("| {} | ❌ | - | - |\n", endpoint));
-                }
+                Self::write_md_block_row(&mut report, chain, endpoint, details_filename);
             }
             report.push_str("\n");
 
@@ -845,14 +698,42 @@ impl CoverageData {
         report
     }
 
-    /// Generate markdown coverage details report (per-pallet breakdowns).
+    /// Write a markdown table row for a block-like endpoint (used for both block and account tables).
+    fn write_md_block_row(
+        report: &mut String,
+        chain: &ChainCoverage,
+        endpoint: &str,
+        details_filename: &str,
+    ) {
+        if let Some(ep_cov) = chain.endpoints.get(endpoint) {
+            if ep_cov.tested {
+                let name = if ep_cov.has_issues() {
+                    format!("[{}]({}#{})", endpoint, details_filename, endpoint)
+                } else {
+                    endpoint.to_string()
+                };
+                report.push_str(&format!(
+                    "| {} | ✅ | {} | {:.1}% |\n",
+                    name,
+                    format_ranges(&ep_cov.block_ranges),
+                    ep_cov.pass_rate()
+                ));
+            } else {
+                report.push_str(&format!("| {} | ❌ | - | - |\n", endpoint));
+            }
+        } else {
+            report.push_str(&format!("| {} | ❌ | - | - |\n", endpoint));
+        }
+    }
+
+    /// Generate markdown coverage details report (per-pallet breakdowns + block/account stats).
     pub fn generate_details_report(&self, summary_filename: &str) -> String {
         let mut report = String::new();
-        let (pallet_endpoints, _, _, _) = Self::endpoint_lists();
+        let (pallet_endpoints, block_endpoints, account_endpoints, _) = Self::endpoint_lists();
 
         report.push_str("# Coverage Details\n\n");
         report.push_str(
-            "Per-pallet coverage breakdown. Auto-generated from test results.\n\n",
+            "Detailed coverage breakdown. Auto-generated from test results.\n\n",
         );
         report.push_str(&format!(
             "- **Summary**: [{}]({})\n\n",
@@ -867,6 +748,7 @@ impl CoverageData {
         for (chain_name, chain) in &self.chains {
             report.push_str(&format!("## Chain: {}\n\n", chain_name));
 
+            // Pallet endpoint details
             let has_pallet_details = chain
                 .endpoints
                 .values()
@@ -887,15 +769,10 @@ impl CoverageData {
                                     sorted_pallets.sort_by(|a, b| a.0.cmp(b.0));
 
                                     for (pallet_name, pallet_cov) in sorted_pallets {
-                                        let ranges: Vec<String> = pallet_cov
-                                            .block_ranges
-                                            .iter()
-                                            .map(|(s, e)| format!("{}-{}", s, e))
-                                            .collect();
                                         report.push_str(&format!(
                                             "| {} | {} | {} | {} | {} | {} | {} | {:.1}% |\n",
                                             pallet_name,
-                                            ranges.join(", "),
+                                            format_ranges(&pallet_cov.block_ranges),
                                             pallet_cov.matched,
                                             pallet_cov.mismatched,
                                             pallet_cov.rust_errors,
@@ -910,12 +787,64 @@ impl CoverageData {
                         }
                     }
                 }
-            } else {
-                report.push_str("No detailed pallet coverage data recorded yet.\n\n");
+            }
+
+            // Block endpoint details (only endpoints with issues)
+            for endpoint in &block_endpoints {
+                Self::write_details_block_section(&mut report, chain, endpoint);
+            }
+
+            // Account endpoint details (only endpoints with issues)
+            for endpoint in &account_endpoints {
+                Self::write_details_block_section(&mut report, chain, endpoint);
+            }
+
+            let has_any = has_pallet_details
+                || block_endpoints
+                    .iter()
+                    .chain(account_endpoints.iter())
+                    .any(|ep| {
+                        chain
+                            .endpoints
+                            .get(*ep)
+                            .map(|e| e.tested && e.has_issues())
+                            .unwrap_or(false)
+                    });
+
+            if !has_any {
+                report.push_str("No detailed coverage data recorded yet.\n\n");
             }
         }
 
         report
+    }
+
+    /// Write a details section for a block-like endpoint (block or account) if it has issues.
+    fn write_details_block_section(
+        report: &mut String,
+        chain: &ChainCoverage,
+        endpoint: &str,
+    ) {
+        if let Some(ep_cov) = chain.endpoints.get(endpoint) {
+            if ep_cov.tested && ep_cov.has_issues() {
+                report.push_str(&format!("### {}\n\n", endpoint));
+                report.push_str(&format!(
+                    "- **Block ranges**: {}\n",
+                    format_ranges(&ep_cov.block_ranges)
+                ));
+                report.push_str(&format!("- **Pass rate**: {:.1}%\n\n", ep_cov.pass_rate()));
+                report.push_str("| Matched | Mismatched | Rust Err | Sidecar Err | Both Err (diff codes) |\n");
+                report.push_str("|---------|------------|----------|-------------|----------------------|\n");
+                report.push_str(&format!(
+                    "| {} | {} | {} | {} | {} |\n\n",
+                    ep_cov.matched,
+                    ep_cov.mismatched,
+                    ep_cov.rust_errors,
+                    ep_cov.sidecar_errors,
+                    ep_cov.both_errors,
+                ));
+            }
+        }
     }
 
     /// Save markdown reports to files (summary + details)

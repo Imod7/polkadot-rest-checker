@@ -69,6 +69,7 @@ pub async fn scan_pallet_endpoint(
     coverage: &mut CoverageData,
     total_pallets: usize,
     create_logs: bool,
+    create_report: bool,
 ) -> Result<(), Box<dyn Error>> {
     // Get pallets for the selected chain
     let all_pallets = chain.pallets();
@@ -257,16 +258,18 @@ pub async fn scan_pallet_endpoint(
         create_logs,
     );
 
-    // Write markdown mismatch report (always, when there are issues)
-    write_pallet_mismatch_report(
-        &pallet_results,
-        chain,
-        endpoint_type,
-        start_block,
-        end_block,
-        rust_url,
-        sidecar_url,
-    );
+    // Write markdown mismatch report (only with --report flag)
+    if create_report {
+        write_pallet_mismatch_report(
+            &pallet_results,
+            chain,
+            endpoint_type,
+            start_block,
+            end_block,
+            rust_url,
+            sidecar_url,
+        );
+    }
 
     Ok(())
 }
@@ -286,6 +289,7 @@ pub async fn scan_block_endpoint(
     coverage: &mut CoverageData,
     total_pallets: usize,
     create_logs: bool,
+    create_report: bool,
 ) -> Result<(), Box<dyn Error>> {
     println!("\n{}", "=".repeat(60));
     println!("Scanning endpoint: {}", endpoint_type);
@@ -532,21 +536,23 @@ pub async fn scan_block_endpoint(
         create_logs,
     );
 
-    // Write markdown mismatch report (always, when there are issues)
-    write_block_mismatch_report(
-        endpoint_type,
-        chain,
-        start_block,
-        end_block,
-        rust_url,
-        sidecar_url,
-        matched,
-        mismatched,
-        rust_errors,
-        sidecar_errors,
-        both_errors,
-        &issues,
-    );
+    // Write markdown mismatch report (only with --report flag)
+    if create_report {
+        write_block_mismatch_report(
+            endpoint_type,
+            chain,
+            start_block,
+            end_block,
+            rust_url,
+            sidecar_url,
+            matched,
+            mismatched,
+            rust_errors,
+            sidecar_errors,
+            both_errors,
+            &issues,
+        );
+    }
 
     Ok(())
 }
@@ -702,6 +708,7 @@ pub async fn scan_account_endpoint(
     coverage: &mut CoverageData,
     total_pallets: usize,
     create_logs: bool,
+    create_report: bool,
 ) -> Result<(), Box<dyn Error>> {
     // Get test accounts for the selected chain
     let accounts = chain.test_accounts();
@@ -877,16 +884,18 @@ pub async fn scan_account_endpoint(
         create_logs,
     );
 
-    // Write markdown mismatch report (always, when there are issues)
-    write_account_mismatch_report(
-        &account_results,
-        chain,
-        endpoint_type,
-        start_block,
-        end_block,
-        rust_url,
-        sidecar_url,
-    );
+    // Write markdown mismatch report (only with --report flag)
+    if create_report {
+        write_account_mismatch_report(
+            &account_results,
+            chain,
+            endpoint_type,
+            start_block,
+            end_block,
+            rust_url,
+            sidecar_url,
+        );
+    }
 
     Ok(())
 }

@@ -10,6 +10,9 @@ A CLI tool for testing and comparing responses between the new Rust-based `polka
 - Concurrent batch processing for fast scanning
 - Detailed error and mismatch logging to files
 - Summary reports with match rates
+- Markdown mismatch reports with summary and details (via `--report`)
+- Automatic memory consumption monitoring of both API servers (via `--memory`)
+- Coverage tracking across multiple runs with markdown reports
 
 ## Project Structure
 
@@ -115,9 +118,12 @@ polkadot-rest-checker [OPTIONS]
 | `--sidecar-url` | | Sidecar API base URL | `http://localhost:8045` |
 | `--delay` | `-d` | Delay between batches (ms) | `100` |
 | `--pallet` | `-p` | Filter to specific pallet (pallet endpoints only) | all pallets |
-| `--coverage-file` | | Path to coverage data file | `coverage/coverage.json` |
+| `--coverage-file` | | Path to coverage data file | `reports/coverage.json` |
 | `--coverage-report` | | Show coverage report and exit | - |
 | `--logs` | | Create detailed log files for errors and summaries | disabled |
+| `--report` | | Generate markdown mismatch report files | disabled |
+| `--memory` | | Monitor memory consumption of both API servers | disabled |
+| `--memory-interval` | | Memory sampling interval in milliseconds | `1000` |
 
 ### Supported Chains
 
@@ -281,6 +287,26 @@ cargo run -- --endpoint block-extrinsics-idx-rcblock --start 1000000 --end 10000
 
 # Test parachain inclusions (relay chain only)
 cargo run -- --endpoint para-inclusions --start 10293194 --end 10293200
+```
+
+Polkadot Asset Hub
+```bash
+# Test /blocks/{}/extrinsics-raw?useRcBlock=true endpoint in Polkadot Asset Hub for this block range and track the memory consumption
+cargo run -- --chain asset-hub-polkadot --endpoint block-extrinsics-raw-rcblock --start 10300000 --end 10301000 --memory
+
+cargo run -- --chain asset-hub-polkadot --endpoint block-extrinsics-idx --start 8300000 --end 8302000 --memory
+
+# Test /blocks/{}/extrinsics/{} endpoint in Polkadot Asset Hub for this block range and track the memory consumption
+cargo run -- --chain asset-hub-polkadot --endpoint block-extrinsics-idx --start 8300000 --end 8302000 --memory
+
+# Test /blocks/{blockId}/extrinsics-raw?useRcBlock=true endpoint in Polkadot Asset Hub for this block range and track the memory consumption plus record any mismatches in a separate report
+cargo run -- --chain asset-hub-polkadot --endpoint block-extrinsics-raw-rcblock --start 9500000 --end 9501000 --memory --report
+
+# Test /blocks/{blockId}/extrinsics/{index}?useRcBlock=true endpoint in Polkadot Asset Hub for this block range and track the memory consumption plus record any mismatches in a separate report
+cargo run -- --chain asset-hub-polkadot --endpoint block-extrinsics-idx-rcblock --start 10500000 --end 10501000 --memory --report
+
+# Test /blocks/{}/para-inclusions endpoint in Polkadot Asset Hub for this block range and track the memory consumption plus record any mismatches in a separate report
+cargo run -- --chain asset-hub-polkadot --endpoint block-para-inclusions --start 11100000 --end 11101000 --memory --report
 ```
 
 ### Relay Chain Extrinsic Endpoint Examples
@@ -591,14 +617,14 @@ Field paths use dot notation for objects and bracket notation for arrays:
 
 The checker automatically tracks which endpoints, pallets, and block ranges have been tested across multiple runs.
 
-**Note:** [coverage/COVERAGE.md](coverage/COVERAGE.md) is auto-generated after each test run with current coverage data.
+**Note:** [reports/COVERAGE.md](reports/COVERAGE.md) is auto-generated after each test run with current coverage data.
 
 Quick start:
 ```bash
 # Show coverage report in terminal
 cargo run -- --coverage-report
 
-# Run a test (this will update coverage/COVERAGE.md automatically)
+# Run a test (this will update reports/COVERAGE.md automatically)
 cargo run -- --endpoint block --start 1000 --end 1010
 ```
 
@@ -624,6 +650,39 @@ cargo run -- --endpoint block --start 1000 --end 1010
    - Case differences in strings are ignored (comparison is case-insensitive)
 
 9. **Diffs are sorted by importance** — non-TypeMismatch diffs (value mismatches, missing fields, array length differences) are shown first. TypeMismatch diffs are shown last. This helps you focus on real issues when many fields have expected number-vs-string type differences.
+
+## Memory Monitoring
+
+The `--memory` flag enables automatic memory consumption tracking of both API server processes during a scan. No additional terminals or tools are needed.
+
+### How It Works
+
+1. **PID detection**: Extracts ports from `--url` and `--sidecar-url`, then runs `lsof` to find each server's PID
+2. **Background sampling**: A background task samples RSS via `ps` at a configurable interval (default: 1 second)
+3. **Lifecycle**: The monitor starts before the scan and stops after it completes
+4. **Reporting**: Computes baseline, peak, average, final RSS, and growth for both servers. Prints a terminal table and appends to `reports/MEMORY.md`
+
+### Usage
+
+```bash
+# Enable memory monitoring
+cargo run -- --endpoint block --start 1000 --end 2000 --memory
+
+# Custom sampling interval (500ms)
+cargo run -- --chain kusama --endpoint consts --start 0 --end 100 --memory --memory-interval 500
+
+# Combine with mismatch reports
+cargo run -- --endpoint block --start 1000 --end 2000 --memory --report
+```
+
+### Graceful Degradation
+
+- Port not parseable from URL → warning printed, that server skipped
+- `lsof` can't find a PID on the port → warning printed, that server skipped
+- Process exits mid-scan → samples stop for that process, report uses collected data
+- Neither server found → monitoring disabled entirely, no crash
+
+> **Note:** Memory monitoring requires macOS or Linux (`lsof` and `ps` commands).
 
 ## Troubleshooting
 

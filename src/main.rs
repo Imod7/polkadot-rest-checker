@@ -8,6 +8,7 @@ mod coverage;
 mod diff;
 mod endpoints;
 mod http;
+mod memory;
 mod reporting;
 mod scanner;
 
@@ -60,7 +61,7 @@ struct Args {
     pallet: Option<String>,
 
     /// Path to coverage data file
-    #[arg(long, default_value = "coverage/coverage.json")]
+    #[arg(long, default_value = "reports/coverage.json")]
     coverage_file: String,
 
     /// Show coverage report and exit
@@ -70,10 +71,25 @@ struct Args {
     /// Create detailed log files for errors and summaries
     #[arg(long)]
     logs: bool,
+
+    /// Generate markdown mismatch report files (report_*.md)
+    #[arg(long)]
+    report: bool,
+
+    /// Monitor memory consumption of both server processes
+    #[arg(long)]
+    memory: bool,
+
+    /// Memory sampling interval in milliseconds (default: 1000)
+    #[arg(long, default_value_t = 1000)]
+    memory_interval: u64,
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    // Capture the original command for the memory report
+    let cli_command: String = std::env::args().collect::<Vec<_>>().join(" ");
+
     let args = Args::parse();
     let coverage_path = Path::new(&args.coverage_file);
 
@@ -133,6 +149,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
         println!("Batch size: {}", batch_size);
     }
 
+    // Start memory monitoring if --memory flag is set
+    let memory_monitor = if args.memory {
+        println!("Memory monitoring enabled (interval: {}ms)", args.memory_interval);
+        memory::MemoryMonitor::start(rust_url, sidecar_url, args.memory_interval).await
+    } else {
+        None
+    };
+
     // Get total pallets for this chain (for coverage tracking)
     let total_pallets = chain.pallets().len();
 
@@ -151,6 +175,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             &mut coverage,
             total_pallets,
             args.logs,
+            args.report,
         )
         .await?;
     } else if endpoint_type.requires_pallet() {
@@ -168,6 +193,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             &mut coverage,
             total_pallets,
             args.logs,
+            args.report,
         )
         .await?;
     } else if endpoint_type.requires_block() {
@@ -185,6 +211,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             &mut coverage,
             total_pallets,
             args.logs,
+            args.report,
         )
         .await?;
     } else {
@@ -201,14 +228,49 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .await?;
     }
 
+    // Stop memory monitoring and print report
+    if let Some(monitor) = memory_monitor {
+        let memory_report = monitor.stop().await;
+        memory_report.print_summary();
+
+        // Append memory report to MEMORY.md
+        let mem_filename = "reports/MEMORY.md";
+        let is_new = !Path::new(mem_filename).exists();
+        if let Ok(mut f) = std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(mem_filename)
+        {
+            use std::io::Write;
+            let timestamp = chrono::Local::now().format("%Y-%m-%d %H:%M:%S");
+            if is_new {
+                writeln!(f, "# Memory Consumption Report\n")?;
+            }
+            writeln!(f, "---\n")?;
+            writeln!(f, "## {} — {} `{}`\n", timestamp, chain, endpoint_type)?;
+            writeln!(f, "- **Chain**: {}", chain)?;
+            writeln!(f, "- **Endpoint**: `{}`", endpoint_type)?;
+            writeln!(f, "- **Path**: `{}`", endpoint_type.path_pattern())?;
+            if endpoint_type.requires_block() {
+                writeln!(f, "- **Block range**: {} - {}", start_block, end_block)?;
+            }
+            writeln!(f, "- **Rust API**: {}", rust_url)?;
+            writeln!(f, "- **Sidecar API**: {}", sidecar_url)?;
+            writeln!(f, "\n### Command\n")?;
+            writeln!(f, "```bash\n{}\n```\n", cli_command)?;
+            write!(f, "{}", memory_report.to_markdown())?;
+            println!("Memory report appended to: {}", mem_filename);
+        }
+    }
+
     // Save coverage data
     coverage.save(coverage_path)?;
-    println!("\nCoverage data saved to: {}", args.coverage_file);
+    println!("Coverage data saved to: {}", args.coverage_file);
 
     // Save markdown reports (summary + details)
-    let markdown_path = Path::new("coverage/COVERAGE_SUMMARY.md");
+    let markdown_path = Path::new("reports/COVERAGE_SUMMARY.md");
     coverage.save_markdown_report(markdown_path)?;
-    println!("Coverage reports saved to: coverage/COVERAGE_SUMMARY.md + coverage/COVERAGE_DETAILS.md");
+    println!("Coverage reports saved to: reports/COVERAGE_SUMMARY.md + coverage/COVERAGE_DETAILS.md");
 
     Ok(())
 }

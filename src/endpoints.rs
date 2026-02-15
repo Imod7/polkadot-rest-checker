@@ -185,7 +185,7 @@ impl EndpointType {
                     block.expect("Relay Chain Block required for BlockExtrinsicsIdx endpoint");
                 let idx = extrinsic_index
                     .expect("Extrinsic index required for BlockExtrinsicsIdx endpoint");
-                format!("/rc/blocks/{}/extrinsics/{}", block, idx)
+                format!("/blocks/{}/extrinsics/{}", block, idx)
             }
             EndpointType::BlockExtrinsicsIdxRcBlock => {
                 let block =
@@ -341,6 +341,48 @@ impl EndpointType {
                 Some(b) => format!("/transaction/material?at={}", b),
                 None => "/transaction/material".to_string(),
             },
+        }
+    }
+
+    /// Get the URL path pattern with placeholders (e.g. `/blocks/{blockId}/extrinsics/{index}`)
+    pub fn path_pattern(&self) -> &'static str {
+        match self {
+            EndpointType::AccountBalanceInfo => "/accounts/{accountId}/balance-info",
+            EndpointType::AccountForeignAssetBalances => "/accounts/{accountId}/foreign-asset-balances",
+            EndpointType::Block => "/blocks/{blockId}",
+            EndpointType::BlocksHead => "/blocks/head",
+            EndpointType::BlocksHeadRcBlock => "/blocks/head?useRcBlock=true",
+            EndpointType::BlocksHeader => "/blocks/{blockId}/header",
+            EndpointType::BlockExtrinsics => "/blocks/{blockId}/extrinsics-info",
+            EndpointType::BlockExtrinsicsRaw => "/blocks/{blockId}/extrinsics-raw",
+            EndpointType::BlockExtrinsicsRawRcBlock => "/blocks/{blockId}/extrinsics-raw?useRcBlock=true",
+            EndpointType::BlockExtrinsicsIdx => "/blocks/{blockId}/extrinsics/{index}",
+            EndpointType::BlockExtrinsicsIdxRcBlock => "/blocks/{blockId}/extrinsics/{index}?useRcBlock=true",
+            EndpointType::RcBlockExtrinsicsRaw => "/rc/blocks/{blockId}/extrinsics-raw",
+            EndpointType::RcBlockExtrinsicsIdx => "/rc/blocks/{blockId}/extrinsics/{index}",
+            EndpointType::BlockParaInclusions => "/blocks/{blockId}/para-inclusions",
+            EndpointType::CoretimeInfo => "/coretime/info",
+            EndpointType::CoretimeOverview => "/coretime/overview",
+            EndpointType::CoretimeLeases => "/coretime/leases",
+            EndpointType::CoretimeReservations => "/coretime/reservations",
+            EndpointType::CoretimeRegions => "/coretime/regions",
+            EndpointType::NodeVersion => "/node/version",
+            EndpointType::NodeNetwork => "/node/network",
+            EndpointType::PalletConsts => "/pallets/{palletId}/consts",
+            EndpointType::PalletConstsConstantItem => "/pallets/{palletId}/consts/{constantId}",
+            EndpointType::PalletStorage => "/pallets/{palletId}/storage",
+            EndpointType::RcPalletStorage => "/rc/pallets/{palletId}/storage",
+            EndpointType::PalletDispatchables => "/pallets/{palletId}/dispatchables",
+            EndpointType::RcPalletDispatchables => "/rc/pallets/{palletId}/dispatchables",
+            EndpointType::PalletErrors => "/pallets/{palletId}/errors",
+            EndpointType::RcPalletErrors => "/rc/pallets/{palletId}/errors",
+            EndpointType::PalletEvents => "/pallets/{palletId}/events",
+            EndpointType::RcPalletEvents => "/rc/pallets/{palletId}/events",
+            EndpointType::PalletStakingValidators => "/pallets/staking/validators",
+            EndpointType::RcPalletStakingValidators => "/rc/pallets/staking/validators",
+            EndpointType::RuntimeSpec => "/runtime/spec",
+            EndpointType::RuntimeMetadata => "/runtime/metadata",
+            EndpointType::TransactionMaterial => "/transaction/material",
         }
     }
 
