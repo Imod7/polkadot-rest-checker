@@ -715,8 +715,31 @@ pub async fn scan_account_endpoint(
     create_logs: bool,
     create_report: bool,
 ) -> Result<(), Box<dyn Error>> {
-    // Get test accounts for the selected chain
-    let accounts = chain.test_accounts();
+    // Get test accounts for the selected chain (use stash accounts for staking endpoints)
+    let accounts = if endpoint_type.is_staking() {
+        if !chain.has_staking_accounts() {
+            eprintln!(
+                "\nWARNING: No staking/stash accounts defined for chain '{}'. \
+                Staking endpoints require stash accounts to return meaningful results.",
+                chain
+            );
+            eprintln!(
+                "Falling back to regular test accounts. Add staking accounts in chains.rs for '{}'.",
+                chain
+            );
+            eprint!("Continue with regular accounts? [y/N] ");
+            use std::io::{self, BufRead};
+            let mut input = String::new();
+            io::stdin().lock().read_line(&mut input)?;
+            if !input.trim().eq_ignore_ascii_case("y") {
+                println!("Aborted.");
+                return Ok(());
+            }
+        }
+        chain.staking_test_accounts()
+    } else {
+        chain.test_accounts()
+    };
 
     if accounts.is_empty() {
         println!("No test accounts configured for chain '{}'", chain);

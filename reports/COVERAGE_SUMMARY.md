@@ -25,95 +25,29 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 
 ## Current Coverage
 
-### Chain: polkadot
+### Chain: kusama
 
-- **Total pallets:** 61
-- **Last updated:** 2026-02-12T20:49:38.704780+00:00
+- **Total pallets:** 65
+- **Last updated:** 2026-02-16T07:24:47.638178+00:00
 
 | Metric | Value |
 |--------|-------|
-| Endpoints tested | 26/36 |
-| Overall pass rate | 66.77% (6019/9015) |
+| Endpoints tested | 17/38 |
+| Overall pass rate | 63.97% (65790/102853) |
 
 #### Pallet Endpoints
 
 | Endpoint | Status | Pallets Tested | Block Ranges | Pass Rate |
 |----------|--------|----------------|--------------|------------|
-| [pallet-consts](COVERAGE_DETAILS.md#pallet-consts) | ✅ | 61/61 | 22500600-22500607 | 55.2% |
+| [pallet-consts](COVERAGE_DETAILS.md#pallet-consts) | ✅ | 65/65 | 21200200-21200220 | 56.8% |
 | pallet-consts-item | ❌ | - | - | - |
-| [pallet-storage](COVERAGE_DETAILS.md#pallet-storage) | ✅ | 61/61 | 24500600-24500607 | 89.1% |
+| [pallet-storage](COVERAGE_DETAILS.md#pallet-storage) | ✅ | 65/65 | 29500600-29500800 | 90.7% |
 | rc-pallet-storage | ❌ | - | - | - |
-| [pallet-dispatchables](COVERAGE_DETAILS.md#pallet-dispatchables) | ✅ | 61/61 | 10500600-10500607 | 28.4% |
+| [pallet-dispatchables](COVERAGE_DETAILS.md#pallet-dispatchables) | ✅ | 65/65 | 22500600-22500630 | 13.7% |
 | rc-pallet-dispatchables | ❌ | - | - | - |
-| [pallet-errors](COVERAGE_DETAILS.md#pallet-errors) | ✅ | 61/61 | 20500600-20500607 | 65.7% |
+| [pallet-errors](COVERAGE_DETAILS.md#pallet-errors) | ✅ | 65/65 | 25500600-25500650 | 69.1% |
 | rc-pallet-errors | ❌ | - | - | - |
-| [pallet-events](COVERAGE_DETAILS.md#pallet-events) | ✅ | 61/61 | 14500600-14500607 | 37.2% |
-| rc-pallet-events | ❌ | - | - | - |
-
-#### Block Endpoints
-
-| Endpoint | Status | Block Ranges | Pass Rate |
-|----------|--------|--------------|------------|
-| block | ❌ | - | - |
-| blocks-head | ✅ | none | 100.0% |
-| blocks-header | ❌ | - | - |
-| block-extrinsics | ✅ | 12500600-12500607, 22500600-22500607 | 100.0% |
-| block-extrinsics-raw | ✅ | 3233222-3233232, 9233222-9233232, 13233222-13233250, 22233222-22233250, 23233222-23233232 | 100.0% |
-| [block-extrinsics-raw-rcblock](COVERAGE_DETAILS.md#block-extrinsics-raw-rcblock) | ✅ | 1000000-1000100, 29290300-29290370, 29290600-29290670, 29300500-29300550 | 72.3% |
-| [block-extrinsics-idx](COVERAGE_DETAILS.md#block-extrinsics-idx) | ✅ | 22500600-22500607 | 0.0% |
-| block-extrinsics-idx-rcblock | ✅ | 30103052-30103059, 30123052-30123059, 30423052-30423059, 30723052-30723059 | 100.0% |
-| rc-block-extrinsics-raw | ❌ | - | - |
-| rc-block-extrinsics-idx | ❌ | - | - |
-| [block-para-inclusions](COVERAGE_DETAILS.md#block-para-inclusions) | ✅ | 1500200-1500250, 5840200-5840240, 8500200-8500250, 10500200-10500250 | 61.6% |
-| [staking-validators](COVERAGE_DETAILS.md#staking-validators) | ✅ | 10494650-10494660, 20494650-20494660, 28494651-28494660 | 68.8% |
-| rc-staking-validators | ❌ | - | - |
-| [coretime-info](COVERAGE_DETAILS.md#coretime-info) | ✅ | 3200700-3200710, 8200700-8200710 | 0.0% |
-| [coretime-overview](COVERAGE_DETAILS.md#coretime-overview) | ✅ | 3120700-3120710, 3200700-3200710, 29000000-29000010 | 0.0% |
-| coretime-leases | ❌ | - | - |
-| coretime-reservations | ❌ | - | - |
-| coretime-regions | ❌ | - | - |
-
-#### Account Endpoints
-
-| Endpoint | Status | Block Ranges | Pass Rate |
-|----------|--------|--------------|------------|
-| [account-balance-info](COVERAGE_DETAILS.md#account-balance-info) | ✅ | 15233222-15233250, 22233222-22233250, 24233222-24233250 | 91.2% |
-| [account-foreign-asset-balance](COVERAGE_DETAILS.md#account-foreign-asset-balance) | ✅ | 20000000-20000100 | 0.0% |
-
-#### Standalone Endpoints
-
-| Endpoint | Status | Result |
-|----------|--------|--------|
-| runtime-spec | ✅ | PASS |
-| runtime-metadata | ✅ | FAIL |
-| tx-material | ✅ | FAIL |
-| node-version | ✅ | PASS |
-| node-network | ✅ | PASS |
-| blocks-head-rcblock | ❌ | - |
-
-### Chain: coretime-polkadot
-
-- **Total pallets:** 0
-- **Last updated:** 2026-02-01T21:17:58.754673+00:00
-
-| Metric | Value |
-|--------|-------|
-| Endpoints tested | 3/36 |
-| Overall pass rate | 25.00% (6/24) |
-
-#### Pallet Endpoints
-
-| Endpoint | Status | Pallets Tested | Block Ranges | Pass Rate |
-|----------|--------|----------------|--------------|------------|
-| pallet-consts | ❌ | - | - | - |
-| pallet-consts-item | ❌ | - | - | - |
-| pallet-storage | ❌ | - | - | - |
-| rc-pallet-storage | ❌ | - | - | - |
-| pallet-dispatchables | ❌ | - | - | - |
-| rc-pallet-dispatchables | ❌ | - | - | - |
-| pallet-errors | ❌ | - | - | - |
-| rc-pallet-errors | ❌ | - | - | - |
-| pallet-events | ❌ | - | - | - |
+| [pallet-events](COVERAGE_DETAILS.md#pallet-events) | ✅ | 65/65 | 17500600-17500620 | 36.7% |
 | rc-pallet-events | ❌ | - | - | - |
 
 #### Block Endpoints
@@ -122,29 +56,31 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 |----------|--------|--------------|------------|
 | block | ❌ | - | - |
 | blocks-head | ❌ | - | - |
-| blocks-header | ❌ | - | - |
+| blocks-header | ✅ | 24100000-24110000 | 100.0% |
 | block-extrinsics | ❌ | - | - |
-| block-extrinsics-raw | ❌ | - | - |
+| block-extrinsics-raw | ✅ | 233241-233255, 10233241-10233255, 30000000-30000020 | 100.0% |
 | block-extrinsics-raw-rcblock | ❌ | - | - |
-| block-extrinsics-idx | ❌ | - | - |
+| [block-extrinsics-idx](COVERAGE_DETAILS.md#block-extrinsics-idx) | ✅ | 28300000-28302000 | 67.6% |
 | block-extrinsics-idx-rcblock | ❌ | - | - |
 | rc-block-extrinsics-raw | ❌ | - | - |
 | rc-block-extrinsics-idx | ❌ | - | - |
-| block-para-inclusions | ❌ | - | - |
-| staking-validators | ❌ | - | - |
+| block-para-inclusions | ✅ | 11100000-11109000 | 100.0% |
+| [staking-validators](COVERAGE_DETAILS.md#staking-validators) | ✅ | 18494651-18494660, 38494651-38494660 | 50.0% |
 | rc-staking-validators | ❌ | - | - |
-| coretime-info | ❌ | - | - |
+| [coretime-info](COVERAGE_DETAILS.md#coretime-info) | ✅ | 29200700-29200710, 30500400-30500410 | 0.0% |
 | coretime-overview | ❌ | - | - |
-| [coretime-leases](COVERAGE_DETAILS.md#coretime-leases) | ✅ | 1970105-1970110, 2770105-2770110 | 0.0% |
-| coretime-reservations | ✅ | 1970105-1970110 | 100.0% |
-| [coretime-regions](COVERAGE_DETAILS.md#coretime-regions) | ✅ | 1970105-1970110 | 0.0% |
+| coretime-leases | ❌ | - | - |
+| coretime-reservations | ❌ | - | - |
+| coretime-regions | ❌ | - | - |
 
 #### Account Endpoints
 
 | Endpoint | Status | Block Ranges | Pass Rate |
 |----------|--------|--------------|------------|
-| account-balance-info | ❌ | - | - |
-| account-foreign-asset-balance | ❌ | - | - |
+| [account-balance-info](COVERAGE_DETAILS.md#account-balance-info) | ✅ | 1000000-1000100, 21000000-21000100, 30000000-30009000 | 24.7% |
+| [account-foreign-asset-balance](COVERAGE_DETAILS.md#account-foreign-asset-balance) | ✅ | 30000000-30000020 | 50.0% |
+| account-staking-payouts | ❌ | - | - |
+| account-staking-info | ❌ | - | - |
 
 #### Standalone Endpoints
 
@@ -164,7 +100,7 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 
 | Metric | Value |
 |--------|-------|
-| Endpoints tested | 29/36 |
+| Endpoints tested | 29/38 |
 | Overall pass rate | 72.04% (15529/21555) |
 
 #### Pallet Endpoints
@@ -211,6 +147,8 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 |----------|--------|--------------|------------|
 | account-balance-info | ❌ | - | - |
 | account-foreign-asset-balance | ❌ | - | - |
+| account-staking-payouts | ❌ | - | - |
+| account-staking-info | ❌ | - | - |
 
 #### Standalone Endpoints
 
@@ -223,15 +161,151 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 | node-network | ✅ | FAIL |
 | blocks-head-rcblock | ✅ | PASS |
 
-### Chain: asset-hub-kusama
+### Chain: polkadot
 
-- **Total pallets:** 59
-- **Last updated:** 2026-02-12T20:08:40.539865+00:00
+- **Total pallets:** 61
+- **Last updated:** 2026-02-16T09:41:21.623759+00:00
 
 | Metric | Value |
 |--------|-------|
-| Endpoints tested | 21/36 |
-| Overall pass rate | 31.66% (3339/10548) |
+| Endpoints tested | 28/38 |
+| Overall pass rate | 52.22% (7148/13688) |
+
+#### Pallet Endpoints
+
+| Endpoint | Status | Pallets Tested | Block Ranges | Pass Rate |
+|----------|--------|----------------|--------------|------------|
+| [pallet-consts](COVERAGE_DETAILS.md#pallet-consts) | ✅ | 61/61 | 22500600-22500607 | 55.2% |
+| pallet-consts-item | ❌ | - | - | - |
+| [pallet-storage](COVERAGE_DETAILS.md#pallet-storage) | ✅ | 61/61 | 24500600-24500607 | 89.1% |
+| rc-pallet-storage | ❌ | - | - | - |
+| [pallet-dispatchables](COVERAGE_DETAILS.md#pallet-dispatchables) | ✅ | 61/61 | 10500600-10500607 | 28.4% |
+| rc-pallet-dispatchables | ❌ | - | - | - |
+| [pallet-errors](COVERAGE_DETAILS.md#pallet-errors) | ✅ | 61/61 | 20500600-20500607 | 65.7% |
+| rc-pallet-errors | ❌ | - | - | - |
+| [pallet-events](COVERAGE_DETAILS.md#pallet-events) | ✅ | 61/61 | 14500600-14500607 | 37.2% |
+| rc-pallet-events | ❌ | - | - | - |
+
+#### Block Endpoints
+
+| Endpoint | Status | Block Ranges | Pass Rate |
+|----------|--------|--------------|------------|
+| block | ❌ | - | - |
+| blocks-head | ✅ | none | 100.0% |
+| blocks-header | ❌ | - | - |
+| block-extrinsics | ✅ | 12500600-12500607, 22500600-22500607 | 100.0% |
+| block-extrinsics-raw | ✅ | 3233222-3233232, 9233222-9233232, 13233222-13233250, 22233222-22233250, 23233222-23233232 | 100.0% |
+| [block-extrinsics-raw-rcblock](COVERAGE_DETAILS.md#block-extrinsics-raw-rcblock) | ✅ | 1000000-1000100, 29290300-29290370, 29290600-29290670, 29300500-29300550 | 72.3% |
+| [block-extrinsics-idx](COVERAGE_DETAILS.md#block-extrinsics-idx) | ✅ | 22500600-22500607 | 0.0% |
+| block-extrinsics-idx-rcblock | ✅ | 30103052-30103059, 30123052-30123059, 30423052-30423059, 30723052-30723059 | 100.0% |
+| rc-block-extrinsics-raw | ❌ | - | - |
+| rc-block-extrinsics-idx | ❌ | - | - |
+| [block-para-inclusions](COVERAGE_DETAILS.md#block-para-inclusions) | ✅ | 1500200-1500250, 5840200-5840240, 8500200-8500250, 10500200-10500250 | 61.6% |
+| [staking-validators](COVERAGE_DETAILS.md#staking-validators) | ✅ | 10494650-10494660, 20494650-20494660, 28494651-28494660 | 68.8% |
+| rc-staking-validators | ❌ | - | - |
+| [coretime-info](COVERAGE_DETAILS.md#coretime-info) | ✅ | 3200700-3200710, 8200700-8200710 | 0.0% |
+| [coretime-overview](COVERAGE_DETAILS.md#coretime-overview) | ✅ | 3120700-3120710, 3200700-3200710, 29000000-29000010 | 0.0% |
+| coretime-leases | ❌ | - | - |
+| coretime-reservations | ❌ | - | - |
+| coretime-regions | ❌ | - | - |
+
+#### Account Endpoints
+
+| Endpoint | Status | Block Ranges | Pass Rate |
+|----------|--------|--------------|------------|
+| [account-balance-info](COVERAGE_DETAILS.md#account-balance-info) | ✅ | 15233222-15233250, 22233222-22233250, 24233222-24233250 | 91.2% |
+| [account-foreign-asset-balance](COVERAGE_DETAILS.md#account-foreign-asset-balance) | ✅ | 20000000-20000100 | 0.0% |
+| [account-staking-payouts](COVERAGE_DETAILS.md#account-staking-payouts) | ✅ | 22700000-22700120, 28700000-28700120 | 33.3% |
+| [account-staking-info](COVERAGE_DETAILS.md#account-staking-info) | ✅ | 23700000-23700230, 24700000-24700130 | 18.3% |
+
+#### Standalone Endpoints
+
+| Endpoint | Status | Result |
+|----------|--------|--------|
+| runtime-spec | ✅ | PASS |
+| runtime-metadata | ✅ | FAIL |
+| tx-material | ✅ | FAIL |
+| node-version | ✅ | PASS |
+| node-network | ✅ | PASS |
+| blocks-head-rcblock | ❌ | - |
+
+### Chain: coretime-polkadot
+
+- **Total pallets:** 0
+- **Last updated:** 2026-02-01T21:17:58.754673+00:00
+
+| Metric | Value |
+|--------|-------|
+| Endpoints tested | 3/38 |
+| Overall pass rate | 25.00% (6/24) |
+
+#### Pallet Endpoints
+
+| Endpoint | Status | Pallets Tested | Block Ranges | Pass Rate |
+|----------|--------|----------------|--------------|------------|
+| pallet-consts | ❌ | - | - | - |
+| pallet-consts-item | ❌ | - | - | - |
+| pallet-storage | ❌ | - | - | - |
+| rc-pallet-storage | ❌ | - | - | - |
+| pallet-dispatchables | ❌ | - | - | - |
+| rc-pallet-dispatchables | ❌ | - | - | - |
+| pallet-errors | ❌ | - | - | - |
+| rc-pallet-errors | ❌ | - | - | - |
+| pallet-events | ❌ | - | - | - |
+| rc-pallet-events | ❌ | - | - | - |
+
+#### Block Endpoints
+
+| Endpoint | Status | Block Ranges | Pass Rate |
+|----------|--------|--------------|------------|
+| block | ❌ | - | - |
+| blocks-head | ❌ | - | - |
+| blocks-header | ❌ | - | - |
+| block-extrinsics | ❌ | - | - |
+| block-extrinsics-raw | ❌ | - | - |
+| block-extrinsics-raw-rcblock | ❌ | - | - |
+| block-extrinsics-idx | ❌ | - | - |
+| block-extrinsics-idx-rcblock | ❌ | - | - |
+| rc-block-extrinsics-raw | ❌ | - | - |
+| rc-block-extrinsics-idx | ❌ | - | - |
+| block-para-inclusions | ❌ | - | - |
+| staking-validators | ❌ | - | - |
+| rc-staking-validators | ❌ | - | - |
+| coretime-info | ❌ | - | - |
+| coretime-overview | ❌ | - | - |
+| [coretime-leases](COVERAGE_DETAILS.md#coretime-leases) | ✅ | 1970105-1970110, 2770105-2770110 | 0.0% |
+| coretime-reservations | ✅ | 1970105-1970110 | 100.0% |
+| [coretime-regions](COVERAGE_DETAILS.md#coretime-regions) | ✅ | 1970105-1970110 | 0.0% |
+
+#### Account Endpoints
+
+| Endpoint | Status | Block Ranges | Pass Rate |
+|----------|--------|--------------|------------|
+| account-balance-info | ❌ | - | - |
+| account-foreign-asset-balance | ❌ | - | - |
+| account-staking-payouts | ❌ | - | - |
+| account-staking-info | ❌ | - | - |
+
+#### Standalone Endpoints
+
+| Endpoint | Status | Result |
+|----------|--------|--------|
+| runtime-spec | ❌ | - |
+| runtime-metadata | ❌ | - |
+| tx-material | ❌ | - |
+| node-version | ❌ | - |
+| node-network | ❌ | - |
+| blocks-head-rcblock | ❌ | - |
+
+### Chain: asset-hub-kusama
+
+- **Total pallets:** 59
+- **Last updated:** 2026-02-16T08:20:36.456954+00:00
+
+| Metric | Value |
+|--------|-------|
+| Endpoints tested | 24/38 |
+| Overall pass rate | 51.27% (13597/26522) |
 
 #### Pallet Endpoints
 
@@ -256,7 +330,7 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 | [blocks-head](COVERAGE_DETAILS.md#blocks-head) | ✅ | 2118600-2118605 | 0.0% |
 | blocks-header | ❌ | - | - |
 | block-extrinsics | ❌ | - | - |
-| block-extrinsics-raw | ❌ | - | - |
+| [block-extrinsics-raw](COVERAGE_DETAILS.md#block-extrinsics-raw) | ✅ | 12000000-12009000 | 98.9% |
 | block-extrinsics-raw-rcblock | ❌ | - | - |
 | [block-extrinsics-idx](COVERAGE_DETAILS.md#block-extrinsics-idx) | ✅ | 12798138-12798149, 12940347-12940359, 12958046-12958049, 12958582-12958589 | 62.5% |
 | block-extrinsics-idx-rcblock | ❌ | - | - |
@@ -277,6 +351,8 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 |----------|--------|--------------|------------|
 | [account-balance-info](COVERAGE_DETAILS.md#account-balance-info) | ✅ | 10000-10010 | 0.0% |
 | [account-foreign-asset-balance](COVERAGE_DETAILS.md#account-foreign-asset-balance) | ✅ | 1000000-1000100, 10300400-10300410, 12300400-12300410 | 0.0% |
+| [account-staking-payouts](COVERAGE_DETAILS.md#account-staking-payouts) | ✅ | 11700000-11700300, 12000000-12000500 | 19.1% |
+| [account-staking-info](COVERAGE_DETAILS.md#account-staking-info) | ✅ | 11905000-11905300, 12005000-12005300 | 20.0% |
 
 #### Standalone Endpoints
 
@@ -287,72 +363,6 @@ cargo run -- --coverage-file coverage/my-coverage.json --coverage-report
 | tx-material | ✅ | FAIL |
 | node-version | ✅ | PASS |
 | node-network | ✅ | FAIL |
-| blocks-head-rcblock | ❌ | - |
-
-### Chain: kusama
-
-- **Total pallets:** 65
-- **Last updated:** 2026-02-15T22:23:33.287123+00:00
-
-| Metric | Value |
-|--------|-------|
-| Endpoints tested | 16/36 |
-| Overall pass rate | 63.98% (65685/102664) |
-
-#### Pallet Endpoints
-
-| Endpoint | Status | Pallets Tested | Block Ranges | Pass Rate |
-|----------|--------|----------------|--------------|------------|
-| [pallet-consts](COVERAGE_DETAILS.md#pallet-consts) | ✅ | 65/65 | 21200200-21200220 | 56.8% |
-| pallet-consts-item | ❌ | - | - | - |
-| [pallet-storage](COVERAGE_DETAILS.md#pallet-storage) | ✅ | 65/65 | 29500600-29500800 | 90.7% |
-| rc-pallet-storage | ❌ | - | - | - |
-| [pallet-dispatchables](COVERAGE_DETAILS.md#pallet-dispatchables) | ✅ | 65/65 | 22500600-22500630 | 13.7% |
-| rc-pallet-dispatchables | ❌ | - | - | - |
-| [pallet-errors](COVERAGE_DETAILS.md#pallet-errors) | ✅ | 65/65 | 25500600-25500650 | 69.1% |
-| rc-pallet-errors | ❌ | - | - | - |
-| [pallet-events](COVERAGE_DETAILS.md#pallet-events) | ✅ | 65/65 | 17500600-17500620 | 36.7% |
-| rc-pallet-events | ❌ | - | - | - |
-
-#### Block Endpoints
-
-| Endpoint | Status | Block Ranges | Pass Rate |
-|----------|--------|--------------|------------|
-| block | ❌ | - | - |
-| blocks-head | ❌ | - | - |
-| blocks-header | ✅ | 24100000-24110000 | 100.0% |
-| block-extrinsics | ❌ | - | - |
-| block-extrinsics-raw | ✅ | 233241-233255, 10233241-10233255, 30300000-30306000 | 100.0% |
-| block-extrinsics-raw-rcblock | ❌ | - | - |
-| [block-extrinsics-idx](COVERAGE_DETAILS.md#block-extrinsics-idx) | ✅ | 28300000-28302000 | 67.6% |
-| block-extrinsics-idx-rcblock | ❌ | - | - |
-| rc-block-extrinsics-raw | ❌ | - | - |
-| rc-block-extrinsics-idx | ❌ | - | - |
-| block-para-inclusions | ✅ | 11100000-11109000 | 100.0% |
-| [staking-validators](COVERAGE_DETAILS.md#staking-validators) | ✅ | 18494651-18494660, 38494651-38494660 | 50.0% |
-| rc-staking-validators | ❌ | - | - |
-| [coretime-info](COVERAGE_DETAILS.md#coretime-info) | ✅ | 29200700-29200710, 30500400-30500410 | 0.0% |
-| coretime-overview | ❌ | - | - |
-| coretime-leases | ❌ | - | - |
-| coretime-reservations | ❌ | - | - |
-| coretime-regions | ❌ | - | - |
-
-#### Account Endpoints
-
-| Endpoint | Status | Block Ranges | Pass Rate |
-|----------|--------|--------------|------------|
-| [account-balance-info](COVERAGE_DETAILS.md#account-balance-info) | ✅ | 1000000-1000100, 21000000-21000100, 30000000-30009000 | 24.7% |
-| account-foreign-asset-balance | ❌ | - | - |
-
-#### Standalone Endpoints
-
-| Endpoint | Status | Result |
-|----------|--------|--------|
-| runtime-spec | ❌ | - |
-| runtime-metadata | ❌ | - |
-| tx-material | ❌ | - |
-| node-version | ❌ | - |
-| node-network | ❌ | - |
 | blocks-head-rcblock | ❌ | - |
 
 ## Coverage File Format

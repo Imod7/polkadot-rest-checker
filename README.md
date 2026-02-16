@@ -341,6 +341,13 @@ cargo run -- --chain kusama --endpoint block-para-inclusions --start 11100000 --
 cargo run -- --chain kusama --endpoint blocks-header --start 24100000 --end 24110000 --memory --report
 ```
 
+Kusama Asset Hub
+```bash
+# /blocks/{}/extrinsics-raw
+cargo run -- --chain asset-hub-kusama --endpoint block-extrinsics-raw --start 12000000 --end 12009000 --memory --report
+
+```
+
 ### Relay Chain Extrinsic Endpoint Examples
 
 ```bash
@@ -421,21 +428,32 @@ cargo run -- --chain polkadot --endpoint blocks-head
 
 Example for `/accounts/{}/balance-info?at={}` endpoint
 
+Polkadot
+```bash
+# /accounts/{}/staking-payouts?at={}
+cargo run -- --chain polkadot --endpoint account-staking-payouts --start 23700000 --end 23700130 --memory --report
+
+# /accounts/{}/staking-info?at={}
+cargo run -- --chain polkadot --endpoint account-staking-info --start 26700000 --end 26700250 --memory --report
+```
+
 Kusama
 ```bash
 # Test `/accounts/{accountId}/balance-info` on Kusama
 cargo run -- --chain kusama --endpoint account-balance-info --start 30000000 --end 30009000 --memory --report
 
+# /accounts/{}/foreign-asset-balances?at={}
+cargo run -- --chain kusama --endpoint account-foreign-asset-balance --start 30000000 --end 30000020 --memory --report
 ```
 
+Kusama Asset Hub
 ```bash
-# Test with logs enabled
-cargo run -- --endpoint account-balance-info --start 20000000 --end 20000100 --logs
-```
+# /accounts/{}/staking-payouts?at={}
+cargo run -- --chain asset-hub-kusama --endpoint account-staking-payouts --start 12000000 --end 120009000 --memory --report
 
-Example for `/accounts/{accountId}/foreign-asset-balances` endpoint
+# /accounts/{}/staking-info?at={}
+cargo run -- --chain asset-hub-kusama --endpoint account-staking-info --start 11700000 --end 11700500 --memory --report
 
-```bash
 # Test on Kusama Asset Hub
 cargo run -- --chain asset-hub-kusama --endpoint account-foreign-asset-balance --start 12300400 --end 12300410
 

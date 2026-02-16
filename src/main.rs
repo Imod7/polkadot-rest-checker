@@ -83,6 +83,14 @@ struct Args {
     /// Memory sampling interval in milliseconds (default: 1000)
     #[arg(long, default_value_t = 1000)]
     memory_interval: u64,
+
+    /// Path to polkadot-rest-api git repo (for commit tracking)
+    #[arg(long, default_value = "../polkadot-rest-api")]
+    rust_repo_path: String,
+
+    /// Path to substrate-api-sidecar git repo (for commit tracking)
+    #[arg(long, default_value = "../substrate-api-sidecar")]
+    sidecar_repo_path: String,
 }
 
 #[tokio::main]
@@ -124,11 +132,21 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let batch_size = args.batch_size;
     let delay_between_batches = Duration::from_millis(args.delay);
 
+    // Detect git commits for both repos
+    let rust_git = memory::GitInfo::from_repo(&args.rust_repo_path);
+    let sidecar_git = memory::GitInfo::from_repo(&args.sidecar_repo_path);
+
     println!("Starting Polkadot REST API checker...");
     println!("Chain: {}", chain);
     println!("Endpoint: {}", endpoint_type);
     println!("Rust API URL: {}", rust_url);
     println!("Sidecar API URL: {}", sidecar_url);
+    if let Some(ref git) = rust_git {
+        println!("Rust API commit: {}", git.summary());
+    }
+    if let Some(ref git) = sidecar_git {
+        println!("Sidecar commit:  {}", git.summary());
+    }
 
     let client = reqwest::Client::builder()
         .timeout(Duration::from_secs(30))
@@ -230,7 +248,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Stop memory monitoring and print report
     if let Some(monitor) = memory_monitor {
-        let memory_report = monitor.stop().await;
+        let mut memory_report = monitor.stop().await;
+        memory_report.rust_git = rust_git.clone();
+        memory_report.sidecar_git = sidecar_git.clone();
         memory_report.print_summary();
 
         // Append memory report to MEMORY.md

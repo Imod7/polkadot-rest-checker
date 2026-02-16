@@ -21,6 +21,8 @@ pub enum EndpointType {
     // Account endpoints
     AccountBalanceInfo,
     AccountForeignAssetBalances,
+    AccountStakingPayouts,
+    AccountStakingInfo,
 
     // Block endpoints
     Block,
@@ -75,6 +77,8 @@ impl EndpointType {
         match self {
             EndpointType::AccountBalanceInfo => EndpointCategory::Account,
             EndpointType::AccountForeignAssetBalances => EndpointCategory::Account,
+            EndpointType::AccountStakingPayouts => EndpointCategory::Account,
+            EndpointType::AccountStakingInfo => EndpointCategory::Account,
 
             EndpointType::PalletConsts
             | EndpointType::PalletStorage
@@ -154,6 +158,20 @@ impl EndpointType {
                 match block {
                     Some(b) => format!("/accounts/{}/foreign-asset-balances?at={}", account, b),
                     None => format!("/accounts/{}/foreign-asset-balances", account),
+                }
+            }
+            EndpointType::AccountStakingPayouts => {
+                let account = account.expect("Account required for AccountStakingPayouts endpoint");
+                match block {
+                    Some(b) => format!("/accounts/{}/staking-payouts?at={}", account, b),
+                    None => format!("/accounts/{}/staking-payouts", account),
+                }
+            }
+            EndpointType::AccountStakingInfo => {
+                let account = account.expect("Account required for AccountStakingInfo endpoint");
+                match block {
+                    Some(b) => format!("/accounts/{}/staking-info?at={}", account, b),
+                    None => format!("/accounts/{}/staking-info", account),
                 }
             }
 
@@ -349,6 +367,8 @@ impl EndpointType {
         match self {
             EndpointType::AccountBalanceInfo => "/accounts/{accountId}/balance-info",
             EndpointType::AccountForeignAssetBalances => "/accounts/{accountId}/foreign-asset-balances",
+            EndpointType::AccountStakingPayouts => "/accounts/{accountId}/staking-payouts",
+            EndpointType::AccountStakingInfo => "/accounts/{accountId}/staking-info",
             EndpointType::Block => "/blocks/{blockId}",
             EndpointType::BlocksHead => "/blocks/head",
             EndpointType::BlocksHeadRcBlock => "/blocks/head?useRcBlock=true",
@@ -403,6 +423,14 @@ impl EndpointType {
     pub fn requires_account(&self) -> bool {
         self.category() == EndpointCategory::Account
     }
+
+    /// Check if this is a staking-related account endpoint (needs stash accounts)
+    pub fn is_staking(&self) -> bool {
+        matches!(
+            self,
+            EndpointType::AccountStakingPayouts | EndpointType::AccountStakingInfo
+        )
+    }
 }
 
 /// Each entry: (variant, canonical name, aliases)
@@ -410,6 +438,8 @@ const ENDPOINT_NAMES: &[(fn() -> EndpointType, &str, &[&str])] = &[
     // Account
     (|| EndpointType::AccountBalanceInfo, "account-balance-info", &["accounts-balance-info"]),
     (|| EndpointType::AccountForeignAssetBalances, "account-foreign-asset-balance", &["account-fa-bl"]),
+    (|| EndpointType::AccountStakingPayouts, "account-staking-payouts", &["account-sp"]),
+    (|| EndpointType::AccountStakingInfo, "account-staking-info", &["account-info"]),
     // Block
     (|| EndpointType::Block, "block", &["blocks"]),
     (|| EndpointType::BlocksHead, "blocks-head", &[]),

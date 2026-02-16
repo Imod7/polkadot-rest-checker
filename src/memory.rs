@@ -1,6 +1,50 @@
+use std::process::Command;
 use std::time::Instant;
 use tokio::sync::watch;
 use tokio::task::JoinHandle;
+
+/// Git commit information for a repository.
+#[derive(Debug, Clone)]
+pub struct GitInfo {
+    pub branch: String,
+    pub commit_short: String,
+    pub commit_message: String,
+}
+
+impl GitInfo {
+    /// Detect git branch and latest commit from a repo path.
+    pub fn from_repo(repo_path: &str) -> Option<Self> {
+        let branch = Command::new("git")
+            .args(["-C", repo_path, "branch", "--show-current"])
+            .output()
+            .ok()
+            .filter(|o| o.status.success())
+            .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
+            .unwrap_or_else(|| "unknown".to_string());
+
+        let log_output = Command::new("git")
+            .args(["-C", repo_path, "log", "--oneline", "-1"])
+            .output()
+            .ok()
+            .filter(|o| o.status.success())?;
+
+        let line = String::from_utf8_lossy(&log_output.stdout).trim().to_string();
+        let (commit_short, commit_message) = line.split_once(' ')
+            .map(|(h, m)| (h.to_string(), m.to_string()))
+            .unwrap_or_else(|| (line.clone(), String::new()));
+
+        Some(GitInfo {
+            branch,
+            commit_short,
+            commit_message,
+        })
+    }
+
+    /// Format as a single-line summary.
+    pub fn summary(&self) -> String {
+        format!("{} ({}) {}", self.commit_short, self.branch, self.commit_message)
+    }
+}
 
 /// A single memory sample for one process.
 #[derive(Debug, Clone)]
@@ -28,6 +72,8 @@ pub struct MemoryReport {
     pub sidecar: Option<ProcessStats>,
     pub duration_secs: f64,
     pub sample_count: usize,
+    pub rust_git: Option<GitInfo>,
+    pub sidecar_git: Option<GitInfo>,
 }
 
 /// Handle to the running background monitor. Call `stop()` to get the report.
@@ -208,6 +254,8 @@ impl MemoryMonitor {
                 sidecar,
                 duration_secs: duration.as_secs_f64(),
                 sample_count,
+                rust_git: None,
+                sidecar_git: None,
             }
         });
 
@@ -225,6 +273,8 @@ impl MemoryMonitor {
             sidecar: None,
             duration_secs: 0.0,
             sample_count: 0,
+            rust_git: None,
+            sidecar_git: None,
         })
     }
 }
@@ -256,6 +306,16 @@ impl MemoryReport {
             "Monitoring duration: {:.1}s ({} samples)\n",
             self.duration_secs, self.sample_count
         );
+
+        if let Some(ref git) = self.rust_git {
+            println!("Rust API commit:  {}", git.summary());
+        }
+        if let Some(ref git) = self.sidecar_git {
+            println!("Sidecar commit:   {}", git.summary());
+        }
+        if self.rust_git.is_some() || self.sidecar_git.is_some() {
+            println!();
+        }
 
         if self.rust_api.is_none() && self.sidecar.is_none() {
             println!("No memory data collected.");
@@ -298,7 +358,17 @@ impl MemoryReport {
     /// Generate a markdown table for file output.
     pub fn to_markdown(&self) -> String {
         let mut md = String::new();
-        md.push_str("## Memory Consumption\n\n");
+        md.push_str("## Git Commits\n\n");
+        if let Some(ref git) = self.rust_git {
+            md.push_str(&format!("- **Rust API**: `{}` ({}) {}\n", git.commit_short, git.branch, git.commit_message));
+        }
+        if let Some(ref git) = self.sidecar_git {
+            md.push_str(&format!("- **Sidecar**: `{}` ({}) {}\n", git.commit_short, git.branch, git.commit_message));
+        }
+        if self.rust_git.is_none() && self.sidecar_git.is_none() {
+            md.push_str("- No git info available\n");
+        }
+        md.push_str("\n## Memory Consumption\n\n");
         md.push_str(&format!(
             "Monitoring duration: {:.1}s ({} samples)\n\n",
             self.duration_secs, self.sample_count
