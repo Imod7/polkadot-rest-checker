@@ -153,7 +153,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .build()?;
 
     // Determine if we need blocks
-    let end_block = if endpoint_type.requires_block() {
+    let end_block = if endpoint_type.requires_block() || endpoint_type.is_range_endpoint() {
         match args.end {
             Some(end) => end,
             None => get_latest_block(&client, rust_url).await?,
@@ -162,14 +162,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
         0 // Not used for non-block endpoints
     };
 
-    if endpoint_type.requires_block() {
+    if endpoint_type.requires_block() || endpoint_type.is_range_endpoint() {
         println!("Block range: {} - {}", start_block, end_block);
-        println!("Batch size: {}", batch_size);
+        if endpoint_type.requires_block() {
+            println!("Batch size: {}", batch_size);
+        }
     }
 
     // Start memory monitoring if --memory flag is set
     let memory_monitor = if args.memory {
-        println!("Memory monitoring enabled (interval: {}ms)", args.memory_interval);
+        println!(
+            "Memory monitoring enabled (interval: {}ms)",
+            args.memory_interval
+        );
         memory::MemoryMonitor::start(rust_url, sidecar_url, args.memory_interval).await
     } else {
         None
@@ -232,6 +237,57 @@ async fn main() -> Result<(), Box<dyn Error>> {
             args.report,
         )
         .await?;
+    } else if endpoint_type.is_range_endpoint() {
+        // Range endpoints send a single request with ?range=start-end
+        let range_path = endpoint_type.range_path(start_block, end_block);
+        let rust_api_url = format!("{}{}", rust_url, range_path);
+        let sidecar_api_url = format!("{}{}", sidecar_url, range_path);
+
+        println!("\nTesting range endpoint: {}", endpoint_type);
+        println!("  Rust API:    {}", rust_api_url);
+        println!("  Sidecar API: {}", sidecar_api_url);
+
+        let (_, result) = http::test_block_compare(
+            client.clone(),
+            rust_api_url,
+            sidecar_api_url,
+            0,
+        )
+        .await;
+
+        let chain_coverage = coverage.get_chain(&chain.to_string(), total_pallets);
+        let endpoint_coverage = chain_coverage.get_endpoint(&endpoint_type.to_string(), false);
+
+        match result {
+            http::TestResult::Match => {
+                println!("\n  Result: MATCH - Both APIs returned identical responses");
+                endpoint_coverage.add_runtime_run(true, None);
+            }
+            http::TestResult::Mismatch { diffs, .. } => {
+                println!("\n  Result: MISMATCH - {} difference(s) found", diffs.len());
+                for (i, diff) in diffs.iter().take(5).enumerate() {
+                    println!("    {}. {}", i + 1, diff);
+                }
+                if diffs.len() > 5 {
+                    println!("    ... and {} more", diffs.len() - 5);
+                }
+                endpoint_coverage.add_runtime_run(false, None);
+            }
+            http::TestResult::RustError(e) => {
+                println!("\n  Rust API error: {}", e);
+                endpoint_coverage.add_runtime_run(false, Some("rust_error"));
+            }
+            http::TestResult::SidecarError(e) => {
+                println!("\n  Sidecar error: {}", e);
+                endpoint_coverage.add_runtime_run(false, Some("sidecar_error"));
+            }
+            http::TestResult::BothError { rust_error, sidecar_error } => {
+                println!("\n  Both APIs errored:");
+                println!("    Rust: {}", rust_error);
+                println!("    Sidecar: {}", sidecar_error);
+                endpoint_coverage.add_runtime_run(false, Some("both_error"));
+            }
+        }
     } else {
         scan_runtime_endpoint(
             &client,
@@ -290,7 +346,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // Save markdown reports (summary + details)
     let markdown_path = Path::new("reports/COVERAGE_SUMMARY.md");
     coverage.save_markdown_report(markdown_path)?;
-    println!("Coverage reports saved to: reports/COVERAGE_SUMMARY.md + coverage/COVERAGE_DETAILS.md");
+    println!(
+        "Coverage reports saved to: reports/COVERAGE_SUMMARY.md + coverage/COVERAGE_DETAILS.md"
+    );
 
     Ok(())
 }

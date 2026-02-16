@@ -35,8 +35,12 @@ impl std::fmt::Display for JsonDiff {
                     f,
                     "{}: rust={} vs sidecar={}",
                     self.path,
-                    self.rust_value.as_ref().map_or("null".to_string(), |v| truncate_value(v, 100)),
-                    self.sidecar_value.as_ref().map_or("null".to_string(), |v| truncate_value(v, 100))
+                    self.rust_value
+                        .as_ref()
+                        .map_or("null".to_string(), |v| truncate_value(v, 100)),
+                    self.sidecar_value
+                        .as_ref()
+                        .map_or("null".to_string(), |v| truncate_value(v, 100))
                 )
             }
             DiffType::MissingInSidecar => {
@@ -44,7 +48,9 @@ impl std::fmt::Display for JsonDiff {
                     f,
                     "{}: missing in sidecar (rust={})",
                     self.path,
-                    self.rust_value.as_ref().map_or("null".to_string(), |v| truncate_value(v, 100))
+                    self.rust_value
+                        .as_ref()
+                        .map_or("null".to_string(), |v| truncate_value(v, 100))
                 )
             }
             DiffType::MissingInRust => {
@@ -52,7 +58,9 @@ impl std::fmt::Display for JsonDiff {
                     f,
                     "{}: missing in rust (sidecar={})",
                     self.path,
-                    self.sidecar_value.as_ref().map_or("null".to_string(), |v| truncate_value(v, 100))
+                    self.sidecar_value
+                        .as_ref()
+                        .map_or("null".to_string(), |v| truncate_value(v, 100))
                 )
             }
             DiffType::ArrayLengthMismatch => {
@@ -60,8 +68,14 @@ impl std::fmt::Display for JsonDiff {
                     f,
                     "{}: array length mismatch (rust={} vs sidecar={})",
                     self.path,
-                    self.rust_value.as_ref().and_then(|v| v.as_array()).map_or(0, |a| a.len()),
-                    self.sidecar_value.as_ref().and_then(|v| v.as_array()).map_or(0, |a| a.len())
+                    self.rust_value
+                        .as_ref()
+                        .and_then(|v| v.as_array())
+                        .map_or(0, |a| a.len()),
+                    self.sidecar_value
+                        .as_ref()
+                        .and_then(|v| v.as_array())
+                        .map_or(0, |a| a.len())
                 )
             }
             DiffType::TypeMismatch => {

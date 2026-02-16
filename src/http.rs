@@ -48,13 +48,7 @@ pub async fn get_latest_block(
     json["number"]
         .as_str()
         .and_then(|s| s.parse::<u32>().ok())
-        .ok_or_else(|| {
-            format!(
-                "Missing or invalid 'number' field in response from {}",
-                url
-            )
-            .into()
-        })
+        .ok_or_else(|| format!("Missing or invalid 'number' field in response from {}", url).into())
 }
 
 /// Fetch JSON from a URL, returning Ok(Value) on success or Err(String) on failure

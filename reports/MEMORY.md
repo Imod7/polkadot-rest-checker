@@ -1029,3 +1029,357 @@ Monitoring duration: 113.8s (114 samples)
 | Rust API | 24408 | 199.0 MB | 1034.7 MB | 483.7 MB | 1034.7 MB | +835.8 MB (+420.1%) |
 | Sidecar | 24380 | 900.0 MB | 4285.9 MB | 2839.2 MB | 4285.9 MB | +3385.9 MB (+376.2%) |
 
+---
+
+## 2026-02-16 16:24:37 — asset-hub-polkadot `account-staking-payouts`
+
+- **Chain**: asset-hub-polkadot
+- **Endpoint**: `account-staking-payouts`
+- **Path**: `/accounts/{accountId}/staking-payouts`
+- **Block range**: 11200400 - 11200500
+- **Rust API**: http://localhost:8080/v1
+- **Sidecar API**: http://localhost:8045
+
+### Command
+
+```bash
+target/debug/polkadot-rest-checker --chain asset-hub-polkadot --endpoint account-staking-payouts --start 11200400 --end 11200500 --memory --report
+```
+
+## Git Commits
+
+- **Rust API**: `62111d6c` (main) chore: 2026 headers (#205)
+- **Sidecar**: `3092ae4` (master) chore(deps): bump tar from 7.5.6 to 7.5.7 in /docs-v2 (#1884)
+
+## Memory Consumption
+
+Monitoring duration: 3.7s (4 samples)
+
+| Server | PID | Baseline | Peak | Average | Final | Growth |
+|--------|-----|----------|------|---------|-------|--------|
+| Rust API | 85476 | 30.1 MB | 30.1 MB | 30.1 MB | 30.1 MB | +0.0 MB (+0.0%) |
+| Sidecar | 85675 | 147.6 MB | 147.6 MB | 147.6 MB | 147.6 MB | +0.0 MB (+0.0%) |
+
+---
+
+## 2026-02-16 16:30:02 — asset-hub-polkadot `account-staking-payouts`
+
+- **Chain**: asset-hub-polkadot
+- **Endpoint**: `account-staking-payouts`
+- **Path**: `/accounts/{accountId}/staking-payouts`
+- **Block range**: 11200400 - 11200500
+- **Rust API**: http://localhost:8080/v1
+- **Sidecar API**: http://localhost:8045
+
+### Command
+
+```bash
+target/debug/polkadot-rest-checker --chain asset-hub-polkadot --endpoint account-staking-payouts --start 11200400 --end 11200500 --memory --report
+```
+
+## Git Commits
+
+- **Rust API**: `62111d6c` (main) chore: 2026 headers (#205)
+- **Sidecar**: `3092ae4` (master) chore(deps): bump tar from 7.5.6 to 7.5.7 in /docs-v2 (#1884)
+
+## Memory Consumption
+
+Monitoring duration: 47.4s (48 samples)
+
+| Server | PID | Baseline | Peak | Average | Final | Growth |
+|--------|-----|----------|------|---------|-------|--------|
+| Rust API | 85476 | 40.2 MB | 40.2 MB | 40.2 MB | 40.2 MB | +0.0 MB (+0.1%) |
+| Sidecar | 85675 | 148.8 MB | 148.9 MB | 148.8 MB | 148.9 MB | +0.1 MB (+0.1%) |
+
+---
+
+## 2026-02-16 16:33:59 — asset-hub-polkadot `account-staking-payouts`
+
+- **Chain**: asset-hub-polkadot
+- **Endpoint**: `account-staking-payouts`
+- **Path**: `/accounts/{accountId}/staking-payouts`
+- **Block range**: 11200400 - 11200500
+- **Rust API**: http://localhost:8080/v1
+- **Sidecar API**: http://localhost:8045
+
+### Command
+
+```bash
+target/debug/polkadot-rest-checker --chain asset-hub-polkadot --endpoint account-staking-payouts --start 11200400 --end 11200500 --memory --report
+```
+
+## Git Commits
+
+- **Rust API**: `62111d6c` (main) chore: 2026 headers (#205)
+- **Sidecar**: `3092ae4` (master) chore(deps): bump tar from 7.5.6 to 7.5.7 in /docs-v2 (#1884)
+
+## Memory Consumption
+
+Monitoring duration: 126.8s (127 samples)
+
+| Server | PID | Baseline | Peak | Average | Final | Growth |
+|--------|-----|----------|------|---------|-------|--------|
+| Rust API | 85476 | 40.4 MB | 1130.7 MB | 758.7 MB | 1130.7 MB | +1090.2 MB (+2696.1%) |
+| Sidecar | 85675 | 148.5 MB | 4330.9 MB | 2059.3 MB | 4330.9 MB | +4182.4 MB (+2815.5%) |
+
+### substrate-api-sidecar TIMED OUT - JS HEAP OUT OF MEMORY
+
+```bash
+<--- Last few GCs --->
+
+[85675:0x128008000]   607499 ms: Mark-Compact 4040.3 (4138.0) -> 4028.2 (4141.7) MB, 494.25 / 0.00 ms  (average mu = 0.395, current mu = 0.035) allocation failure; scavenge might not succeed
+[85675:0x128008000]   608527 ms: Mark-Compact 4044.0 (4141.7) -> 4031.7 (4144.7) MB, 1010.33 / 0.00 ms  (average mu = 0.176, current mu = 0.017) allocation failure; scavenge might not succeed
+
+
+<--- JS stacktrace --->
+
+FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory
+ 1: 0x10282e14c node::Abort() [/Users/dominique/.nvm/versions/node/v20.2.0/bin/node]
+```---
+
+## 2026-02-16 16:37:01 — asset-hub-polkadot `account-staking-info`
+
+- **Chain**: asset-hub-polkadot
+- **Endpoint**: `account-staking-info`
+- **Path**: `/accounts/{accountId}/staking-info`
+- **Block range**: 11200400 - 11200500
+- **Rust API**: http://localhost:8080/v1
+- **Sidecar API**: http://localhost:8045
+
+### Command
+
+```bash
+target/debug/polkadot-rest-checker --chain asset-hub-polkadot --endpoint account-staking-info --start 11200400 --end 11200500 --memory --report
+```
+
+## Git Commits
+
+- **Rust API**: `62111d6c` (main) chore: 2026 headers (#205)
+- **Sidecar**: `3092ae4` (master) chore(deps): bump tar from 7.5.6 to 7.5.7 in /docs-v2 (#1884)
+
+## Memory Consumption
+
+Monitoring duration: 72.9s (73 samples)
+
+| Server | PID | Baseline | Peak | Average | Final | Growth |
+|--------|-----|----------|------|---------|-------|--------|
+| Rust API | 85476 | 1130.7 MB | 1131.0 MB | 1131.0 MB | 1131.0 MB | +0.3 MB (+0.0%) |
+| Sidecar | 5011 | 149.0 MB | 982.5 MB | 665.1 MB | 410.3 MB | +261.3 MB (+175.3%) |
+
+---
+
+## 2026-02-16 16:40:32 — asset-hub-polkadot `account-staking-info`
+
+- **Chain**: asset-hub-polkadot
+- **Endpoint**: `account-staking-info`
+- **Path**: `/accounts/{accountId}/staking-info`
+- **Block range**: 11500400 - 11500500
+- **Rust API**: http://localhost:8080/v1
+- **Sidecar API**: http://localhost:8045
+
+### Command
+
+```bash
+target/debug/polkadot-rest-checker --chain asset-hub-polkadot --endpoint account-staking-info --start 11500400 --end 11500500 --memory --report
+```
+
+## Git Commits
+
+- **Rust API**: `62111d6c` (main) chore: 2026 headers (#205)
+- **Sidecar**: `3092ae4` (master) chore(deps): bump tar from 7.5.6 to 7.5.7 in /docs-v2 (#1884)
+
+## Memory Consumption
+
+Monitoring duration: 67.2s (68 samples)
+
+| Server | PID | Baseline | Peak | Average | Final | Growth |
+|--------|-----|----------|------|---------|-------|--------|
+| Rust API | 85476 | 1131.0 MB | 1137.2 MB | 1133.1 MB | 1137.2 MB | +6.2 MB (+0.6%) |
+| Sidecar | 5011 | 397.5 MB | 1177.4 MB | 894.5 MB | 1112.0 MB | +714.5 MB (+179.7%) |
+
+---
+
+## 2026-02-16 16:56:14 — asset-hub-polkadot `account-balance-info`
+
+- **Chain**: asset-hub-polkadot
+- **Endpoint**: `account-balance-info`
+- **Path**: `/accounts/{accountId}/balance-info`
+- **Block range**: 11800300 - 11800350
+- **Rust API**: http://localhost:8080/v1
+- **Sidecar API**: http://localhost:8045
+
+### Command
+
+```bash
+target/debug/polkadot-rest-checker --chain asset-hub-polkadot --endpoint account-balance-info --start 11800300 --end 11800350 --memory --report
+```
+
+## Git Commits
+
+- **Rust API**: `62111d6c` (main) chore: 2026 headers (#205)
+- **Sidecar**: `3092ae4` (master) chore(deps): bump tar from 7.5.6 to 7.5.7 in /docs-v2 (#1884)
+
+## Memory Consumption
+
+Monitoring duration: 3.1s (4 samples)
+
+| Server | PID | Baseline | Peak | Average | Final | Growth |
+|--------|-----|----------|------|---------|-------|--------|
+| Rust API | 85476 | 1137.4 MB | 1137.4 MB | 1137.4 MB | 1137.4 MB | +0.0 MB (+0.0%) |
+| Sidecar | 5011 | 579.7 MB | 1204.2 MB | 859.7 MB | 1204.2 MB | +624.5 MB (+107.7%) |
+
+---
+
+## 2026-02-16 17:10:43 — asset-hub-polkadot `rc-block-extrinsics-raw`
+
+- **Chain**: asset-hub-polkadot
+- **Endpoint**: `rc-block-extrinsics-raw`
+- **Path**: `/rc/blocks/{blockId}/extrinsics-raw`
+- **Block range**: 10600000 - 10600100
+- **Rust API**: http://localhost:8080/v1
+- **Sidecar API**: http://localhost:8045
+
+### Command
+
+```bash
+target/debug/polkadot-rest-checker --chain asset-hub-polkadot --endpoint rc-block-extrinsics-raw --start 10600000 --end 10600100 --memory --report
+```
+
+## Git Commits
+
+- **Rust API**: `62111d6c` (main) chore: 2026 headers (#205)
+- **Sidecar**: `3092ae4` (master) chore(deps): bump tar from 7.5.6 to 7.5.7 in /docs-v2 (#1884)
+
+## Memory Consumption
+
+Monitoring duration: 3.8s (4 samples)
+
+| Server | PID | Baseline | Peak | Average | Final | Growth |
+|--------|-----|----------|------|---------|-------|--------|
+| Rust API | 85476 | 1139.5 MB | 1141.6 MB | 1140.4 MB | 1141.6 MB | +2.2 MB (+0.2%) |
+| Sidecar | 5011 | 629.2 MB | 678.0 MB | 665.8 MB | 678.0 MB | +48.8 MB (+7.8%) |
+
+---
+
+## 2026-02-16 17:12:08 — asset-hub-polkadot `rc-block-extrinsics-raw`
+
+- **Chain**: asset-hub-polkadot
+- **Endpoint**: `rc-block-extrinsics-raw`
+- **Path**: `/rc/blocks/{blockId}/extrinsics-raw`
+- **Block range**: 10600000 - 10600100
+- **Rust API**: http://localhost:8080/v1
+- **Sidecar API**: http://localhost:8045
+
+### Command
+
+```bash
+target/debug/polkadot-rest-checker --chain asset-hub-polkadot --endpoint rc-block-extrinsics-raw --start 10600000 --end 10600100 --memory --report
+```
+
+## Git Commits
+
+- **Rust API**: `62111d6c` (main) chore: 2026 headers (#205)
+- **Sidecar**: `3092ae4` (master) chore(deps): bump tar from 7.5.6 to 7.5.7 in /docs-v2 (#1884)
+
+## Memory Consumption
+
+Monitoring duration: 3.4s (4 samples)
+
+| Server | PID | Baseline | Peak | Average | Final | Growth |
+|--------|-----|----------|------|---------|-------|--------|
+| Rust API | 38942 | 26.1 MB | 141.9 MB | 86.1 MB | 141.9 MB | +115.8 MB (+443.6%) |
+| Sidecar | 5011 | 678.2 MB | 711.7 MB | 703.3 MB | 711.7 MB | +33.5 MB (+4.9%) |
+
+---
+
+## 2026-02-16 17:13:57 — asset-hub-polkadot `rc-block-extrinsics-raw`
+
+- **Chain**: asset-hub-polkadot
+- **Endpoint**: `rc-block-extrinsics-raw`
+- **Path**: `/rc/blocks/{blockId}/extrinsics-raw`
+- **Block range**: 9600000 - 9600100
+- **Rust API**: http://localhost:8080/v1
+- **Sidecar API**: http://localhost:8045
+
+### Command
+
+```bash
+target/debug/polkadot-rest-checker --chain asset-hub-polkadot --endpoint rc-block-extrinsics-raw --start 9600000 --end 9600100 --memory --report
+```
+
+## Git Commits
+
+- **Rust API**: `62111d6c` (main) chore: 2026 headers (#205)
+- **Sidecar**: `3092ae4` (master) chore(deps): bump tar from 7.5.6 to 7.5.7 in /docs-v2 (#1884)
+
+## Memory Consumption
+
+Monitoring duration: 3.6s (4 samples)
+
+| Server | PID | Baseline | Peak | Average | Final | Growth |
+|--------|-----|----------|------|---------|-------|--------|
+| Rust API | 38942 | 141.4 MB | 155.9 MB | 147.8 MB | 155.9 MB | +14.5 MB (+10.3%) |
+| Sidecar | 5011 | 610.8 MB | 691.5 MB | 671.3 MB | 691.5 MB | +80.7 MB (+13.2%) |
+
+---
+
+## 2026-02-16 17:26:03 — asset-hub-polkadot `block-extrinsics-idx-rcblock`
+
+- **Chain**: asset-hub-polkadot
+- **Endpoint**: `block-extrinsics-idx-rcblock`
+- **Path**: `/blocks/{blockId}/extrinsics/{index}?useRcBlock=true`
+- **Block range**: 9600700 - 9600760
+- **Rust API**: http://localhost:8080/v1
+- **Sidecar API**: http://localhost:8045
+
+### Command
+
+```bash
+target/debug/polkadot-rest-checker --chain asset-hub-polkadot --endpoint block-extrinsics-idx-rcblock --start 9600700 --end 9600760 --memory --report
+```
+
+## Git Commits
+
+- **Rust API**: `62111d6c` (main) chore: 2026 headers (#205)
+- **Sidecar**: `3092ae4` (master) chore(deps): bump tar from 7.5.6 to 7.5.7 in /docs-v2 (#1884)
+
+## Memory Consumption
+
+Monitoring duration: 19.1s (20 samples)
+
+| Server | PID | Baseline | Peak | Average | Final | Growth |
+|--------|-----|----------|------|---------|-------|--------|
+| Rust API | 38942 | 157.2 MB | 159.4 MB | 159.1 MB | 159.4 MB | +2.2 MB (+1.4%) |
+| Sidecar | 5011 | 674.9 MB | 721.2 MB | 694.9 MB | 686.1 MB | +11.2 MB (+1.7%) |
+
+---
+
+## 2026-02-16 20:46:27 — asset-hub-polkadot `account-staking-payouts`
+
+- **Chain**: asset-hub-polkadot
+- **Endpoint**: `account-staking-payouts`
+- **Path**: `/accounts/{accountId}/staking-payouts`
+- **Block range**: 10600700 - 10600710
+- **Rust API**: http://localhost:8080/v1
+- **Sidecar API**: http://localhost:8045
+
+### Command
+
+```bash
+target/debug/polkadot-rest-checker --chain asset-hub-polkadot --endpoint account-staking-payouts --start 10600700 --end 10600710 --report --memory
+```
+
+## Git Commits
+
+- **Rust API**: `62111d6c` (main) chore: 2026 headers (#205)
+- **Sidecar**: `3092ae4` (master) chore(deps): bump tar from 7.5.6 to 7.5.7 in /docs-v2 (#1884)
+
+## Memory Consumption
+
+Monitoring duration: 21.3s (22 samples)
+
+| Server | PID | Baseline | Peak | Average | Final | Growth |
+|--------|-----|----------|------|---------|-------|--------|
+| Rust API | 16559 | 196.0 MB | 207.7 MB | 201.3 MB | 207.7 MB | +11.7 MB (+6.0%) |
+| Sidecar | 16729 | 324.8 MB | 1309.1 MB | 873.0 MB | 701.3 MB | +376.5 MB (+115.9%) |
+

@@ -215,11 +215,20 @@ cargo run -- --endpoint events --start 0 --end 100
 
 Polkadot Asset Hub
 ```bash
+# /pallets/{}/events?at={}
+cargo run -- --chain asset-hub-polkadot --endpoint pallet-events --start 10600700 --end 10600800 --memory --report
+
 # Test /rc/pallets/{}/errors?at={} endpoint on PAH chain and for a defined block range
 cargo run -- --chain asset-hub-polkadot --endpoint rc-pallet-errors --start 1145000 --end 1145010
 
 # Test /rc/pallets/{}/events?at={} endpoint on PAH chain and for a defined block range
 cargo run -- --chain asset-hub-polkadot --endpoint rc-pallet-events --start 1118000 --end 1118005
+
+# /pallets/staking/validators?at={}
+cargo run -- --chain asset-hub-polkadot --endpoint staking-validators --start 10280000 --end 10280030
+
+# /rc/pallets/staking/validators?at={}
+cargo run -- --chain asset-hub-polkadot --endpoint rc-staking-validators --start 10280000 --end 10280030
 ```
 
 Polkadot
@@ -321,9 +330,13 @@ cargo run -- --chain asset-hub-polkadot --endpoint block-extrinsics-raw-rcblock 
 
 # Test /blocks/{blockId}/extrinsics/{index}?useRcBlock=true endpoint in Polkadot Asset Hub for this block range and track the memory consumption plus record any mismatches in a separate report
 cargo run -- --chain asset-hub-polkadot --endpoint block-extrinsics-idx-rcblock --start 10500000 --end 10501000 --memory --report
+cargo run -- --chain asset-hub-polkadot --endpoint block-extrinsics-idx-rcblock --start 9600700 --end 9600760 --memory --report
 
 # Test /blocks/{}/para-inclusions endpoint in Polkadot Asset Hub for this block range and track the memory consumption plus record any mismatches in a separate report
 cargo run -- --chain asset-hub-polkadot --endpoint block-para-inclusions --start 11100000 --end 11101000 --memory --report
+
+# /rc/blocks/{blockId}/extrinsics-raw
+cargo run -- --chain asset-hub-polkadot --endpoint rc-block-extrinsics-raw --start 10600000 --end 10600100 --memory --report
 ```
 
 Kusama
@@ -459,6 +472,26 @@ cargo run -- --chain asset-hub-kusama --endpoint account-foreign-asset-balance -
 
 # Test on Kusama Asset Hub very early blocks
 cargo run -- --chain asset-hub-kusama --endpoint account-foreign-asset-balance --start 100410 --end 100420
+```
+
+Polkadot Asset Hub
+```bash
+# /accounts/{}/staking-payouts?at={}
+cargo run -- --chain asset-hub-polkadot --endpoint account-staking-payouts --start 11200400 --end 11200500 --memory --report
+
+cargo run -- --chain asset-hub-polkadot --endpoint account-balance-info --start 11800300 --end 11800350 --memory --report
+
+cargo run -- --chain asset-hub-polkadot --endpoint account-foreign-asset-balance --start 11200300 --end 11200350
+
+# /rc/accounts/{}/balance-info?at={}
+cargo run -- --chain asset-hub-polkadot --endpoint rc-account-balance-info --start 11800300 --end 11800350 --memory --report
+
+# /accounts/{accountId}/vesting-info
+cargo run -- --chain asset-hub-polkadot --endpoint account-vesting-info --start 11800300 --end 11800350 --memory --report
+cargo run -- --chain asset-hub-polkadot --endpoint account-vesting-info --start 12208647 --end 12208660 --memory --report
+
+# /rc/accounts/{accountId}/vesting-info
+cargo run -- --chain asset-hub-polkadot --endpoint rc-account-vesting-info --start 28483803 --end 28483815
 ```
 
 ### Chain-Specific Examples

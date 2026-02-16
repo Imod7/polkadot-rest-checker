@@ -38,10 +38,7 @@ pub fn print_pallet_summary(
     // Create summary log file (only if --logs flag is set)
     let summary_filename = format!(
         "summary_{}_{}-{}_{}.log",
-        chain,
-        start_block,
-        end_block,
-        endpoint_type
+        chain, start_block, end_block, endpoint_type
     );
     let mut summary_file = if create_logs {
         File::create(&summary_filename).ok()
@@ -181,10 +178,7 @@ pub fn print_block_summary(
     // Create summary log file (only if --logs flag is set)
     let summary_filename = format!(
         "summary_{}_{}-{}_{}.log",
-        chain,
-        start_block,
-        end_block,
-        endpoint_type
+        chain, start_block, end_block, endpoint_type
     );
     let mut summary_file = if create_logs {
         File::create(&summary_filename).ok()
@@ -255,10 +249,7 @@ pub fn print_account_summary(
     // Create summary log file (only if --logs flag is set)
     let summary_filename = format!(
         "summary_{}_{}-{}_{}_accounts.log",
-        chain,
-        start_block,
-        end_block,
-        endpoint_type
+        chain, start_block, end_block, endpoint_type
     );
     let mut summary_file = if create_logs {
         File::create(&summary_filename).ok()
@@ -406,7 +397,8 @@ pub fn write_pallet_mismatch_report(
     }
 
     let base = format!(
-        "report_{}_{}-{}_{}", chain, start_block, end_block, endpoint_type
+        "report_{}_{}-{}_{}",
+        chain, start_block, end_block, endpoint_type
     );
     let summary_filename = format!("{}.md", base);
     let details_filename = format!("{}_details.md", base);
@@ -418,7 +410,12 @@ pub fn write_pallet_mismatch_report(
         writeln!(f, "- **Block range**: {} - {}", start_block, end_block).ok();
         writeln!(f, "- **Rust API**: {}", rust_url).ok();
         writeln!(f, "- **Sidecar API**: {}", sidecar_url).ok();
-        writeln!(f, "- **Details**: [{}]({})", details_filename, details_filename).ok();
+        writeln!(
+            f,
+            "- **Details**: [{}]({})",
+            details_filename, details_filename
+        )
+        .ok();
         writeln!(f).ok();
 
         writeln!(
@@ -428,7 +425,8 @@ pub fn write_pallet_mismatch_report(
         writeln!(
             f,
             "|--------|---------|----------|----------|-------------|----------------------|------|"
-        ).ok();
+        )
+        .ok();
 
         for result in results {
             let total = result.matched
@@ -453,9 +451,15 @@ pub fn write_pallet_mismatch_report(
             writeln!(
                 f,
                 "| {} | {} | {} | {} | {} | {} | {:.1}% |",
-                name, result.matched, result.mismatched, result.rust_errors,
-                result.sidecar_errors, result.both_errors, rate
-            ).ok();
+                name,
+                result.matched,
+                result.mismatched,
+                result.rust_errors,
+                result.sidecar_errors,
+                result.both_errors,
+                rate
+            )
+            .ok();
         }
 
         println!("Summary report saved to: {}", summary_filename);
@@ -468,7 +472,12 @@ pub fn write_pallet_mismatch_report(
         writeln!(f, "# Mismatch Details: {} `{}`", chain, endpoint_type).ok();
         writeln!(f).ok();
         writeln!(f, "- **Block range**: {} - {}", start_block, end_block).ok();
-        writeln!(f, "- **Summary**: [{}]({})", summary_filename, summary_filename).ok();
+        writeln!(
+            f,
+            "- **Summary**: [{}]({})",
+            summary_filename, summary_filename
+        )
+        .ok();
         writeln!(f).ok();
 
         for result in &pallets_with_issues {
@@ -516,7 +525,8 @@ pub fn write_block_mismatch_report(
     }
 
     let base = format!(
-        "report_{}_{}-{}_{}", chain, start_block, end_block, endpoint_type
+        "report_{}_{}-{}_{}",
+        chain, start_block, end_block, endpoint_type
     );
     let summary_filename = format!("{}.md", base);
     let details_filename = format!("{}_details.md", base);
@@ -535,7 +545,12 @@ pub fn write_block_mismatch_report(
         writeln!(f, "- **Block range**: {} - {}", start_block, end_block).ok();
         writeln!(f, "- **Rust API**: {}", rust_url).ok();
         writeln!(f, "- **Sidecar API**: {}", sidecar_url).ok();
-        writeln!(f, "- **Details**: [{}]({})", details_filename, details_filename).ok();
+        writeln!(
+            f,
+            "- **Details**: [{}]({})",
+            details_filename, details_filename
+        )
+        .ok();
         writeln!(f).ok();
 
         writeln!(f, "| Metric | Count |").ok();
@@ -556,7 +571,12 @@ pub fn write_block_mismatch_report(
         writeln!(f, "# Mismatch Details: {} `{}`", chain, endpoint_type).ok();
         writeln!(f).ok();
         writeln!(f, "- **Block range**: {} - {}", start_block, end_block).ok();
-        writeln!(f, "- **Summary**: [{}]({})", summary_filename, summary_filename).ok();
+        writeln!(
+            f,
+            "- **Summary**: [{}]({})",
+            summary_filename, summary_filename
+        )
+        .ok();
         writeln!(f).ok();
 
         for (block, error) in issues {
@@ -601,7 +621,8 @@ pub fn write_account_mismatch_report(
     }
 
     let base = format!(
-        "report_{}_{}-{}_{}_accounts", chain, start_block, end_block, endpoint_type
+        "report_{}_{}-{}_{}_accounts",
+        chain, start_block, end_block, endpoint_type
     );
     let summary_filename = format!("{}.md", base);
     let details_filename = format!("{}_details.md", base);
@@ -613,7 +634,12 @@ pub fn write_account_mismatch_report(
         writeln!(f, "- **Block range**: {} - {}", start_block, end_block).ok();
         writeln!(f, "- **Rust API**: {}", rust_url).ok();
         writeln!(f, "- **Sidecar API**: {}", sidecar_url).ok();
-        writeln!(f, "- **Details**: [{}]({})", details_filename, details_filename).ok();
+        writeln!(
+            f,
+            "- **Details**: [{}]({})",
+            details_filename, details_filename
+        )
+        .ok();
         writeln!(f).ok();
 
         writeln!(
@@ -648,9 +674,15 @@ pub fn write_account_mismatch_report(
             writeln!(
                 f,
                 "| {} | {} | {} | {} | {} | {} | {:.1}% |",
-                name, result.matched, result.mismatched, result.rust_errors,
-                result.sidecar_errors, result.both_errors, rate
-            ).ok();
+                name,
+                result.matched,
+                result.mismatched,
+                result.rust_errors,
+                result.sidecar_errors,
+                result.both_errors,
+                rate
+            )
+            .ok();
         }
 
         println!("Summary report saved to: {}", summary_filename);
@@ -663,7 +695,12 @@ pub fn write_account_mismatch_report(
         writeln!(f, "# Mismatch Details: {} `{}`", chain, endpoint_type).ok();
         writeln!(f).ok();
         writeln!(f, "- **Block range**: {} - {}", start_block, end_block).ok();
-        writeln!(f, "- **Summary**: [{}]({})", summary_filename, summary_filename).ok();
+        writeln!(
+            f,
+            "- **Summary**: [{}]({})",
+            summary_filename, summary_filename
+        )
+        .ok();
         writeln!(f).ok();
 
         for result in &accounts_with_issues {

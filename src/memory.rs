@@ -28,8 +28,11 @@ impl GitInfo {
             .ok()
             .filter(|o| o.status.success())?;
 
-        let line = String::from_utf8_lossy(&log_output.stdout).trim().to_string();
-        let (commit_short, commit_message) = line.split_once(' ')
+        let line = String::from_utf8_lossy(&log_output.stdout)
+            .trim()
+            .to_string();
+        let (commit_short, commit_message) = line
+            .split_once(' ')
             .map(|(h, m)| (h.to_string(), m.to_string()))
             .unwrap_or_else(|| (line.clone(), String::new()));
 
@@ -42,7 +45,10 @@ impl GitInfo {
 
     /// Format as a single-line summary.
     pub fn summary(&self) -> String {
-        format!("{} ({}) {}", self.commit_short, self.branch, self.commit_message)
+        format!(
+            "{} ({}) {}",
+            self.commit_short, self.branch, self.commit_message
+        )
     }
 }
 
@@ -92,11 +98,7 @@ fn extract_port(url: &str) -> Option<u16> {
 /// Find PID of process listening on the given TCP port using `lsof`.
 async fn find_pid_by_port(port: u16) -> Option<u32> {
     let output = tokio::process::Command::new("lsof")
-        .args([
-            &format!("-iTCP:{}", port),
-            "-sTCP:LISTEN",
-            "-t",
-        ])
+        .args([&format!("-iTCP:{}", port), "-sTCP:LISTEN", "-t"])
         .output()
         .await
         .ok()?;
@@ -125,11 +127,7 @@ async fn get_rss_kb(pid: u32) -> Option<u64> {
     stdout.trim().parse::<u64>().ok()
 }
 
-fn compute_stats(
-    label: &str,
-    pid: u32,
-    samples: &[MemorySample],
-) -> Option<ProcessStats> {
+fn compute_stats(label: &str, pid: u32, samples: &[MemorySample]) -> Option<ProcessStats> {
     if samples.is_empty() {
         return None;
     }
@@ -160,11 +158,7 @@ fn compute_stats(
 impl MemoryMonitor {
     /// Start monitoring memory for both server processes.
     /// Returns `None` if neither PID could be detected.
-    pub async fn start(
-        rust_url: &str,
-        sidecar_url: &str,
-        interval_ms: u64,
-    ) -> Option<Self> {
+    pub async fn start(rust_url: &str, sidecar_url: &str, interval_ms: u64) -> Option<Self> {
         let rust_pid_info = match extract_port(rust_url) {
             Some(port) => {
                 let pid = find_pid_by_port(port).await;
@@ -217,8 +211,7 @@ impl MemoryMonitor {
         let handle = tokio::spawn(async move {
             let mut rust_samples: Vec<MemorySample> = Vec::new();
             let mut sidecar_samples: Vec<MemorySample> = Vec::new();
-            let mut interval =
-                tokio::time::interval(std::time::Duration::from_millis(interval_ms));
+            let mut interval = tokio::time::interval(std::time::Duration::from_millis(interval_ms));
 
             loop {
                 tokio::select! {
@@ -244,8 +237,8 @@ impl MemoryMonitor {
             let duration = start_time.elapsed();
             let sample_count = rust_samples.len().max(sidecar_samples.len());
 
-            let rust_api = rust_pid_info
-                .and_then(|(pid, _)| compute_stats("Rust API", pid, &rust_samples));
+            let rust_api =
+                rust_pid_info.and_then(|(pid, _)| compute_stats("Rust API", pid, &rust_samples));
             let sidecar = sidecar_pid_info
                 .and_then(|(pid, _)| compute_stats("Sidecar", pid, &sidecar_samples));
 
@@ -298,9 +291,7 @@ impl MemoryReport {
         }
 
         println!("\n{}", "=".repeat(90));
-        println!(
-            "                              MEMORY CONSUMPTION REPORT"
-        );
+        println!("                              MEMORY CONSUMPTION REPORT");
         println!("{}", "=".repeat(90));
         println!(
             "Monitoring duration: {:.1}s ({} samples)\n",
@@ -360,10 +351,16 @@ impl MemoryReport {
         let mut md = String::new();
         md.push_str("## Git Commits\n\n");
         if let Some(ref git) = self.rust_git {
-            md.push_str(&format!("- **Rust API**: `{}` ({}) {}\n", git.commit_short, git.branch, git.commit_message));
+            md.push_str(&format!(
+                "- **Rust API**: `{}` ({}) {}\n",
+                git.commit_short, git.branch, git.commit_message
+            ));
         }
         if let Some(ref git) = self.sidecar_git {
-            md.push_str(&format!("- **Sidecar**: `{}` ({}) {}\n", git.commit_short, git.branch, git.commit_message));
+            md.push_str(&format!(
+                "- **Sidecar**: `{}` ({}) {}\n",
+                git.commit_short, git.branch, git.commit_message
+            ));
         }
         if self.rust_git.is_none() && self.sidecar_git.is_none() {
             md.push_str("- No git info available\n");

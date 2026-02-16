@@ -404,7 +404,10 @@ impl CoverageData {
                         let pallets_tested = ep_cov.pallets.as_ref().map(|p| p.len()).unwrap_or(0);
                         report.push_str(&format!(
                             "  [✓] {:<20} {:>3}/{:<3} pallets tested ({:.1}% pass rate)\n",
-                            endpoint, pallets_tested, chain.total_pallets, ep_cov.pass_rate()
+                            endpoint,
+                            pallets_tested,
+                            chain.total_pallets,
+                            ep_cov.pass_rate()
                         ));
 
                         if let Some(ref pallets) = ep_cov.pallets {
@@ -502,7 +505,12 @@ impl CoverageData {
     }
 
     /// Return the list of all known endpoint names by category.
-    fn endpoint_lists() -> (Vec<&'static str>, Vec<&'static str>, Vec<&'static str>, Vec<&'static str>) {
+    fn endpoint_lists() -> (
+        Vec<&'static str>,
+        Vec<&'static str>,
+        Vec<&'static str>,
+        Vec<&'static str>,
+    ) {
         let pallet_endpoints = vec![
             "pallet-consts",
             "pallet-consts-item",
@@ -519,6 +527,7 @@ impl CoverageData {
             "block",
             "blocks-head",
             "blocks-header",
+            "rc-blocks-blockid",
             "block-extrinsics",
             "block-extrinsics-raw",
             "block-extrinsics-raw-rcblock",
@@ -535,7 +544,15 @@ impl CoverageData {
             "coretime-reservations",
             "coretime-regions",
         ];
-        let account_endpoints = vec!["account-balance-info", "account-foreign-asset-balance", "account-staking-payouts", "account-staking-info"];
+        let account_endpoints = vec![
+            "account-balance-info",
+            "rc-account-balance-info",
+            "account-foreign-asset-balance",
+            "account-staking-payouts",
+            "account-staking-info",
+            "account-vesting-info",
+            "rc-account-vesting-info",
+        ];
         let standalone_endpoints = vec![
             "runtime-spec",
             "runtime-metadata",
@@ -543,8 +560,14 @@ impl CoverageData {
             "node-version",
             "node-network",
             "blocks-head-rcblock",
+            "rc-blocks-range",
         ];
-        (pallet_endpoints, block_endpoints, account_endpoints, standalone_endpoints)
+        (
+            pallet_endpoints,
+            block_endpoints,
+            account_endpoints,
+            standalone_endpoints,
+        )
     }
 
     /// Generate markdown coverage summary report (endpoint-level tables only).
@@ -621,7 +644,11 @@ impl CoverageData {
                 if let Some(ep_cov) = chain.endpoints.get(*endpoint) {
                     if ep_cov.tested {
                         let pallets_tested = ep_cov.pallets.as_ref().map(|p| p.len()).unwrap_or(0);
-                        let has_details = ep_cov.pallets.as_ref().map(|p| !p.is_empty()).unwrap_or(false);
+                        let has_details = ep_cov
+                            .pallets
+                            .as_ref()
+                            .map(|p| !p.is_empty())
+                            .unwrap_or(false);
                         let name = if has_details {
                             format!("[{}]({}#{})", endpoint, details_filename, endpoint)
                         } else {
@@ -644,7 +671,11 @@ impl CoverageData {
                         };
                         report.push_str(&format!(
                             "| {} | ✅ | {}/{} | {} | {:.1}% |\n",
-                            name, pallets_tested, chain.total_pallets, block_ranges_str, ep_cov.pass_rate()
+                            name,
+                            pallets_tested,
+                            chain.total_pallets,
+                            block_ranges_str,
+                            ep_cov.pass_rate()
                         ));
                     } else {
                         report.push_str(&format!("| {} | ❌ | - | - | - |\n", endpoint));
@@ -732,9 +763,7 @@ impl CoverageData {
         let (pallet_endpoints, block_endpoints, account_endpoints, _) = Self::endpoint_lists();
 
         report.push_str("# Coverage Details\n\n");
-        report.push_str(
-            "Detailed coverage breakdown. Auto-generated from test results.\n\n",
-        );
+        report.push_str("Detailed coverage breakdown. Auto-generated from test results.\n\n");
         report.push_str(&format!(
             "- **Summary**: [{}]({})\n\n",
             summary_filename, summary_filename
@@ -820,11 +849,7 @@ impl CoverageData {
     }
 
     /// Write a details section for a block-like endpoint (block or account) if it has issues.
-    fn write_details_block_section(
-        report: &mut String,
-        chain: &ChainCoverage,
-        endpoint: &str,
-    ) {
+    fn write_details_block_section(report: &mut String, chain: &ChainCoverage, endpoint: &str) {
         if let Some(ep_cov) = chain.endpoints.get(endpoint) {
             if ep_cov.tested && ep_cov.has_issues() {
                 report.push_str(&format!("### {}\n\n", endpoint));
@@ -833,8 +858,12 @@ impl CoverageData {
                     format_ranges(&ep_cov.block_ranges)
                 ));
                 report.push_str(&format!("- **Pass rate**: {:.1}%\n\n", ep_cov.pass_rate()));
-                report.push_str("| Matched | Mismatched | Rust Err | Sidecar Err | Both Err (diff codes) |\n");
-                report.push_str("|---------|------------|----------|-------------|----------------------|\n");
+                report.push_str(
+                    "| Matched | Mismatched | Rust Err | Sidecar Err | Both Err (diff codes) |\n",
+                );
+                report.push_str(
+                    "|---------|------------|----------|-------------|----------------------|\n",
+                );
                 report.push_str(&format!(
                     "| {} | {} | {} | {} | {} |\n\n",
                     ep_cov.matched,

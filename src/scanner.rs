@@ -114,11 +114,7 @@ pub async fn scan_pallet_endpoint(
         // Create error log file (only if --logs flag is set)
         let error_filename = format!(
             "errors_{}_{}-{}_{}_{}.log",
-            chain,
-            start_block,
-            end_block,
-            endpoint_type,
-            pallet.name
+            chain, start_block, end_block, endpoint_type, pallet.name
         );
         let mut error_file: Option<File> = if create_logs {
             let mut f = File::create(&error_filename)?;
@@ -298,10 +294,7 @@ pub async fn scan_block_endpoint(
     // Create error log file (only if --logs flag is set)
     let error_filename = format!(
         "errors_{}_{}-{}_{}.log",
-        chain,
-        start_block,
-        end_block,
-        endpoint_type
+        chain, start_block, end_block, endpoint_type
     );
     let mut error_file: Option<File> = if create_logs {
         let mut f = File::create(&error_filename)?;
@@ -360,7 +353,10 @@ pub async fn scan_block_endpoint(
                     }
                     // /blocks/{blockId}/extrinsics/{index}?useRcBlock=true
                     EndpointType::BlockExtrinsicsIdxRcBlock => {
-                        format!("{}/blocks/{}/extrinsics-raw?useRcBlock=true", rust_url, block_num)
+                        format!(
+                            "{}/blocks/{}/extrinsics-raw?useRcBlock=true",
+                            rust_url, block_num
+                        )
                     }
                     // /rc/blocks/{blockId}/extrinsics/{index}
                     _ => {
@@ -625,10 +621,7 @@ pub async fn scan_runtime_endpoint(
             sidecar_response,
             diffs,
         } => {
-            log_line!(
-                "\n  Result: MISMATCH - {} difference(s) found",
-                diffs.len()
-            );
+            log_line!("\n  Result: MISMATCH - {} difference(s) found", diffs.len());
             // Show first few diffs in console
             for (i, diff) in diffs.iter().take(5).enumerate() {
                 log_line!("    {}. {}", i + 1, diff);
@@ -639,8 +632,7 @@ pub async fn scan_runtime_endpoint(
             endpoint_coverage.add_runtime_run(false, None);
 
             if create_logs {
-                let error_filename =
-                    format!("errors_{}_{}.log", chain, endpoint_type);
+                let error_filename = format!("errors_{}_{}.log", chain, endpoint_type);
                 let mut error_file = File::create(&error_filename)?;
                 writeln!(
                     error_file,
@@ -868,8 +860,7 @@ pub async fn scan_account_endpoint(
             account.label, matched, total, match_rate, mismatched, rust_errors, sidecar_errors, both_errors
         );
 
-        let has_issues =
-            mismatched > 0 || rust_errors > 0 || sidecar_errors > 0 || both_errors > 0;
+        let has_issues = mismatched > 0 || rust_errors > 0 || sidecar_errors > 0 || both_errors > 0;
         if create_logs && has_issues {
             println!("  Issues saved to: {}", error_filename);
         } else if create_logs {

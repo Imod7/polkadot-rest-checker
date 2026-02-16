@@ -87,13 +87,14 @@ impl Chain {
     pub fn staking_test_accounts(&self) -> &'static [TestAccount] {
         match self {
             Chain::Polkadot => POLKADOT_STAKING_ACCOUNTS,
+            Chain::AssetHubPolkadot => ASSET_HUB_POLKADOT_STAKING_ACCOUNTS,
             _ => self.test_accounts(),
         }
     }
 
     /// Returns true if this chain has dedicated staking/stash accounts defined.
     pub fn has_staking_accounts(&self) -> bool {
-        matches!(self, Chain::Polkadot)
+        matches!(self, Chain::Polkadot | Chain::AssetHubPolkadot)
     }
 
     /// List all available chains
@@ -1223,6 +1224,38 @@ pub const ASSET_HUB_POLKADOT_TEST_ACCOUNTS: &[TestAccount] = &[
     TestAccount {
         address: "13oSJ635GZos8UYrrcwXtp3XWC1G3XHrPvN6skMLdxzUr4sr",
         label: "Account 4",
+    },
+    TestAccount {
+        address: "1kFzWWBHdkfajDqKAztSGL4vxNoDuazhm565JDwqUaJeuaH",
+        label: "Account 5",
+    },
+    TestAccount {
+        address: "1516GwEgo6PmwDtHprgqx9zyaELKWwx7KNiFXgQHwPuBnPAz",
+        label: "Account 6",
+    },
+];
+
+/// Staking stash accounts for Polkadot relay chain
+pub const ASSET_HUB_POLKADOT_STAKING_ACCOUNTS: &[TestAccount] = &[
+    TestAccount {
+        address: "15uCAG6qK9qdx3EG3kyb5TFn83PgFUSQEioUgA9GLTjMFfq",
+        label: "Stash 1",
+    },
+    TestAccount {
+        address: "15j4dg5GzsL1bw2U2AWgeyAk6QTxq43V7ZPbXdAmbVLjvDCK",
+        label: "Stash 2",
+    },
+    TestAccount {
+        address: "13Xo4xYdMRQQoWD7TA9yCDHG1BXqQFvnjeGvU6LHhRhUsBhQ",
+        label: "Stash 3",
+    },
+    TestAccount {
+        address: "12Z6FSvMFRjno881i1qpFndrtZtcVCLs5v4nR92McQNX31CT",
+        label: "Stash 4",
+    },
+    TestAccount {
+        address: "136GehDWrz4tqL7ivAT53VeS3PweRZDSHyrbnWLdWJpchW8M",
+        label: "Stash 5",
     },
 ];
 
