@@ -617,3 +617,415 @@ Monitoring duration: 852.4s (853 samples)
 | Rust API | 19033 | 229.0 MB | 248.2 MB | 241.6 MB | 248.2 MB | +19.2 MB (+8.4%) |
 | Sidecar | 19093 | 2538.6 MB | 3690.0 MB | 3611.4 MB | 3666.9 MB | +1128.3 MB (+44.4%) |
 
+---
+
+## 2026-02-16 08:20:52 — kusama `account-foreign-asset-balance`
+
+- **Chain**: kusama
+- **Endpoint**: `account-foreign-asset-balance`
+- **Path**: `/accounts/{accountId}/foreign-asset-balances`
+- **Block range**: 30000000 - 30000020
+- **Rust API**: http://localhost:8080/v1
+- **Sidecar API**: http://localhost:8045
+
+### Command
+
+```bash
+target/debug/polkadot-rest-checker --chain kusama --endpoint account-foreign-asset-balance --start 30000000 --end 30000020 --memory --report
+```
+
+## Git Commits
+
+- **Rust API**: `62111d6c` (main) chore: 2026 headers (#205)
+- **Sidecar**: `3092ae4` (master) chore(deps): bump tar from 7.5.6 to 7.5.7 in /docs-v2 (#1884)
+
+## Memory Consumption
+
+Monitoring duration: 2.3s (3 samples)
+
+| Server | PID | Baseline | Peak | Average | Final | Growth |
+|--------|-----|----------|------|---------|-------|--------|
+| Rust API | 14388 | 18.5 MB | 34.4 MB | 28.3 MB | 34.4 MB | +15.8 MB (+85.3%) |
+| Sidecar | 9182 | 129.0 MB | 129.5 MB | 129.1 MB | 129.5 MB | +0.5 MB (+0.4%) |
+
+---
+
+
+---
+
+## 2026-02-16 08:35:42 — asset-hub-kusama `block-extrinsics-raw`
+
+- **Chain**: asset-hub-kusama
+- **Endpoint**: `block-extrinsics-raw`
+- **Path**: `/blocks/{blockId}/extrinsics-raw`
+- **Block range**: 12000000 - 12009000
+- **Rust API**: http://localhost:8080/v1
+- **Sidecar API**: http://localhost:8045
+
+### Command
+
+```bash
+target/debug/polkadot-rest-checker --chain asset-hub-kusama --endpoint block-extrinsics-raw --start 12000000 --end 12009000 --memory --report
+```
+
+## Git Commits
+
+- **Rust API**: `62111d6c` (main) chore: 2026 headers (#205)
+- **Sidecar**: `3092ae4` (master) chore(deps): bump tar from 7.5.6 to 7.5.7 in /docs-v2 (#1884)
+
+## Memory Consumption
+
+Monitoring duration: 206.4s (207 samples)
+
+| Server | PID | Baseline | Peak | Average | Final | Growth |
+|--------|-----|----------|------|---------|-------|--------|
+| Rust API | 17634 | 38.3 MB | 254.4 MB | 233.1 MB | 253.2 MB | +214.9 MB (+560.7%) |
+| Sidecar | 17731 | 160.9 MB | 880.5 MB | 608.6 MB | 880.5 MB | +719.7 MB (+447.4%) |
+
+---
+
+## 2026-02-16 08:47:42 — asset-hub-kusama `account-staking-payouts`
+
+### Command
+
+```bash
+target/debug/polkadot-rest-checker --chain asset-hub-kusama --endpoint account-staking-payouts --start 12000000 --end 12009000 --memory --report
+```
+
+### substrate-api-sidecar TIMED OUT - JS HEAP OUT OF MEMORY
+```bash
+<--- Last few GCs --->
+
+[17731:0x158008000]  1217643 ms: Mark-Compact 4007.1 (4137.5) -> 3994.6 (4141.2) MB, 625.25 / 0.00 ms  (average mu = 0.524, current mu = 0.044) allocation failure; scavenge might not succeed
+[17731:0x158008000]  1218841 ms: Mark-Compact 4011.2 (4141.8) -> 3998.1 (4144.7) MB, 1172.62 / 0.00 ms  (average mu = 0.277, current mu = 0.021) allocation failure; scavenge might not succeed
+
+
+<--- JS stacktrace --->
+
+FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory
+```
+
+---
+
+## 2026-02-16 08:58:26 — asset-hub-kusama `account-staking-payouts`
+
+- **Chain**: asset-hub-kusama
+- **Endpoint**: `account-staking-payouts`
+- **Path**: `/accounts/{accountId}/staking-payouts`
+- **Block range**: 12000000 - 12000500
+- **Rust API**: http://localhost:8080/v1
+- **Sidecar API**: http://localhost:8045
+
+### Command
+
+```bash
+target/debug/polkadot-rest-checker --chain asset-hub-kusama --endpoint account-staking-payouts --start 12000000 --end 12000500 --memory --report
+```
+
+## Git Commits
+
+- **Rust API**: `62111d6c` (main) chore: 2026 headers (#205)
+- **Sidecar**: `3092ae4` (master) chore(deps): bump tar from 7.5.6 to 7.5.7 in /docs-v2 (#1884)
+
+## Memory Consumption
+
+Monitoring duration: 506.1s (507 samples)
+
+| Server | PID | Baseline | Peak | Average | Final | Growth |
+|--------|-----|----------|------|---------|-------|--------|
+| Rust API | 17634 | 87.3 MB | 445.8 MB | 306.0 MB | 445.8 MB | +358.5 MB (+410.4%) |
+| Sidecar | 43676 | 152.1 MB | 1412.3 MB | 1241.5 MB | 1064.1 MB | +912.0 MB (+599.4%) |
+
+### Substrate Disconnected from RPC endpoint---
+
+## 2026-02-16 09:12:41 — asset-hub-kusama `account-staking-payouts`
+
+- **Chain**: asset-hub-kusama
+- **Endpoint**: `account-staking-payouts`
+- **Path**: `/accounts/{accountId}/staking-payouts`
+- **Block range**: 11700000 - 11700300
+- **Rust API**: http://localhost:8080/v1
+- **Sidecar API**: http://localhost:8045
+
+### Command
+
+```bash
+target/debug/polkadot-rest-checker --chain asset-hub-kusama --endpoint account-staking-payouts --start 11700000 --end 11700300 --memory --report
+```
+
+## Git Commits
+
+- **Rust API**: `62111d6c` (main) chore: 2026 headers (#205)
+- **Sidecar**: `3092ae4` (master) chore(deps): bump tar from 7.5.6 to 7.5.7 in /docs-v2 (#1884)
+
+## Memory Consumption
+
+Monitoring duration: 264.3s (265 samples)
+
+| Server | PID | Baseline | Peak | Average | Final | Growth |
+|--------|-----|----------|------|---------|-------|--------|
+| Rust API | 74095 | 31.9 MB | 454.3 MB | 219.6 MB | 454.3 MB | +422.5 MB (+1326.1%) |
+| Sidecar | 71706 | 180.8 MB | 4472.3 MB | 3028.8 MB | 4472.2 MB | +4291.5 MB (+2374.3%) |
+
+### substrate-api-sidecar TIMED OUT - JS HEAP OUT OF MEMORY
+```bash
+<--- Last few GCs --->
+
+[71706:0x130008000]   344152 ms: Mark-Compact 3948.1 (4135.4) -> 3934.9 (4135.9) MB, 1088.88 / 0.00 ms  (average mu = 0.067, current mu = 0.016) allocation failure; scavenge might not succeed
+[71706:0x130008000]   345171 ms: Mark-Compact 3951.1 (4136.1) -> 3937.3 (4136.4) MB, 996.92 / 0.00 ms  (average mu = 0.042, current mu = 0.021) allocation failure; scavenge might not succeed
+
+
+<--- JS stacktrace --->
+
+FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory
+ 1: 0x10107214c node::Abort() [/Users/dominique/.nvm/versions/node/v20.2.0/bin/node]
+```
+
+---
+
+## 2026-02-16 09:16:37 — asset-hub-kusama `account-staking-info`
+
+- **Chain**: asset-hub-kusama
+- **Endpoint**: `account-staking-info`
+- **Path**: `/accounts/{accountId}/staking-info`
+- **Block range**: 11905000 - 11905300
+- **Rust API**: http://localhost:8080/v1
+- **Sidecar API**: http://localhost:8045
+
+### Command
+
+```bash
+target/debug/polkadot-rest-checker --chain asset-hub-kusama --endpoint account-staking-info --start 11905000 --end 11905300 --memory --report
+```
+
+## Git Commits
+
+- **Rust API**: `62111d6c` (main) chore: 2026 headers (#205)
+- **Sidecar**: `3092ae4` (master) chore(deps): bump tar from 7.5.6 to 7.5.7 in /docs-v2 (#1884)
+
+## Memory Consumption
+
+Monitoring duration: 139.3s (140 samples)
+
+| Server | PID | Baseline | Peak | Average | Final | Growth |
+|--------|-----|----------|------|---------|-------|--------|
+| Rust API | 74095 | 454.5 MB | 456.2 MB | 440.0 MB | 195.8 MB | -258.7 MB (-56.9%) |
+| Sidecar | 87967 | 151.0 MB | 2691.9 MB | 1880.1 MB | 2651.3 MB | +2500.3 MB (+1656.0%) |
+
+---
+
+## 2026-02-16 09:20:36 — asset-hub-kusama `account-staking-info`
+
+- **Chain**: asset-hub-kusama
+- **Endpoint**: `account-staking-info`
+- **Path**: `/accounts/{accountId}/staking-info`
+- **Block range**: 12005000 - 12005300
+- **Rust API**: http://localhost:8080/v1
+- **Sidecar API**: http://localhost:8045
+
+### Command
+
+```bash
+target/debug/polkadot-rest-checker --chain asset-hub-kusama --endpoint account-staking-info --start 12005000 --end 12005300 --memory --report
+```
+
+## Git Commits
+
+- **Rust API**: `62111d6c` (main) chore: 2026 headers (#205)
+- **Sidecar**: `3092ae4` (master) chore(deps): bump tar from 7.5.6 to 7.5.7 in /docs-v2 (#1884)
+
+## Memory Consumption
+
+Monitoring duration: 134.7s (135 samples)
+
+| Server | PID | Baseline | Peak | Average | Final | Growth |
+|--------|-----|----------|------|---------|-------|--------|
+| Rust API | 74095 | 195.8 MB | 195.8 MB | 189.8 MB | 189.8 MB | -6.0 MB (-3.1%) |
+| Sidecar | 87967 | 1579.8 MB | 3231.5 MB | 2429.0 MB | 2726.2 MB | +1146.4 MB (+72.6%) |
+
+---
+
+## 2026-02-16 10:05:34 — polkadot `account-staking-payouts`
+
+- **Chain**: polkadot
+- **Endpoint**: `account-staking-payouts`
+- **Path**: `/accounts/{accountId}/staking-payouts`
+- **Block range**: 23700000 - 23700200
+- **Rust API**: http://localhost:8080/v1
+- **Sidecar API**: http://localhost:8045
+
+### Command
+
+```bash
+target/debug/polkadot-rest-checker --chain polkadot --endpoint account-staking-payouts --start 23700000 --end 23700200 --memory --report
+```
+
+## Git Commits
+
+- **Rust API**: `62111d6c` (main) chore: 2026 headers (#205)
+- **Sidecar**: `3092ae4` (master) chore(deps): bump tar from 7.5.6 to 7.5.7 in /docs-v2 (#1884)
+
+## Memory Consumption
+
+Monitoring duration: 140.5s (141 samples)
+
+| Server | PID | Baseline | Peak | Average | Final | Growth |
+|--------|-----|----------|------|---------|-------|--------|
+| Rust API | 7809 | 1204.6 MB | 1207.4 MB | 1206.3 MB | 1207.4 MB | +2.7 MB (+0.2%) |
+| Sidecar | 96853 | 121.2 MB | 1005.0 MB | 727.5 MB | 614.1 MB | +492.8 MB (+406.5%) |
+
+---
+
+## 2026-02-16 10:14:26 — polkadot `account-staking-info`
+
+- **Chain**: polkadot
+- **Endpoint**: `account-staking-info`
+- **Path**: `/accounts/{accountId}/staking-info`
+- **Block range**: 24700000 - 24700130
+- **Rust API**: http://localhost:8080/v1
+- **Sidecar API**: http://localhost:8045
+
+### Command
+
+```bash
+target/debug/polkadot-rest-checker --chain polkadot --endpoint account-staking-info --start 24700000 --end 24700130 --memory --report
+```
+
+## Git Commits
+
+- **Rust API**: `62111d6c` (main) chore: 2026 headers (#205)
+- **Sidecar**: `3092ae4` (master) chore(deps): bump tar from 7.5.6 to 7.5.7 in /docs-v2 (#1884)
+
+## Memory Consumption
+
+Monitoring duration: 6.9s (7 samples)
+
+| Server | PID | Baseline | Peak | Average | Final | Growth |
+|--------|-----|----------|------|---------|-------|--------|
+| Rust API | 7809 | 1186.5 MB | 1187.3 MB | 1187.2 MB | 1187.3 MB | +0.8 MB (+0.1%) |
+| Sidecar | 16220 | 118.8 MB | 402.4 MB | 281.5 MB | 402.4 MB | +283.6 MB (+238.6%) |
+
+---
+
+## 2026-02-16 10:26:18 — polkadot `account-staking-info`
+
+- **Chain**: polkadot
+- **Endpoint**: `account-staking-info`
+- **Path**: `/accounts/{accountId}/staking-info`
+- **Block range**: 24700000 - 24700130
+- **Rust API**: http://localhost:8080/v1
+- **Sidecar API**: http://localhost:8045
+
+### Command
+
+```bash
+target/debug/polkadot-rest-checker --chain polkadot --endpoint account-staking-info --start 24700000 --end 24700130 --memory --report
+```
+
+## Git Commits
+
+- **Rust API**: `62111d6c` (main) chore: 2026 headers (#205)
+- **Sidecar**: `3092ae4` (master) chore(deps): bump tar from 7.5.6 to 7.5.7 in /docs-v2 (#1884)
+
+## Memory Consumption
+
+Monitoring duration: 46.5s (47 samples)
+
+| Server | PID | Baseline | Peak | Average | Final | Growth |
+|--------|-----|----------|------|---------|-------|--------|
+| Rust API | 24408 | 18.0 MB | 185.5 MB | 176.6 MB | 185.5 MB | +167.6 MB (+933.4%) |
+| Sidecar | 24380 | 122.2 MB | 1280.0 MB | 723.6 MB | 1280.0 MB | +1157.8 MB (+947.0%) |
+
+---
+
+## 2026-02-16 10:37:25 — polkadot `account-staking-info`
+
+- **Chain**: polkadot
+- **Endpoint**: `account-staking-info`
+- **Path**: `/accounts/{accountId}/staking-info`
+- **Block range**: 23700000 - 23700230
+- **Rust API**: http://localhost:8080/v1
+- **Sidecar API**: http://localhost:8045
+
+### Command
+
+```bash
+target/debug/polkadot-rest-checker --chain polkadot --endpoint account-staking-info --start 23700000 --end 23700230 --memory --report
+```
+
+## Git Commits
+
+- **Rust API**: `62111d6c` (main) chore: 2026 headers (#205)
+- **Sidecar**: `3092ae4` (master) chore(deps): bump tar from 7.5.6 to 7.5.7 in /docs-v2 (#1884)
+
+## Memory Consumption
+
+Monitoring duration: 136.3s (137 samples)
+
+| Server | PID | Baseline | Peak | Average | Final | Growth |
+|--------|-----|----------|------|---------|-------|--------|
+| Rust API | 24408 | 185.6 MB | 185.8 MB | 185.8 MB | 185.8 MB | +0.3 MB (+0.1%) |
+| Sidecar | 24380 | 513.1 MB | 1763.1 MB | 1258.6 MB | 1562.3 MB | +1049.2 MB (+204.5%) |
+
+---
+
+## 2026-02-16 10:38:38 — polkadot `account-staking-payouts`
+
+- **Chain**: polkadot
+- **Endpoint**: `account-staking-payouts`
+- **Path**: `/accounts/{accountId}/staking-payouts`
+- **Block range**: 28700000 - 28700120
+- **Rust API**: http://localhost:8080/v1
+- **Sidecar API**: http://localhost:8045
+
+### Command
+
+```bash
+target/debug/polkadot-rest-checker --chain polkadot --endpoint account-staking-payouts --start 28700000 --end 28700120 --memory --report
+```
+
+## Git Commits
+
+- **Rust API**: `62111d6c` (main) chore: 2026 headers (#205)
+- **Sidecar**: `3092ae4` (master) chore(deps): bump tar from 7.5.6 to 7.5.7 in /docs-v2 (#1884)
+
+## Memory Consumption
+
+Monitoring duration: 9.3s (10 samples)
+
+| Server | PID | Baseline | Peak | Average | Final | Growth |
+|--------|-----|----------|------|---------|-------|--------|
+| Rust API | 24408 | 186.9 MB | 199.0 MB | 196.7 MB | 199.0 MB | +12.0 MB (+6.4%) |
+| Sidecar | 24380 | 963.1 MB | 977.4 MB | 953.4 MB | 900.0 MB | -63.1 MB (-6.5%) |
+
+---
+
+## 2026-02-16 10:41:21 — polkadot `account-staking-payouts`
+
+- **Chain**: polkadot
+- **Endpoint**: `account-staking-payouts`
+- **Path**: `/accounts/{accountId}/staking-payouts`
+- **Block range**: 22700000 - 22700120
+- **Rust API**: http://localhost:8080/v1
+- **Sidecar API**: http://localhost:8045
+
+### Command
+
+```bash
+target/debug/polkadot-rest-checker --chain polkadot --endpoint account-staking-payouts --start 22700000 --end 22700120 --memory --report
+```
+
+## Git Commits
+
+- **Rust API**: `62111d6c` (main) chore: 2026 headers (#205)
+- **Sidecar**: `3092ae4` (master) chore(deps): bump tar from 7.5.6 to 7.5.7 in /docs-v2 (#1884)
+
+## Memory Consumption
+
+Monitoring duration: 113.8s (114 samples)
+
+| Server | PID | Baseline | Peak | Average | Final | Growth |
+|--------|-----|----------|------|---------|-------|--------|
+| Rust API | 24408 | 199.0 MB | 1034.7 MB | 483.7 MB | 1034.7 MB | +835.8 MB (+420.1%) |
+| Sidecar | 24380 | 900.0 MB | 4285.9 MB | 2839.2 MB | 4285.9 MB | +3385.9 MB (+376.2%) |
+
