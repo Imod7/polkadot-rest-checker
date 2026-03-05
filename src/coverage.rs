@@ -535,7 +535,7 @@ impl CoverageData {
             "block-extrinsics-idx-rcblock",
             "rc-block-extrinsics-raw",
             "rc-block-extrinsics-idx",
-            "block-para-inclusions",
+            "blocks-para-inclusions",
             "staking-validators",
             "rc-staking-validators",
             "coretime-info",

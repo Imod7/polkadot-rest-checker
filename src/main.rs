@@ -9,6 +9,7 @@ mod diff;
 mod endpoints;
 mod http;
 mod memory;
+mod query_params;
 mod reporting;
 mod scanner;
 
@@ -84,6 +85,11 @@ struct Args {
     #[arg(long, default_value_t = 1000)]
     memory_interval: u64,
 
+    /// Query params to append (comma-separated, or "all" for all supported params)
+    /// Example: --query-params eventDocs,noFees,onlyIds
+    #[arg(long)]
+    query_params: Option<String>,
+
     /// Path to polkadot-rest-api git repo (for commit tracking)
     #[arg(long, default_value = "../polkadot-rest-api")]
     rust_repo_path: String,
@@ -126,6 +132,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
         e
     })?;
 
+    // Parse query params (if provided)
+    let query_params: Vec<query_params::QueryParam> = match &args.query_params {
+        Some(input) => query_params::parse_query_params(input, &endpoint_type).map_err(|e| {
+            eprintln!("Error: {}", e);
+            e
+        })?,
+        None => Vec::new(),
+    };
+
     let rust_url = &args.url;
     let sidecar_url = &args.sidecar_url;
     let start_block = args.start;
@@ -139,8 +154,18 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("Starting Polkadot REST API checker...");
     println!("Chain: {}", chain);
     println!("Endpoint: {}", endpoint_type);
+    if !query_params.is_empty() {
+        let param_names: Vec<String> = query_params.iter().map(|p| p.to_string()).collect();
+        println!("Query params: {}", param_names.join(", "));
+    }
     println!("Rust API URL: {}", rust_url);
     println!("Sidecar API URL: {}", sidecar_url);
+    // Show the path pattern with query params for easy reference
+    let example_path = query_params::append_query_params(
+        endpoint_type.path_pattern().to_string(),
+        &query_params,
+    );
+    println!("Example URL: {}{}", rust_url, example_path);
     if let Some(ref git) = rust_git {
         println!("Rust API commit: {}", git.summary());
     }
@@ -169,6 +194,34 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
+    // Print the first URL that will be queried to use for easy manual checks
+    {
+        // Substitute the start block into path_pattern; keep placeholders for account/pallet
+        // since those depend on chain config and are printed per-iteration.
+        let first_path = endpoint_type
+            .path_pattern()
+            .replace("{blockId}", &start_block.to_string())
+            .replace("{index}", "0");
+        // Add ?at=start_block for endpoints that use query-style block
+        let first_path = if first_path.contains("{") {
+            // Still has placeholders (account, pallet) — leave as-is
+            first_path
+        } else if endpoint_type.requires_block()
+            && !first_path.contains(&start_block.to_string())
+        {
+            // Block goes as ?at= query param (e.g. coretime, pallet, account endpoints)
+            if first_path.contains('?') {
+                format!("{}&at={}", first_path, start_block)
+            } else {
+                format!("{}?at={}", first_path, start_block)
+            }
+        } else {
+            first_path
+        };
+        let first_url = query_params::append_query_params(first_path, &query_params);
+        println!("First URL: {}{}", rust_url, first_url);
+    }
+
     // Start memory monitoring if --memory flag is set
     let memory_monitor = if args.memory {
         println!(
@@ -183,8 +236,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // Get total pallets for this chain (for coverage tracking)
     let total_pallets = chain.pallets().len();
 
+    // Snapshot coverage totals before scan (to compute delta for query params report)
+    let pre_scan_totals = {
+        let chain_cov = coverage.get_chain(&chain.to_string(), total_pallets);
+        let ep_cov = chain_cov.get_endpoint(&endpoint_type.to_string(), false);
+        (ep_cov.matched, ep_cov.mismatched, ep_cov.rust_errors, ep_cov.sidecar_errors, ep_cov.both_errors)
+    };
+
     // Route to appropriate scanning function based on endpoint type
-    if endpoint_type.requires_account() {
+    let scan_issues: Vec<(u64, String)> = if endpoint_type.requires_account() {
         scan_account_endpoint(
             &client,
             &chain,
@@ -195,12 +255,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
             end_block,
             batch_size,
             delay_between_batches,
+            &query_params,
             &mut coverage,
             total_pallets,
             args.logs,
             args.report,
         )
-        .await?;
+        .await?
     } else if endpoint_type.requires_pallet() {
         scan_pallet_endpoint(
             &client,
@@ -213,12 +274,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
             batch_size,
             delay_between_batches,
             args.pallet.as_deref(),
+            &query_params,
             &mut coverage,
             total_pallets,
             args.logs,
             args.report,
         )
-        .await?;
+        .await?
     } else if endpoint_type.requires_block() {
         scan_block_endpoint(
             &client,
@@ -231,15 +293,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
             batch_size,
             delay_between_batches,
             args.pallet.as_deref(),
+            &query_params,
             &mut coverage,
             total_pallets,
             args.logs,
             args.report,
         )
-        .await?;
+        .await?
     } else if endpoint_type.is_range_endpoint() {
         // Range endpoints send a single request with ?range=start-end
-        let range_path = endpoint_type.range_path(start_block, end_block);
+        let range_path = endpoint_type.range_path_with_params(start_block, end_block, &query_params);
         let rust_api_url = format!("{}{}", rust_url, range_path);
         let sidecar_api_url = format!("{}{}", sidecar_url, range_path);
 
@@ -258,6 +321,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         let chain_coverage = coverage.get_chain(&chain.to_string(), total_pallets);
         let endpoint_coverage = chain_coverage.get_endpoint(&endpoint_type.to_string(), false);
 
+        let mut range_issues: Vec<(u64, String)> = Vec::new();
         match result {
             http::TestResult::Match => {
                 println!("\n  Result: MATCH - Both APIs returned identical responses");
@@ -272,22 +336,30 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     println!("    ... and {} more", diffs.len() - 5);
                 }
                 endpoint_coverage.add_runtime_run(false, None);
+                let diff_summary = diffs.iter().take(10).map(|d| d.to_string()).collect::<Vec<_>>().join("; ");
+                range_issues.push((0, format!("MISMATCH ({} diffs): {}", diffs.len(), diff_summary)));
             }
             http::TestResult::RustError(e) => {
                 println!("\n  Rust API error: {}", e);
                 endpoint_coverage.add_runtime_run(false, Some("rust_error"));
+                range_issues.push((0, format!("RUST API ERROR: {}", e)));
             }
             http::TestResult::SidecarError(e) => {
                 println!("\n  Sidecar error: {}", e);
                 endpoint_coverage.add_runtime_run(false, Some("sidecar_error"));
+                range_issues.push((0, format!("SIDECAR ERROR: {}", e)));
             }
             http::TestResult::BothError { rust_error, sidecar_error } => {
                 println!("\n  Both APIs errored:");
                 println!("    Rust: {}", rust_error);
                 println!("    Sidecar: {}", sidecar_error);
                 endpoint_coverage.add_runtime_run(false, Some("both_error"));
+                if rust_error != sidecar_error {
+                    range_issues.push((0, format!("BOTH ERRORS (diff codes) - Rust: {}, Sidecar: {}", rust_error, sidecar_error)));
+                }
             }
         }
+        range_issues
     } else {
         scan_runtime_endpoint(
             &client,
@@ -295,11 +367,60 @@ async fn main() -> Result<(), Box<dyn Error>> {
             &endpoint_type,
             rust_url,
             sidecar_url,
+            &query_params,
             &mut coverage,
             total_pallets,
             args.logs,
         )
-        .await?;
+        .await?
+    };
+
+    // Write query params coverage if --query-params was used
+    if !query_params.is_empty() {
+        // Compute delta from this run only (coverage is cumulative)
+        let (qp_matched, qp_mismatched, qp_rust_errors, qp_sidecar_errors, qp_both_errors) = {
+            let chain_cov = coverage.get_chain(&chain.to_string(), total_pallets);
+            let ep_cov = chain_cov.get_endpoint(&endpoint_type.to_string(), false);
+            (
+                ep_cov.matched - pre_scan_totals.0,
+                ep_cov.mismatched - pre_scan_totals.1,
+                ep_cov.rust_errors - pre_scan_totals.2,
+                ep_cov.sidecar_errors - pre_scan_totals.3,
+                ep_cov.both_errors - pre_scan_totals.4,
+            )
+        };
+
+        let qp_json_path = std::path::Path::new("reports/query_params_coverage.json");
+        let mut qp_coverage = query_params::QpCoverageData::load(qp_json_path)
+            .unwrap_or_else(|_| query_params::QpCoverageData::new());
+
+        let has_blocks = endpoint_type.requires_block() || endpoint_type.is_range_endpoint();
+        qp_coverage.add_run(&query_params::QpRunInfo {
+            chain: &chain.to_string(),
+            endpoint_name: &endpoint_type.to_string(),
+            query_params: &query_params,
+            start_block: if has_blocks { Some(start_block) } else { None },
+            end_block: if has_blocks { Some(end_block) } else { None },
+            matched: qp_matched,
+            mismatched: qp_mismatched,
+            rust_errors: qp_rust_errors,
+            sidecar_errors: qp_sidecar_errors,
+            both_errors: qp_both_errors,
+            issues: scan_issues,
+        });
+
+        if let Err(e) = qp_coverage.save(qp_json_path) {
+            eprintln!("Failed to save query params coverage: {}", e);
+        } else {
+            println!("Query params coverage saved to: {}", qp_json_path.display());
+        }
+
+        let reports_dir = std::path::Path::new("reports");
+        if let Err(e) = qp_coverage.save_markdown_reports(reports_dir) {
+            eprintln!("Failed to save query params reports: {}", e);
+        } else {
+            println!("Query params reports saved to: reports/QUERY_PARAMS_SUMMARY.md + QUERY_PARAMS_DETAILS.md");
+        }
     }
 
     // Stop memory monitoring and print report

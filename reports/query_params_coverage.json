@@ -1,0 +1,277 @@
+{
+  "version": "1.0",
+  "chains": {
+    "asset-hub-polkadot": {
+      "chain": "asset-hub-polkadot",
+      "endpoints": {
+        "blocks-para-inclusions": {
+          "paraId=2000": {
+            "query_params": "paraId=2000",
+            "block_ranges": [
+              [
+                10700000,
+                10700010
+              ]
+            ],
+            "matched": 11,
+            "mismatched": 0,
+            "rust_errors": 0,
+            "sidecar_errors": 0,
+            "both_errors": 11,
+            "last_tested": "2026-03-05T17:05:01.966599+00:00",
+            "issues": [
+              [
+                10700000,
+                "BOTH ERRORS [http://localhost:8080/v1/blocks/10700000/para-inclusions?paraId=2000] (different codes) - Rust: HTTP 400 Bad Request, Sidecar: HTTP 404 Not Found"
+              ],
+              [
+                10700001,
+                "BOTH ERRORS [http://localhost:8080/v1/blocks/10700001/para-inclusions?paraId=2000] (different codes) - Rust: HTTP 400 Bad Request, Sidecar: HTTP 404 Not Found"
+              ],
+              [
+                10700002,
+                "BOTH ERRORS [http://localhost:8080/v1/blocks/10700002/para-inclusions?paraId=2000] (different codes) - Rust: HTTP 400 Bad Request, Sidecar: HTTP 404 Not Found"
+              ],
+              [
+                10700003,
+                "BOTH ERRORS [http://localhost:8080/v1/blocks/10700003/para-inclusions?paraId=2000] (different codes) - Rust: HTTP 400 Bad Request, Sidecar: HTTP 404 Not Found"
+              ],
+              [
+                10700004,
+                "BOTH ERRORS [http://localhost:8080/v1/blocks/10700004/para-inclusions?paraId=2000] (different codes) - Rust: HTTP 400 Bad Request, Sidecar: HTTP 404 Not Found"
+              ],
+              [
+                10700005,
+                "BOTH ERRORS [http://localhost:8080/v1/blocks/10700005/para-inclusions?paraId=2000] (different codes) - Rust: HTTP 400 Bad Request, Sidecar: HTTP 404 Not Found"
+              ],
+              [
+                10700006,
+                "BOTH ERRORS [http://localhost:8080/v1/blocks/10700006/para-inclusions?paraId=2000] (different codes) - Rust: HTTP 400 Bad Request, Sidecar: HTTP 404 Not Found"
+              ],
+              [
+                10700007,
+                "BOTH ERRORS [http://localhost:8080/v1/blocks/10700007/para-inclusions?paraId=2000] (different codes) - Rust: HTTP 400 Bad Request, Sidecar: HTTP 404 Not Found"
+              ],
+              [
+                10700008,
+                "BOTH ERRORS [http://localhost:8080/v1/blocks/10700008/para-inclusions?paraId=2000] (different codes) - Rust: HTTP 400 Bad Request, Sidecar: HTTP 404 Not Found"
+              ],
+              [
+                10700009,
+                "BOTH ERRORS [http://localhost:8080/v1/blocks/10700009/para-inclusions?paraId=2000] (different codes) - Rust: HTTP 400 Bad Request, Sidecar: HTTP 404 Not Found"
+              ],
+              [
+                10700010,
+                "BOTH ERRORS [http://localhost:8080/v1/blocks/10700010/para-inclusions?paraId=2000] (different codes) - Rust: HTTP 400 Bad Request, Sidecar: HTTP 404 Not Found"
+              ]
+            ]
+          }
+        },
+        "blocks-header": {
+          "useRcBlock": {
+            "query_params": "useRcBlock",
+            "block_ranges": [
+              [
+                11000000,
+                11000010
+              ],
+              [
+                25000000,
+                25000010
+              ]
+            ],
+            "matched": 33,
+            "mismatched": 0,
+            "rust_errors": 0,
+            "sidecar_errors": 0,
+            "both_errors": 0,
+            "last_tested": "2026-03-05T17:01:30.845902+00:00",
+            "issues": []
+          }
+        },
+        "blocks-head": {
+          "decodedXcmMsgs, eventDocs, extrinsicDocs, finalized, noFees, paraId=1000, useEvmFormat, useRcBlock": {
+            "query_params": "decodedXcmMsgs, eventDocs, extrinsicDocs, finalized, noFees, paraId=1000, useEvmFormat, useRcBlock",
+            "block_ranges": [],
+            "matched": 0,
+            "mismatched": 0,
+            "rust_errors": 3,
+            "sidecar_errors": 0,
+            "both_errors": 0,
+            "last_tested": "2026-03-05T17:00:13.382528+00:00",
+            "issues": [
+              [
+                0,
+                "SIDECAR ERROR: HTTP 500 Internal Server Error"
+              ],
+              [
+                0,
+                "SIDECAR ERROR: HTTP 500 Internal Server Error"
+              ]
+            ]
+          }
+        },
+        "block-extrinsics-idx": {
+          "eventDocs, extrinsicDocs, noFees, useEvmFormat, useRcBlock": {
+            "query_params": "eventDocs, extrinsicDocs, noFees, useEvmFormat, useRcBlock",
+            "block_ranges": [
+              [
+                10500000,
+                10500010
+              ],
+              [
+                11500000,
+                11500010
+              ],
+              [
+                18500000,
+                18500010
+              ],
+              [
+                22500000,
+                22500010
+              ]
+            ],
+            "matched": 44,
+            "mismatched": 10,
+            "rust_errors": 22,
+            "sidecar_errors": 0,
+            "both_errors": 0,
+            "last_tested": "2026-03-05T16:50:43.235542+00:00",
+            "issues": [
+              [
+                115000010000,
+                "MISMATCH [http://localhost:8080/v1/blocks/11500001/extrinsics/0?eventDocs=true&extrinsicDocs=true&noFees=true&useEvmFormat=true&useRcBlock=true] - 1 difference: [0].extrinsics.args.data.horizontalMessages: type mismatch (rust=array vs sidecar=object)"
+              ],
+              [
+                115000030000,
+                "MISMATCH [http://localhost:8080/v1/blocks/11500003/extrinsics/0?eventDocs=true&extrinsicDocs=true&noFees=true&useEvmFormat=true&useRcBlock=true] - 1 difference: [0].extrinsics.args.data.horizontalMessages: type mismatch (rust=array vs sidecar=object)"
+              ],
+              [
+                115000050000,
+                "MISMATCH [http://localhost:8080/v1/blocks/11500005/extrinsics/0?eventDocs=true&extrinsicDocs=true&noFees=true&useEvmFormat=true&useRcBlock=true] - 1 difference: [0].extrinsics.args.data.horizontalMessages: type mismatch (rust=array vs sidecar=object)"
+              ],
+              [
+                115000070000,
+                "MISMATCH [http://localhost:8080/v1/blocks/11500007/extrinsics/0?eventDocs=true&extrinsicDocs=true&noFees=true&useEvmFormat=true&useRcBlock=true] - 1 difference: [0].extrinsics.args.data.horizontalMessages: type mismatch (rust=array vs sidecar=object)"
+              ],
+              [
+                115000090000,
+                "MISMATCH [http://localhost:8080/v1/blocks/11500009/extrinsics/0?eventDocs=true&extrinsicDocs=true&noFees=true&useEvmFormat=true&useRcBlock=true] - 1 difference: [0].extrinsics.args.data.horizontalMessages: type mismatch (rust=array vs sidecar=object)"
+              ],
+              [
+                22500000,
+                "Failed to fetch extrinsics: HTTP 500 Internal Server Error"
+              ],
+              [
+                22500001,
+                "Failed to fetch extrinsics: HTTP 500 Internal Server Error"
+              ],
+              [
+                22500002,
+                "Failed to fetch extrinsics: HTTP 500 Internal Server Error"
+              ],
+              [
+                22500003,
+                "Failed to fetch extrinsics: HTTP 500 Internal Server Error"
+              ],
+              [
+                22500004,
+                "Failed to fetch extrinsics: HTTP 500 Internal Server Error"
+              ],
+              [
+                22500005,
+                "Failed to fetch extrinsics: HTTP 500 Internal Server Error"
+              ],
+              [
+                22500006,
+                "Failed to fetch extrinsics: HTTP 500 Internal Server Error"
+              ],
+              [
+                22500007,
+                "Failed to fetch extrinsics: HTTP 500 Internal Server Error"
+              ],
+              [
+                22500008,
+                "Failed to fetch extrinsics: HTTP 500 Internal Server Error"
+              ],
+              [
+                22500009,
+                "Failed to fetch extrinsics: HTTP 500 Internal Server Error"
+              ],
+              [
+                22500010,
+                "Failed to fetch extrinsics: HTTP 500 Internal Server Error"
+              ],
+              [
+                18500000,
+                "Failed to fetch extrinsics: HTTP 500 Internal Server Error"
+              ],
+              [
+                18500001,
+                "Failed to fetch extrinsics: HTTP 500 Internal Server Error"
+              ],
+              [
+                18500002,
+                "Failed to fetch extrinsics: HTTP 500 Internal Server Error"
+              ],
+              [
+                18500003,
+                "Failed to fetch extrinsics: HTTP 500 Internal Server Error"
+              ],
+              [
+                18500004,
+                "Failed to fetch extrinsics: HTTP 500 Internal Server Error"
+              ],
+              [
+                18500005,
+                "Failed to fetch extrinsics: HTTP 500 Internal Server Error"
+              ],
+              [
+                18500006,
+                "Failed to fetch extrinsics: HTTP 500 Internal Server Error"
+              ],
+              [
+                18500007,
+                "Failed to fetch extrinsics: HTTP 500 Internal Server Error"
+              ],
+              [
+                18500008,
+                "Failed to fetch extrinsics: HTTP 500 Internal Server Error"
+              ],
+              [
+                18500009,
+                "Failed to fetch extrinsics: HTTP 500 Internal Server Error"
+              ],
+              [
+                18500010,
+                "Failed to fetch extrinsics: HTTP 500 Internal Server Error"
+              ],
+              [
+                105000010000,
+                "MISMATCH [http://localhost:8080/v1/blocks/10500001/extrinsics/0?eventDocs=true&extrinsicDocs=true&noFees=true&useEvmFormat=true&useRcBlock=true] - 1 difference: [0].extrinsics.args.data.horizontalMessages: type mismatch (rust=array vs sidecar=object)"
+              ],
+              [
+                105000030000,
+                "MISMATCH [http://localhost:8080/v1/blocks/10500003/extrinsics/0?eventDocs=true&extrinsicDocs=true&noFees=true&useEvmFormat=true&useRcBlock=true] - 1 difference: [0].extrinsics.args.data.horizontalMessages: type mismatch (rust=array vs sidecar=object)"
+              ],
+              [
+                105000050000,
+                "MISMATCH [http://localhost:8080/v1/blocks/10500005/extrinsics/0?eventDocs=true&extrinsicDocs=true&noFees=true&useEvmFormat=true&useRcBlock=true] - 1 difference: [0].extrinsics.args.data.horizontalMessages: type mismatch (rust=array vs sidecar=object)"
+              ],
+              [
+                105000070000,
+                "MISMATCH [http://localhost:8080/v1/blocks/10500007/extrinsics/0?eventDocs=true&extrinsicDocs=true&noFees=true&useEvmFormat=true&useRcBlock=true] - 1 difference: [0].extrinsics.args.data.horizontalMessages: type mismatch (rust=array vs sidecar=object)"
+              ],
+              [
+                105000090000,
+                "MISMATCH [http://localhost:8080/v1/blocks/10500009/extrinsics/0?eventDocs=true&extrinsicDocs=true&noFees=true&useEvmFormat=true&useRcBlock=true] - 1 difference: [0].extrinsics.args.data.horizontalMessages: type mismatch (rust=array vs sidecar=object)"
+              ]
+            ]
+          }
+        }
+      },
+      "last_updated": "2026-03-05T17:05:01.966577+00:00"
+    }
+  }
+}

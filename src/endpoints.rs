@@ -2,6 +2,8 @@
 
 use std::fmt;
 
+use crate::query_params::{append_query_params, QueryParam};
+
 /// Category of endpoint for CLI selection
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum EndpointCategory {
@@ -131,23 +133,54 @@ impl EndpointType {
         }
     }
 
-    /// Build the URL path for this endpoint
-    pub fn path(&self, pallet: Option<&str>, block: Option<u32>) -> String {
-        self.path_with_account(pallet, block, None)
+    /// Build the URL path for this endpoint with query params
+    pub fn path_with_params(
+        &self,
+        pallet: Option<&str>,
+        block: Option<u32>,
+        query_params: &[QueryParam],
+    ) -> String {
+        self.path_with_all(pallet, block, None, None, query_params)
     }
 
-    /// Build the URL path for this endpoint with optional account address
-    pub fn path_with_account(
+    /// Build the URL path for this endpoint with optional account and query params
+    pub fn path_with_account_params(
         &self,
         pallet: Option<&str>,
         block: Option<u32>,
         account: Option<&str>,
+        query_params: &[QueryParam],
     ) -> String {
-        self.path_with_extrinsic(pallet, block, account, None)
+        self.path_with_all(pallet, block, account, None, query_params)
     }
 
-    /// Build the URL path for this endpoint with optional extrinsic index
-    pub fn path_with_extrinsic(
+    /// Build the URL path for this endpoint with optional extrinsic index and query params
+    pub fn path_with_extrinsic_params(
+        &self,
+        pallet: Option<&str>,
+        block: Option<u32>,
+        account: Option<&str>,
+        extrinsic_index: Option<u32>,
+        query_params: &[QueryParam],
+    ) -> String {
+        self.path_with_all(pallet, block, account, extrinsic_index, query_params)
+    }
+
+    /// Core path builder with all optional parameters
+    fn path_with_all(
+        &self,
+        pallet: Option<&str>,
+        block: Option<u32>,
+        account: Option<&str>,
+        extrinsic_index: Option<u32>,
+        query_params: &[QueryParam],
+    ) -> String {
+        let base = self.build_base_path(pallet, block, account, extrinsic_index);
+        append_query_params(base, query_params)
+    }
+
+    /// Build the base URL path (without extra query params)
+    fn build_base_path(
         &self,
         pallet: Option<&str>,
         block: Option<u32>,
@@ -456,12 +489,18 @@ impl EndpointType {
         }
     }
 
-    /// Build the URL path for range-based endpoints (e.g. /rc/blocks?range=start-end)
-    pub fn range_path(&self, start: u32, end: u32) -> String {
-        match self {
+    /// Build the URL path for range-based endpoints with query params
+    pub fn range_path_with_params(
+        &self,
+        start: u32,
+        end: u32,
+        query_params: &[QueryParam],
+    ) -> String {
+        let base = match self {
             EndpointType::RcBlocksRange => format!("/rc/blocks?range={}-{}", start, end),
             _ => panic!("range_path called on non-range endpoint: {:?}", self),
-        }
+        };
+        append_query_params(base, query_params)
     }
 
     /// Check if this endpoint uses a block range (start-end) instead of iterating
@@ -582,7 +621,7 @@ const ENDPOINT_NAMES: &[(fn() -> EndpointType, &str, &[&str])] = &[
     ),
     (
         || EndpointType::BlockParaInclusions,
-        "block-para-inclusions",
+        "blocks-para-inclusions",
         &["para-inclusions"],
     ),
     // Coretime

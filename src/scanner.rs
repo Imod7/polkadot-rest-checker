@@ -7,6 +7,7 @@ use crate::chains::Chain;
 use crate::coverage::CoverageData;
 use crate::endpoints::EndpointType;
 use crate::http::{fetch_json, test_block_compare, TestResult};
+use crate::query_params::QueryParam;
 use crate::reporting::{
     print_account_summary, print_block_summary, print_pallet_summary,
     write_account_mismatch_report, write_block_mismatch_report, write_pallet_mismatch_report,
@@ -66,11 +67,12 @@ pub async fn scan_pallet_endpoint(
     batch_size: u32,
     delay_between_batches: Duration,
     pallet_filter: Option<&str>,
+    query_params: &[QueryParam],
     coverage: &mut CoverageData,
     total_pallets: usize,
     create_logs: bool,
     create_report: bool,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<Vec<(u64, String)>, Box<dyn Error>> {
     // Get pallets for the selected chain
     let all_pallets = chain.pallets();
 
@@ -90,7 +92,7 @@ pub async fn scan_pallet_endpoint(
             "No pallets match the filter '{}'",
             pallet_filter.unwrap_or("")
         );
-        return Ok(());
+        return Ok(Vec::new());
     }
 
     println!("Pallets to scan: {}", pallets.len());
@@ -155,8 +157,8 @@ pub async fn scan_pallet_endpoint(
             let mut tasks = Vec::new();
             for block_num in blocks {
                 let client_clone = client.clone();
-                let rust_path = endpoint_type.path(Some(pallet.name), Some(block_num));
-                let sidecar_path = endpoint_type.path(Some(pallet.name), Some(block_num));
+                let rust_path = endpoint_type.path_with_params(Some(pallet.name), Some(block_num), query_params);
+                let sidecar_path = endpoint_type.path_with_params(Some(pallet.name), Some(block_num), query_params);
                 let rust_api_url = format!("{}{}", rust_url, rust_path);
                 let sidecar_api_url = format!("{}{}", sidecar_url, sidecar_path);
 
@@ -165,22 +167,25 @@ pub async fn scan_pallet_endpoint(
                     block_num, rust_api_url, sidecar_api_url
                 );
 
+                let rust_url_clone = rust_api_url.clone();
                 tasks.push(tokio::spawn(async move {
-                    test_block_compare(
+                    let (id, result) = test_block_compare(
                         client_clone,
                         rust_api_url,
                         sidecar_api_url,
                         block_num as u64,
                     )
-                    .await
+                    .await;
+                    (id, rust_url_clone, result)
                 }));
             }
 
             for task in tasks {
-                let (block_id, result) = task.await?;
+                let (block_id, url, result) = task.await?;
                 log_result_inline(&format!("Block {}", block_id), &result);
                 process_result(
                     block_id,
+                    &url,
                     result,
                     &mut matched,
                     &mut mismatched,
@@ -267,7 +272,13 @@ pub async fn scan_pallet_endpoint(
         );
     }
 
-    Ok(())
+    // Aggregate all issues from all pallets
+    let all_issues: Vec<(u64, String)> = pallet_results
+        .into_iter()
+        .flat_map(|pr| pr.issues.into_iter())
+        .collect();
+
+    Ok(all_issues)
 }
 
 /// Scan block-based endpoints (iterates over blocks only)
@@ -282,11 +293,12 @@ pub async fn scan_block_endpoint(
     batch_size: u32,
     delay_between_batches: Duration,
     pallet_filter: Option<&str>,
+    query_params: &[QueryParam],
     coverage: &mut CoverageData,
     total_pallets: usize,
     create_logs: bool,
     create_report: bool,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<Vec<(u64, String)>, Box<dyn Error>> {
     println!("\n{}", "=".repeat(60));
     println!("Scanning endpoint: {}", endpoint_type);
     println!("{}", "=".repeat(60));
@@ -406,17 +418,19 @@ pub async fn scan_block_endpoint(
                 // Create tasks for each extrinsic index
                 for ext_idx in 0..extrinsics_count {
                     let client_clone = client.clone();
-                    let rust_path = endpoint_type.path_with_extrinsic(
+                    let rust_path = endpoint_type.path_with_extrinsic_params(
                         pallet_filter,
                         Some(block_num),
                         None,
                         Some(ext_idx as u32),
+                        query_params,
                     );
-                    let sidecar_path = endpoint_type.path_with_extrinsic(
+                    let sidecar_path = endpoint_type.path_with_extrinsic_params(
                         pallet_filter,
                         Some(block_num),
                         None,
                         Some(ext_idx as u32),
+                        query_params,
                     );
                     let rust_api_url = format!("{}{}", rust_url, rust_path);
                     let sidecar_api_url = format!("{}{}", sidecar_url, sidecar_path);
@@ -425,14 +439,16 @@ pub async fn scan_block_endpoint(
                     // Use u64 to avoid overflow with large block numbers (e.g., 1,000,000 * 10000)
                     let composite_id = block_num as u64 * 10000 + ext_idx as u64;
 
+                    let rust_url_clone = rust_api_url.clone();
                     tasks.push(tokio::spawn(async move {
-                        test_block_compare(
+                        let (id, result) = test_block_compare(
                             client_clone,
                             rust_api_url,
                             sidecar_api_url,
                             composite_id,
                         )
-                        .await
+                        .await;
+                        (id, rust_url_clone, result)
                     }));
                 }
             }
@@ -440,25 +456,27 @@ pub async fn scan_block_endpoint(
             // Standard handling for other endpoints
             for block_num in blocks {
                 let client_clone = client.clone();
-                let rust_path = endpoint_type.path(pallet_filter, Some(block_num));
-                let sidecar_path = endpoint_type.path(pallet_filter, Some(block_num));
+                let rust_path = endpoint_type.path_with_params(pallet_filter, Some(block_num), query_params);
+                let sidecar_path = endpoint_type.path_with_params(pallet_filter, Some(block_num), query_params);
                 let rust_api_url = format!("{}{}", rust_url, rust_path);
                 let sidecar_api_url = format!("{}{}", sidecar_url, sidecar_path);
 
+                let rust_url_clone = rust_api_url.clone();
                 tasks.push(tokio::spawn(async move {
-                    test_block_compare(
+                    let (id, result) = test_block_compare(
                         client_clone,
                         rust_api_url,
                         sidecar_api_url,
                         block_num as u64,
                     )
-                    .await
+                    .await;
+                    (id, rust_url_clone, result)
                 }));
             }
         }
 
         for task in tasks {
-            let (id, result) = task.await?;
+            let (id, url, result) = task.await?;
             // For extrinsic endpoints, decode the composite ID for better logging
             let display_id = if is_extrinsic_idx_endpoint {
                 let block = id / 10000;
@@ -472,6 +490,7 @@ pub async fn scan_block_endpoint(
 
             process_result(
                 id,
+                &url,
                 result,
                 &mut matched,
                 &mut mismatched,
@@ -555,7 +574,7 @@ pub async fn scan_block_endpoint(
         );
     }
 
-    Ok(())
+    Ok(issues)
 }
 
 /// Scan runtime endpoints (single request, no iteration)
@@ -565,10 +584,11 @@ pub async fn scan_runtime_endpoint(
     endpoint_type: &EndpointType,
     rust_url: &str,
     sidecar_url: &str,
+    query_params: &[QueryParam],
     coverage: &mut CoverageData,
     total_pallets: usize,
     create_logs: bool,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<Vec<(u64, String)>, Box<dyn Error>> {
     // Create summary log file (only if --logs flag is set)
     let summary_filename = format!("summary_{}_{}.log", chain, endpoint_type);
     let mut summary_file: Option<File> = if create_logs {
@@ -591,8 +611,8 @@ pub async fn scan_runtime_endpoint(
     log_line!("Testing endpoint: {}", endpoint_type);
     log_line!("{}", "=".repeat(60));
 
-    let rust_path = endpoint_type.path(None, None);
-    let sidecar_path = endpoint_type.path(None, None);
+    let rust_path = endpoint_type.path_with_params(None, None, query_params);
+    let sidecar_path = endpoint_type.path_with_params(None, None, query_params);
     let rust_api_url = format!("{}{}", rust_url, rust_path);
     let sidecar_api_url = format!("{}{}", sidecar_url, sidecar_path);
 
@@ -610,6 +630,8 @@ pub async fn scan_runtime_endpoint(
     // Track coverage result
     let chain_coverage = coverage.get_chain(&chain.to_string(), total_pallets);
     let endpoint_coverage = chain_coverage.get_endpoint(&endpoint_type.to_string(), false);
+
+    let mut issues: Vec<(u64, String)> = Vec::new();
 
     match result {
         TestResult::Match => {
@@ -630,6 +652,9 @@ pub async fn scan_runtime_endpoint(
                 log_line!("    ... and {} more", diffs.len() - 5);
             }
             endpoint_coverage.add_runtime_run(false, None);
+
+            let diff_summary = diffs.iter().take(10).map(|d| d.to_string()).collect::<Vec<_>>().join("; ");
+            issues.push((0, format!("MISMATCH ({} diffs): {}", diffs.len(), diff_summary)));
 
             if create_logs {
                 let error_filename = format!("errors_{}_{}.log", chain, endpoint_type);
@@ -668,10 +693,12 @@ pub async fn scan_runtime_endpoint(
         TestResult::RustError(ref err) => {
             log_line!("\n  Result: RUST API ERROR - {}", err);
             endpoint_coverage.add_runtime_run(false, Some(err));
+            issues.push((0, format!("RUST API ERROR: {}", err)));
         }
         TestResult::SidecarError(ref err) => {
             log_line!("\n  Result: SIDECAR ERROR - {}", err);
             endpoint_coverage.add_runtime_run(false, Some(err));
+            issues.push((0, format!("SIDECAR ERROR: {}", err)));
         }
         TestResult::BothError {
             ref rust_error,
@@ -681,6 +708,9 @@ pub async fn scan_runtime_endpoint(
             log_line!("    Rust: {}", rust_error);
             log_line!("    Sidecar: {}", sidecar_error);
             endpoint_coverage.add_runtime_run(false, Some(rust_error));
+            if rust_error != sidecar_error {
+                issues.push((0, format!("BOTH ERRORS (diff codes) - Rust: {}, Sidecar: {}", rust_error, sidecar_error)));
+            }
         }
     }
 
@@ -688,7 +718,7 @@ pub async fn scan_runtime_endpoint(
         println!("\nSummary saved to: {}", summary_filename);
     }
 
-    Ok(())
+    Ok(issues)
 }
 
 /// Scan account-based endpoints (iterates over accounts and blocks)
@@ -702,11 +732,12 @@ pub async fn scan_account_endpoint(
     end_block: u32,
     batch_size: u32,
     delay_between_batches: Duration,
+    query_params: &[QueryParam],
     coverage: &mut CoverageData,
     total_pallets: usize,
     create_logs: bool,
     create_report: bool,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<Vec<(u64, String)>, Box<dyn Error>> {
     // Get test accounts for the selected chain (use stash accounts for staking endpoints)
     let accounts = if endpoint_type.is_staking() {
         if !chain.has_staking_accounts() {
@@ -725,7 +756,7 @@ pub async fn scan_account_endpoint(
             io::stdin().lock().read_line(&mut input)?;
             if !input.trim().eq_ignore_ascii_case("y") {
                 println!("Aborted.");
-                return Ok(());
+                return Ok(Vec::new());
             }
         }
         chain.staking_test_accounts()
@@ -735,7 +766,7 @@ pub async fn scan_account_endpoint(
 
     if accounts.is_empty() {
         println!("No test accounts configured for chain '{}'", chain);
-        return Ok(());
+        return Ok(Vec::new());
     }
 
     println!("Test accounts to scan: {}", accounts.len());
@@ -803,9 +834,9 @@ pub async fn scan_account_endpoint(
             for block_num in blocks {
                 let client_clone = client.clone();
                 let rust_path =
-                    endpoint_type.path_with_account(None, Some(block_num), Some(account.address));
+                    endpoint_type.path_with_account_params(None, Some(block_num), Some(account.address), query_params);
                 let sidecar_path =
-                    endpoint_type.path_with_account(None, Some(block_num), Some(account.address));
+                    endpoint_type.path_with_account_params(None, Some(block_num), Some(account.address), query_params);
                 let rust_api_url = format!("{}{}", rust_url, rust_path);
                 let sidecar_api_url = format!("{}{}", sidecar_url, sidecar_path);
 
@@ -814,22 +845,25 @@ pub async fn scan_account_endpoint(
                     block_num, rust_api_url, sidecar_api_url
                 );
 
+                let rust_url_clone = rust_api_url.clone();
                 tasks.push(tokio::spawn(async move {
-                    test_block_compare(
+                    let (id, result) = test_block_compare(
                         client_clone,
                         rust_api_url,
                         sidecar_api_url,
                         block_num as u64,
                     )
-                    .await
+                    .await;
+                    (id, rust_url_clone, result)
                 }));
             }
 
             for task in tasks {
-                let (block_id, result) = task.await?;
+                let (block_id, url, result) = task.await?;
                 log_result_inline(&format!("Block {}", block_id), &result);
                 process_result(
                     block_id,
+                    &url,
                     result,
                     &mut matched,
                     &mut mismatched,
@@ -916,12 +950,19 @@ pub async fn scan_account_endpoint(
         );
     }
 
-    Ok(())
+    // Aggregate all issues from all accounts
+    let all_issues: Vec<(u64, String)> = account_results
+        .into_iter()
+        .flat_map(|ar| ar.issues.into_iter())
+        .collect();
+
+    Ok(all_issues)
 }
 
 /// Process a test result and update counters
 fn process_result(
     block_num: u64,
+    rust_api_url: &str,
     result: TestResult,
     matched: &mut u32,
     mismatched: &mut u32,
@@ -968,7 +1009,7 @@ fn process_result(
                         .join("\n    - ")
                 )
             };
-            let msg = format!("MISMATCH - {}", diff_summary);
+            let msg = format!("MISMATCH [{}] - {}", rust_api_url, diff_summary);
             if let Some(ref mut f) = error_file {
                 writeln!(f, "Block {}: MISMATCH", block_num)?;
                 writeln!(f, "  Differences ({}):", diffs.len())?;
@@ -992,7 +1033,7 @@ fn process_result(
         }
         TestResult::RustError(err) => {
             *rust_errors += 1;
-            let msg = format!("RUST API ERROR: {}", err);
+            let msg = format!("RUST API ERROR [{}]: {}", rust_api_url, err);
             if let Some(ref mut f) = error_file {
                 writeln!(f, "Block {}: {}", block_num, msg)?;
             }
@@ -1000,7 +1041,7 @@ fn process_result(
         }
         TestResult::SidecarError(err) => {
             *sidecar_errors += 1;
-            let msg = format!("SIDECAR ERROR: {}", err);
+            let msg = format!("SIDECAR ERROR [{}]: {}", rust_api_url, err);
             if let Some(ref mut f) = error_file {
                 writeln!(f, "Block {}: {}", block_num, msg)?;
             }
@@ -1016,8 +1057,8 @@ fn process_result(
             if rust_error != sidecar_error {
                 *both_errors += 1;
                 let msg = format!(
-                    "BOTH ERRORS (different codes) - Rust: {}, Sidecar: {}",
-                    rust_error, sidecar_error
+                    "BOTH ERRORS [{}] (different codes) - Rust: {}, Sidecar: {}",
+                    rust_api_url, rust_error, sidecar_error
                 );
                 if let Some(ref mut f) = error_file {
                     writeln!(f, "Block {}: {}", block_num, msg)?;
