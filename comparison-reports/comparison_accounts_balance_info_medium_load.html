@@ -57,7 +57,7 @@
 
 <h1>Benchmark Report: rest-api vs sidecar</h1>
 <div class="hero">
-  <div class="endpoint">blocks</div>
+  <div class="endpoint">accounts_balance_info</div>
   <div class="chain-scenario">
     Chain: <span class="chain">statemint</span> &nbsp;&bull;&nbsp;
     Load: <span class="scenario">medium_load</span>
@@ -65,50 +65,50 @@
   </div>
 </div>
 <p class="subtitle">
-  Runs: 5 vs 5 |
-  2026-03-19 13:18
+  Runs: 10 vs 10 |
+  2026-03-20 07:56
 </p>
 
 <div class="summary">
   <div class="stat">
     <div class="label">Runs - rest-api</div>
-    <div class="value neutral">5</div>
+    <div class="value neutral">10</div>
     <div class="detail">benchmark executions</div>
   </div>
   <div class="stat">
     <div class="label">Runs - sidecar</div>
-    <div class="value neutral">5</div>
+    <div class="value neutral">10</div>
     <div class="detail">benchmark executions</div>
   </div>
   <div class="stat">
     <div class="label">Median RPS - rest-api</div>
-    <div class="value neutral">338.6400</div>
-    <div class="detail">avg: 324.5120 | stdev: 29.7412</div>
+    <div class="value neutral">1127.1300</div>
+    <div class="detail">avg: 1034.8550 | stdev: 209.8043</div>
   </div>
   <div class="stat">
     <div class="label">Median RPS - sidecar</div>
-    <div class="value neutral">28.9900</div>
-    <div class="detail">avg: 27.1740 | stdev: 3.4807</div>
+    <div class="value neutral">90.9200</div>
+    <div class="detail">avg: 93.1600 | stdev: 4.9816</div>
   </div>
   <div class="stat">
     <div class="label">Median Latency - rest-api</div>
-    <div class="value neutral">142.4000ms</div>
-    <div class="detail">avg: 176.4240ms | stdev: 75.8919ms</div>
+    <div class="value neutral">45.2800ms</div>
+    <div class="detail">avg: 63.9910ms | stdev: 50.9735ms</div>
   </div>
   <div class="stat">
     <div class="label">Median Latency - sidecar</div>
-    <div class="value neutral">1657.0300ms</div>
-    <div class="detail">avg: 1776.9880ms | stdev: 256.9748ms</div>
+    <div class="value neutral">526.0250ms</div>
+    <div class="detail">avg: 515.5240ms | stdev: 23.4658ms</div>
   </div>
   <div class="stat">
     <div class="label">Peak RSS - rest-api</div>
-    <div class="value neutral">267.9900 MB</div>
-    <div class="detail">start: 34.7700 MB | delta: 206.8000 MB</div>
+    <div class="value neutral">273.5300 MB</div>
+    <div class="detail">start: 34.6000 MB | delta: 236.5500 MB</div>
   </div>
   <div class="stat">
     <div class="label">Peak RSS - sidecar</div>
-    <div class="value neutral">1830.6400 MB</div>
-    <div class="detail">start: 122.6300 MB | delta: 303.7400 MB</div>
+    <div class="value neutral">893.0700 MB</div>
+    <div class="detail">start: 120.3000 MB | delta: 96.6100 MB</div>
   </div>
 </div>
 
@@ -292,20 +292,20 @@ function winnerText(w, metricName, aVal, bVal, lowerIsBetter) {
 }
 
 // --- Median latency values ---
-const mA = { avg:142.4000, p50:136.7500, p75:164.9100, p90:196.8500, p95:226.7400, p99:307.7400, p999:449.9300 };
-const mB = { avg:1657.0300, p50:1561.9800, p75:2436.8900, p90:3172.6900, p95:3568.9800, p99:4256.8600, p999:4554.8500 };
-const mA_rps = 338.6400, mB_rps = 28.9900;
-const avgA_rps = 324.5120, avgB_rps = 27.1740;
-const sdA_rps = 29.7412, sdB_rps = 3.4807;
-const sdA_p99 = 1188.3004, sdB_p99 = 394.8965;
+const mA = { avg:45.2800, p50:39.1300, p75:44.9500, p90:51.2200, p95:58.5200, p99:100.8250, p999:253.3000 };
+const mB = { avg:526.0250, p50:520.9250, p75:535.2450, p90:555.3700, p95:572.5100, p99:623.9350, p999:870.5000 };
+const mA_rps = 1127.1300, mB_rps = 90.9200;
+const avgA_rps = 1034.8550, avgB_rps = 93.1600;
+const sdA_rps = 209.8043, sdB_rps = 4.9816;
+const sdA_p99 = 1135.3734, sdB_p99 = 187.5212;
 
 // Individual runs
-const runsA_rps = [271.96,338.64,330.25,343.06,338.65];
-const runsB_rps = [27.62,21.05,29.14,28.99,29.07];
-const runsA_avg = [312.12,142.40,146.19,139.84,141.57];
-const runsB_avg = [1720.53,2232.53,1630.62,1657.03,1644.23];
-const runsA_p99 = [2946.89,307.74,334.55,259.89,260.72];
-const runsB_p99 = [3836.09,4814.05,3924.04,4417.34,4256.86];
+const runsA_rps = [666.23,747.93,845.14,1005.78,1097.71,1164.67,1156.55,1196.36,1230.36,1237.82];
+const runsB_rps = [104.87,91.64,90.98,99.19,90.73,93.53,90.86,90.11,89.54,90.15];
+const runsA_avg = [206.80,64.57,57.07,48.11,58.60,41.51,42.45,41.60,39.86,39.34];
+const runsB_avg = [464.72,522.95,526.17,481.84,526.62,511.48,525.88,528.51,535.47,531.60];
+const runsA_p99 = [3696.67,128.22,96.78,86.30,798.74,64.19,104.87,148.73,88.40,63.50];
+const runsB_p99 = [1210.52,618.46,614.43,627.48,623.36,624.51,591.83,603.19,660.22,753.93];
 
 // --- 1. Latency Percentiles Bar Chart ---
 new Chart(document.getElementById('latencyChart'), {
@@ -462,9 +462,9 @@ new Chart(document.getElementById('rpsRunChart'), {
 })();
 
 // --- Request Duration ---
-const totalReqsA = 20331.0000, totalReqsB = 1742.0000;
-const durA = { min:66.6300, avg:142.4000, stdev:47.6300, max:557.7900 };
-const durB = { min:118.9100, avg:1657.0300, stdev:1022.9500, max:4572.4000 };
+const totalReqsA = 67673.5000, totalReqsB = 5458.5000;
+const durA = { min:36.2300, avg:45.2800, stdev:15.9700, max:300.9050 };
+const durB = { min:60.2650, avg:526.0250, stdev:38.6500, max:922.9550 };
 
 new Chart(document.getElementById('durationChart'), {
   type: 'bar',
@@ -528,8 +528,8 @@ new Chart(document.getElementById('maxDurationChart'), {
 })();
 
 // --- Response Size ---
-const transferA = 69388546.1400, transferB = 5805508.1100;
-const bytesA = 4165971113.0000, bytesB = 348834933.0000;
+const transferA = 766527.8250, transferB = 60465.5150;
+const bytesA = 46022772.0000, bytesB = 3630198.0000;
 const avgRespA = totalReqsA > 0 ? bytesA / totalReqsA : 0;
 const avgRespB = totalReqsB > 0 ? bytesB / totalReqsB : 0;
 
@@ -609,10 +609,10 @@ new Chart(document.getElementById('respSizeChart'), {
 })();
 
 // --- Error Rate per Run ---
-const runsA_errors = [0,0,0,0,0];
-const runsB_errors = [0,0,0,0,0];
-const runsA_totalReqs = [16338,20331,19827,20596,20332];
-const runsB_totalReqs = [1659,1265,1751,1742,1746];
+const runsA_errors = [0,0,0,0,0,0,0,0,0,0];
+const runsB_errors = [0,0,0,0,0,0,0,0,0,0];
+const runsA_totalReqs = [40019,44914,50740,60394,65915,69926,69432,71825,73874,74318];
+const runsB_totalReqs = [6294,5502,5462,5955,5447,5615,5455,5409,5375,5412];
 const runsA_errorPct = runsA_errors.map((e, i) => runsA_totalReqs[i] > 0 ? (e / runsA_totalReqs[i]) * 100 : 0);
 const runsB_errorPct = runsB_errors.map((e, i) => runsB_totalReqs[i] > 0 ? (e / runsB_totalReqs[i]) * 100 : 0);
 
@@ -662,8 +662,8 @@ new Chart(document.getElementById('errorChart'), {
 })();
 
 // --- 6. Memory RSS Bar Chart ---
-const memA = { start:34.7700, peak:267.9900, end:241.5700, delta:206.8000 };
-const memB = { start:122.6300, peak:1830.6400, end:426.3700, delta:303.7400 };
+const memA = { start:34.6000, peak:273.5300, end:271.1500, delta:236.5500 };
+const memB = { start:120.3000, peak:893.0700, end:216.9100, delta:96.6100 };
 
 new Chart(document.getElementById('memChart'), {
   type: 'bar',
@@ -691,8 +691,8 @@ new Chart(document.getElementById('memChart'), {
 })();
 
 // --- 7. CPU Bar Chart ---
-const cpuA = { avg:444.1000, peak:780.5000 };
-const cpuB = { avg:86.5000, peak:188.2000 };
+const cpuA = { avg:56.6000, peak:98.0000 };
+const cpuB = { avg:110.7000, peak:195.8000 };
 
 new Chart(document.getElementById('cpuChart'), {
   type: 'bar',
@@ -727,8 +727,8 @@ new Chart(document.getElementById('cpuChart'), {
 })();
 
 // --- 8. Peak RSS per run ---
-const runsA_peakRss = [267.99,267.99,267.99,267.99,267.99];
-const runsB_peakRss = [1830.64,1830.64,1830.64,1830.64,1830.64];
+const runsA_peakRss = [273.53,273.53,273.53,273.53,273.53,273.53,273.53,273.53,273.53,273.53];
+const runsB_peakRss = [893.07,893.07,893.07,893.07,893.07,893.07,893.07,893.07,893.07,893.07];
 
 new Chart(document.getElementById('peakRssRunChart'), {
   type: 'bar',
@@ -753,8 +753,8 @@ new Chart(document.getElementById('peakRssRunChart'), {
 })();
 
 // --- 9. Avg CPU per run ---
-const runsA_avgCpu = [444.1,444.1,444.1,444.1,444.1];
-const runsB_avgCpu = [86.5,86.5,86.5,86.5,86.5];
+const runsA_avgCpu = [56.6,56.6,56.6,56.6,56.6,56.6,56.6,56.6,56.6,56.6];
+const runsB_avgCpu = [110.7,110.7,110.7,110.7,110.7,110.7,110.7,110.7,110.7,110.7];
 
 new Chart(document.getElementById('avgCpuRunChart'), {
   type: 'bar',
@@ -1070,8 +1070,58 @@ new Chart(document.getElementById('latMemChart'), {
 </div>
 
 
+<div class="section-title">Raw Data — All Runs</div>
+<div class="card full" style="overflow-x: auto;">
+  <h2>Per-Run Results</h2>
+  <p class="insight">Every individual benchmark run with all metrics. Scroll right for resource data.</p>
+  <table style="width: 100%; border-collapse: collapse; font-size: 0.8em; margin-top: 12px;">
+    <thead>
+      <tr style="border-bottom: 2px solid #30363d; text-align: right;">
+        <th style="text-align: left; padding: 8px 6px;">Service</th>
+        <th style="padding: 8px 6px;">Run</th>
+        <th style="padding: 8px 6px;">RPS</th>
+        <th style="padding: 8px 6px;">Avg (ms)</th>
+        <th style="padding: 8px 6px;">P50 (ms)</th>
+        <th style="padding: 8px 6px;">P75 (ms)</th>
+        <th style="padding: 8px 6px;">P90 (ms)</th>
+        <th style="padding: 8px 6px;">P95 (ms)</th>
+        <th style="padding: 8px 6px;">P99 (ms)</th>
+        <th style="padding: 8px 6px;">P999 (ms)</th>
+        <th style="padding: 8px 6px;">Requests</th>
+        <th style="padding: 8px 6px;">Errors</th>
+        <th style="padding: 8px 6px;">Peak RSS</th>
+        <th style="padding: 8px 6px;">Avg CPU</th>
+        <th style="padding: 8px 6px;">Peak CPU</th>
+      </tr>
+    </thead>
+    <tbody>
+<tr style="border-bottom: 1px solid #21262d; text-align: right;"><td style="text-align: left; padding: 6px; color: #3fb950; font-weight: 600;">rest-api</td><td style="padding: 6px;">1</td><td style="padding: 6px;">666.2</td><td style="padding: 6px;">206.8</td><td style="padding: 6px;">67.2</td><td style="padding: 6px;">79.6</td><td style="padding: 6px;">103.3</td><td style="padding: 6px;">1013.7</td><td style="padding: 6px;">3696.7</td><td style="padding: 6px;">4440</td><td style="padding: 6px;">40019</td><td style="padding: 6px;">0</td><td style="padding: 6px;">273.5 MB</td><td style="padding: 6px;">56.6%</td><td style="padding: 6px;">98%</td></tr>
+<tr style="border-bottom: 1px solid #21262d; text-align: right;"><td style="text-align: left; padding: 6px; color: #3fb950; font-weight: 600;">rest-api</td><td style="padding: 6px;">2</td><td style="padding: 6px;">747.9</td><td style="padding: 6px;">64.6</td><td style="padding: 6px;">59.8</td><td style="padding: 6px;">70.6</td><td style="padding: 6px;">82.1</td><td style="padding: 6px;">93</td><td style="padding: 6px;">128.2</td><td style="padding: 6px;">256.6</td><td style="padding: 6px;">44914</td><td style="padding: 6px;">0</td><td style="padding: 6px;">273.5 MB</td><td style="padding: 6px;">56.6%</td><td style="padding: 6px;">98%</td></tr>
+<tr style="border-bottom: 1px solid #21262d; text-align: right;"><td style="text-align: left; padding: 6px; color: #3fb950; font-weight: 600;">rest-api</td><td style="padding: 6px;">3</td><td style="padding: 6px;">845.1</td><td style="padding: 6px;">57.1</td><td style="padding: 6px;">56.5</td><td style="padding: 6px;">64.4</td><td style="padding: 6px;">71.9</td><td style="padding: 6px;">80.6</td><td style="padding: 6px;">96.8</td><td style="padding: 6px;">246.3</td><td style="padding: 6px;">50740</td><td style="padding: 6px;">0</td><td style="padding: 6px;">273.5 MB</td><td style="padding: 6px;">56.6%</td><td style="padding: 6px;">98%</td></tr>
+<tr style="border-bottom: 1px solid #21262d; text-align: right;"><td style="text-align: left; padding: 6px; color: #3fb950; font-weight: 600;">rest-api</td><td style="padding: 6px;">4</td><td style="padding: 6px;">1005.8</td><td style="padding: 6px;">48.1</td><td style="padding: 6px;">45.9</td><td style="padding: 6px;">51.2</td><td style="padding: 6px;">60.4</td><td style="padding: 6px;">68.3</td><td style="padding: 6px;">86.3</td><td style="padding: 6px;">245.3</td><td style="padding: 6px;">60394</td><td style="padding: 6px;">0</td><td style="padding: 6px;">273.5 MB</td><td style="padding: 6px;">56.6%</td><td style="padding: 6px;">98%</td></tr>
+<tr style="border-bottom: 1px solid #21262d; text-align: right;"><td style="text-align: left; padding: 6px; color: #3fb950; font-weight: 600;">rest-api</td><td style="padding: 6px;">5</td><td style="padding: 6px;">1097.7</td><td style="padding: 6px;">58.6</td><td style="padding: 6px;">39.7</td><td style="padding: 6px;">46.2</td><td style="padding: 6px;">54.4</td><td style="padding: 6px;">60.4</td><td style="padding: 6px;">798.7</td><td style="padding: 6px;">1385.1</td><td style="padding: 6px;">65915</td><td style="padding: 6px;">0</td><td style="padding: 6px;">273.5 MB</td><td style="padding: 6px;">56.6%</td><td style="padding: 6px;">98%</td></tr>
+<tr style="border-bottom: 1px solid #21262d; text-align: right;"><td style="text-align: left; padding: 6px; color: #3fb950; font-weight: 600;">rest-api</td><td style="padding: 6px;">6</td><td style="padding: 6px;">1164.7</td><td style="padding: 6px;">41.5</td><td style="padding: 6px;">38.6</td><td style="padding: 6px;">43.7</td><td style="padding: 6px;">47.4</td><td style="padding: 6px;">53</td><td style="padding: 6px;">64.2</td><td style="padding: 6px;">213.3</td><td style="padding: 6px;">69926</td><td style="padding: 6px;">0</td><td style="padding: 6px;">273.5 MB</td><td style="padding: 6px;">56.6%</td><td style="padding: 6px;">98%</td></tr>
+<tr style="border-bottom: 1px solid #21262d; text-align: right;"><td style="text-align: left; padding: 6px; color: #3fb950; font-weight: 600;">rest-api</td><td style="padding: 6px;">7</td><td style="padding: 6px;">1156.6</td><td style="padding: 6px;">42.5</td><td style="padding: 6px;">38.2</td><td style="padding: 6px;">42.2</td><td style="padding: 6px;">48</td><td style="padding: 6px;">56.6</td><td style="padding: 6px;">104.9</td><td style="padding: 6px;">268.3</td><td style="padding: 6px;">69432</td><td style="padding: 6px;">0</td><td style="padding: 6px;">273.5 MB</td><td style="padding: 6px;">56.6%</td><td style="padding: 6px;">98%</td></tr>
+<tr style="border-bottom: 1px solid #21262d; text-align: right;"><td style="text-align: left; padding: 6px; color: #3fb950; font-weight: 600;">rest-api</td><td style="padding: 6px;">8</td><td style="padding: 6px;">1196.4</td><td style="padding: 6px;">41.6</td><td style="padding: 6px;">37.7</td><td style="padding: 6px;">39.4</td><td style="padding: 6px;">46</td><td style="padding: 6px;">51.3</td><td style="padding: 6px;">148.7</td><td style="padding: 6px;">278.3</td><td style="padding: 6px;">71825</td><td style="padding: 6px;">0</td><td style="padding: 6px;">273.5 MB</td><td style="padding: 6px;">56.6%</td><td style="padding: 6px;">98%</td></tr>
+<tr style="border-bottom: 1px solid #21262d; text-align: right;"><td style="text-align: left; padding: 6px; color: #3fb950; font-weight: 600;">rest-api</td><td style="padding: 6px;">9</td><td style="padding: 6px;">1230.4</td><td style="padding: 6px;">39.9</td><td style="padding: 6px;">37.3</td><td style="padding: 6px;">38.2</td><td style="padding: 6px;">41.7</td><td style="padding: 6px;">46.7</td><td style="padding: 6px;">88.4</td><td style="padding: 6px;">250</td><td style="padding: 6px;">73874</td><td style="padding: 6px;">0</td><td style="padding: 6px;">273.5 MB</td><td style="padding: 6px;">56.6%</td><td style="padding: 6px;">98%</td></tr>
+<tr style="border-bottom: 1px solid #21262d; text-align: right;"><td style="text-align: left; padding: 6px; color: #3fb950; font-weight: 600;">rest-api</td><td style="padding: 6px;">10</td><td style="padding: 6px;">1237.8</td><td style="padding: 6px;">39.3</td><td style="padding: 6px;">37.4</td><td style="padding: 6px;">38.3</td><td style="padding: 6px;">41.4</td><td style="padding: 6px;">46</td><td style="padding: 6px;">63.5</td><td style="padding: 6px;">234.9</td><td style="padding: 6px;">74318</td><td style="padding: 6px;">0</td><td style="padding: 6px;">273.5 MB</td><td style="padding: 6px;">56.6%</td><td style="padding: 6px;">98%</td></tr>
+<tr style="border-bottom: 2px solid #30363d;"><td colspan="15"></td></tr>
+<tr style="border-bottom: 1px solid #21262d; text-align: right;"><td style="text-align: left; padding: 6px; color: #58a6ff; font-weight: 600;">sidecar</td><td style="padding: 6px;">1</td><td style="padding: 6px;">104.9</td><td style="padding: 6px;">464.7</td><td style="padding: 6px;">444.6</td><td style="padding: 6px;">455.3</td><td style="padding: 6px;">483.5</td><td style="padding: 6px;">502.8</td><td style="padding: 6px;">1210.5</td><td style="padding: 6px;">1848.4</td><td style="padding: 6px;">6294</td><td style="padding: 6px;">0</td><td style="padding: 6px;">893.1 MB</td><td style="padding: 6px;">110.7%</td><td style="padding: 6px;">195.8%</td></tr>
+<tr style="border-bottom: 1px solid #21262d; text-align: right;"><td style="text-align: left; padding: 6px; color: #58a6ff; font-weight: 600;">sidecar</td><td style="padding: 6px;">2</td><td style="padding: 6px;">91.6</td><td style="padding: 6px;">523</td><td style="padding: 6px;">518.8</td><td style="padding: 6px;">530.8</td><td style="padding: 6px;">554.6</td><td style="padding: 6px;">570.2</td><td style="padding: 6px;">618.5</td><td style="padding: 6px;">794.7</td><td style="padding: 6px;">5502</td><td style="padding: 6px;">0</td><td style="padding: 6px;">893.1 MB</td><td style="padding: 6px;">110.7%</td><td style="padding: 6px;">195.8%</td></tr>
+<tr style="border-bottom: 1px solid #21262d; text-align: right;"><td style="text-align: left; padding: 6px; color: #58a6ff; font-weight: 600;">sidecar</td><td style="padding: 6px;">3</td><td style="padding: 6px;">91</td><td style="padding: 6px;">526.2</td><td style="padding: 6px;">520.6</td><td style="padding: 6px;">536.4</td><td style="padding: 6px;">565.3</td><td style="padding: 6px;">580.6</td><td style="padding: 6px;">614.4</td><td style="padding: 6px;">796.1</td><td style="padding: 6px;">5462</td><td style="padding: 6px;">0</td><td style="padding: 6px;">893.1 MB</td><td style="padding: 6px;">110.7%</td><td style="padding: 6px;">195.8%</td></tr>
+<tr style="border-bottom: 1px solid #21262d; text-align: right;"><td style="text-align: left; padding: 6px; color: #58a6ff; font-weight: 600;">sidecar</td><td style="padding: 6px;">4</td><td style="padding: 6px;">99.2</td><td style="padding: 6px;">481.8</td><td style="padding: 6px;">478.3</td><td style="padding: 6px;">495.9</td><td style="padding: 6px;">523</td><td style="padding: 6px;">544.5</td><td style="padding: 6px;">627.5</td><td style="padding: 6px;">687.1</td><td style="padding: 6px;">5955</td><td style="padding: 6px;">0</td><td style="padding: 6px;">893.1 MB</td><td style="padding: 6px;">110.7%</td><td style="padding: 6px;">195.8%</td></tr>
+<tr style="border-bottom: 1px solid #21262d; text-align: right;"><td style="text-align: left; padding: 6px; color: #58a6ff; font-weight: 600;">sidecar</td><td style="padding: 6px;">5</td><td style="padding: 6px;">90.7</td><td style="padding: 6px;">526.6</td><td style="padding: 6px;">521.3</td><td style="padding: 6px;">535.8</td><td style="padding: 6px;">554.1</td><td style="padding: 6px;">571.4</td><td style="padding: 6px;">623.4</td><td style="padding: 6px;">809.2</td><td style="padding: 6px;">5447</td><td style="padding: 6px;">0</td><td style="padding: 6px;">893.1 MB</td><td style="padding: 6px;">110.7%</td><td style="padding: 6px;">195.8%</td></tr>
+<tr style="border-bottom: 1px solid #21262d; text-align: right;"><td style="text-align: left; padding: 6px; color: #58a6ff; font-weight: 600;">sidecar</td><td style="padding: 6px;">6</td><td style="padding: 6px;">93.5</td><td style="padding: 6px;">511.5</td><td style="padding: 6px;">513</td><td style="padding: 6px;">529</td><td style="padding: 6px;">540.2</td><td style="padding: 6px;">565.2</td><td style="padding: 6px;">624.5</td><td style="padding: 6px;">896.7</td><td style="padding: 6px;">5615</td><td style="padding: 6px;">0</td><td style="padding: 6px;">893.1 MB</td><td style="padding: 6px;">110.7%</td><td style="padding: 6px;">195.8%</td></tr>
+<tr style="border-bottom: 1px solid #21262d; text-align: right;"><td style="text-align: left; padding: 6px; color: #58a6ff; font-weight: 600;">sidecar</td><td style="padding: 6px;">7</td><td style="padding: 6px;">90.9</td><td style="padding: 6px;">525.9</td><td style="padding: 6px;">521.7</td><td style="padding: 6px;">535.8</td><td style="padding: 6px;">558.8</td><td style="padding: 6px;">576.8</td><td style="padding: 6px;">591.8</td><td style="padding: 6px;">844.3</td><td style="padding: 6px;">5455</td><td style="padding: 6px;">0</td><td style="padding: 6px;">893.1 MB</td><td style="padding: 6px;">110.7%</td><td style="padding: 6px;">195.8%</td></tr>
+<tr style="border-bottom: 1px solid #21262d; text-align: right;"><td style="text-align: left; padding: 6px; color: #58a6ff; font-weight: 600;">sidecar</td><td style="padding: 6px;">8</td><td style="padding: 6px;">90.1</td><td style="padding: 6px;">528.5</td><td style="padding: 6px;">526.1</td><td style="padding: 6px;">537.9</td><td style="padding: 6px;">556.1</td><td style="padding: 6px;">586.6</td><td style="padding: 6px;">603.2</td><td style="padding: 6px;">899.2</td><td style="padding: 6px;">5409</td><td style="padding: 6px;">0</td><td style="padding: 6px;">893.1 MB</td><td style="padding: 6px;">110.7%</td><td style="padding: 6px;">195.8%</td></tr>
+<tr style="border-bottom: 1px solid #21262d; text-align: right;"><td style="text-align: left; padding: 6px; color: #58a6ff; font-weight: 600;">sidecar</td><td style="padding: 6px;">9</td><td style="padding: 6px;">89.5</td><td style="padding: 6px;">535.5</td><td style="padding: 6px;">523</td><td style="padding: 6px;">534.7</td><td style="padding: 6px;">563.2</td><td style="padding: 6px;">583.7</td><td style="padding: 6px;">660.2</td><td style="padding: 6px;">2027.8</td><td style="padding: 6px;">5375</td><td style="padding: 6px;">0</td><td style="padding: 6px;">893.1 MB</td><td style="padding: 6px;">110.7%</td><td style="padding: 6px;">195.8%</td></tr>
+<tr style="border-bottom: 1px solid #21262d; text-align: right;"><td style="text-align: left; padding: 6px; color: #58a6ff; font-weight: 600;">sidecar</td><td style="padding: 6px;">10</td><td style="padding: 6px;">90.2</td><td style="padding: 6px;">531.6</td><td style="padding: 6px;">523.3</td><td style="padding: 6px;">536.7</td><td style="padding: 6px;">560.4</td><td style="padding: 6px;">573.6</td><td style="padding: 6px;">753.9</td><td style="padding: 6px;">1840.3</td><td style="padding: 6px;">5412</td><td style="padding: 6px;">0</td><td style="padding: 6px;">893.1 MB</td><td style="padding: 6px;">110.7%</td><td style="padding: 6px;">195.8%</td></tr>
+    </tbody>
+  </table>
+</div>
+
 <p class="meta">
-  Generated by compare_runs.sh | rest-api (5 runs) vs sidecar (5 runs) | 2026-03-19 13:18:46
+  Generated by compare_runs.sh | rest-api (10 runs) vs sidecar (10 runs) | 2026-03-20 07:56:36
 </p>
 
 </body>
