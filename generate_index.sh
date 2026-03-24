@@ -53,38 +53,46 @@ cat > "$INDEX" <<'HEADER'
   h1 { text-align: center; color: #e6edf3; margin-bottom: 8px; font-size: 1.6em; }
   .subtitle { text-align: center; color: #8b949e; margin-bottom: 32px; font-size: 0.9em; }
   .reports { list-style: none; }
-  .reports li {
+  .endpoint-group {
     background: #161b22; border: 1px solid #30363d; border-radius: 8px;
-    margin-bottom: 12px; transition: border-color 0.2s;
+    margin-bottom: 16px; overflow: hidden;
   }
-  .reports li:hover { border-color: #58a6ff; }
-  .reports li a {
-    display: flex; align-items: center; padding: 16px 20px;
-    color: #c9d1d9; text-decoration: none; gap: 16px;
+  .endpoint-header {
+    display: flex; align-items: center; padding: 14px 20px; gap: 12px;
+    border-bottom: 1px solid #30363d;
   }
-  .reports li a:hover { color: #e6edf3; }
-  .icon { font-size: 1.4em; }
-  .info { flex: 1; }
-  .info .name { font-size: 1.05em; font-weight: 600; color: #58a6ff; }
-  .info .detail { font-size: 0.8em; color: #8b949e; margin-top: 4px; }
-  .info .detail .endpoint { color: #3fb950; font-weight: 600; }
-  .info .detail .scenario { color: #d29922; font-weight: 600; }
-  .arrow { color: #484f58; font-size: 1.2em; }
+  .endpoint-header .icon { font-size: 1.4em; }
+  .endpoint-header .name { font-size: 1.05em; font-weight: 600; color: #d0d4da; }
+  .endpoint-header .path { font-size: 0.8em; color: #3fb950; font-weight: 600; margin-left: 8px; }
+  .scenarios { list-style: none; }
+  .scenarios li { border-top: 1px solid #21262d; }
+  .scenarios li:first-child { border-top: none; }
+  .scenarios li a {
+    display: flex; align-items: center; padding: 10px 20px 10px 48px;
+    color: #c9d1d9; text-decoration: none; gap: 12px; transition: background 0.15s;
+  }
+  .scenarios li a:hover { background: #1c2129; color: #e6edf3; }
+  .scenario-tag { font-weight: 600; font-size: 0.9em; }
+  .scenario-tag.light_load { color: #7dac7d; }
+  .scenario-tag.medium_load { color: #7a9ec2; }
+  .scenario-tag.heavy_load { color: #c4993e; }
+  .scenario-tag.stress_test { color: #c27171; }
+  .arrow { color: #484f58; font-size: 1.1em; margin-left: auto; }
   .meta { text-align: center; color: #484f58; font-size: 0.75em; margin-top: 32px; }
 </style>
 </head>
 <body>
 <h1>Benchmark Reports</h1>
 <p class="subtitle">polkadot-rest-api vs substrate-api-sidecar</p>
-<ul class="reports">
+<div class="reports">
 HEADER
 
+# First pass: parse all reports into "endpoint|scenario|filename" lines
+PARSED=()
 for report in "${REPORTS[@]}"; do
-    # Parse endpoint and scenario from filename: comparison_<endpoint>_<scenario>.html
     base="${report%.html}"
     base="${base#comparison_}"
 
-    # Extract scenario (last known scenario name)
     scenario=""
     endpoint="$base"
     for s in light_load medium_load heavy_load stress_test; do
@@ -95,37 +103,65 @@ for report in "${REPORTS[@]}"; do
         fi
     done
 
-    # Format for display
+    PARSED+=("${endpoint}|${scenario}|${report}")
+done
+
+# Get unique endpoints in order
+ENDPOINTS=()
+for entry in "${PARSED[@]}"; do
+    ep="${entry%%|*}"
+    # Check if already in ENDPOINTS
+    found=0
+    for existing in ${ENDPOINTS[@]+"${ENDPOINTS[@]}"}; do
+        [ "$existing" = "$ep" ] && found=1 && break
+    done
+    [ "$found" -eq 0 ] && ENDPOINTS+=("$ep")
+done
+
+# Second pass: render grouped by endpoint
+for endpoint in "${ENDPOINTS[@]}"; do
     endpoint_display="${endpoint//_/ }"
-    scenario_display="${scenario//_/ }"
 
     cat >> "$INDEX" <<EOF
-  <li>
-    <a href="$report">
+  <div class="endpoint-group">
+    <div class="endpoint-header">
       <span class="icon">📊</span>
-      <div class="info">
-        <div class="name">$endpoint_display</div>
-        <div class="detail">
-          Endpoint: <span class="endpoint">$endpoint</span>
+      <span class="name">$endpoint</span>
+    </div>
+    <ul class="scenarios">
 EOF
 
-    if [ -n "$scenario" ]; then
-        cat >> "$INDEX" <<EOF
-          &nbsp;&bull;&nbsp; Scenario: <span class="scenario">$scenario_display</span>
+    # Render scenarios in severity order: light → medium → heavy → stress → unknown
+    for ordered_scenario in light_load medium_load heavy_load stress_test ""; do
+        for entry in "${PARSED[@]}"; do
+            ep="${entry%%|*}"
+            [ "$ep" != "$endpoint" ] && continue
+            rest="${entry#*|}"
+            scenario="${rest%%|*}"
+            filename="${rest#*|}"
+            [ "$scenario" != "$ordered_scenario" ] && continue
+            scenario_display="${scenario//_/ }"
+
+            if [ -n "$scenario" ]; then
+                cat >> "$INDEX" <<EOF
+      <li><a href="$filename"><span class="scenario-tag $scenario">$scenario_display</span><span class="arrow">→</span></a></li>
 EOF
-    fi
+            else
+                cat >> "$INDEX" <<EOF
+      <li><a href="$filename"><span class="scenario-tag">view report</span><span class="arrow">→</span></a></li>
+EOF
+            fi
+        done
+    done
 
     cat >> "$INDEX" <<EOF
-        </div>
-      </div>
-      <span class="arrow">→</span>
-    </a>
-  </li>
+    </ul>
+  </div>
 EOF
 done
 
 cat >> "$INDEX" <<'FOOTER'
-</ul>
+</div>
 <p class="meta">
   Generated by generate_index.sh |
 FOOTER

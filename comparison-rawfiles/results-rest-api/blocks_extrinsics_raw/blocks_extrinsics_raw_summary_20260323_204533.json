@@ -1,0 +1,12 @@
+{
+  "runs": 10,
+  "avg_rps": 388.901,
+  "min_rps": 352.01,
+  "max_rps": 410.01,
+  "avg_p99_ms": 896.4110000000001,
+  "min_p99_ms": 737.83,
+  "max_p99_ms": 1427.58,
+  "avg_avg_latency_ms": 496.35299999999995,
+  "total_requests": 1167081,
+  "total_errors": null
+}
